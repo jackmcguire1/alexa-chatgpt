@@ -56,7 +56,7 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 		var chatGptRes string
 		chatGptRes, err = h.ChatGptService.AutoComplete(ctx, prompt)
 		if err != nil {
-			return
+			break
 		}
 
 		res = alexa.NewResponse("Autocomplete", fmt.Sprintf("%s %s", prompt, chatGptRes), false)
@@ -118,7 +118,7 @@ func (h *Handler) Invoke(ctx context.Context, req alexa.Request) (resp alexa.Res
 	if err != nil {
 		resp = alexa.NewResponse("error",
 			"an error occured when processing your prompt",
-			false,
+			true,
 		)
 	}
 

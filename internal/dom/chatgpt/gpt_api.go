@@ -12,7 +12,7 @@ type ChatGPTApiClient struct {
 }
 
 func NewChatGptClient(token string) *ChatGPTApiClient {
-	openAIClient := openai.NewClient("your token")
+	openAIClient := openai.NewClient(token)
 	return &ChatGPTApiClient{
 		Token:        token,
 		OpenAIClient: openAIClient,
