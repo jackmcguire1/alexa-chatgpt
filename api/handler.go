@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"math/rand"
 	"time"
@@ -51,11 +52,17 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 			"Simply ask me a question",
 			false,
 		)
-	case alexa.CancelIntent, alexa.NoIntent, alexa.StopIntent:
+	case alexa.NoIntent, alexa.StopIntent:
 		res = alexa.NewResponse(
 			"Bye",
 			"Good bye",
 			true,
+		)
+	case alexa.CancelIntent:
+		res = alexa.NewResponse(
+			"Next Question",
+			"okay, i'm listening",
+			false,
 		)
 	default:
 		res = alexa.NewResponse(
@@ -73,6 +80,7 @@ func (h *Handler) Invoke(ctx context.Context, req alexa.Request) (resp alexa.Res
 
 	switch req.Body.Type {
 	case alexa.LaunchRequestType:
+		log.Println("launch request type")
 		resp = alexa.NewResponse("chatGPT",
 			"Hi, lets begin our convesation!",
 			false,
@@ -81,6 +89,14 @@ func (h *Handler) Invoke(ctx context.Context, req alexa.Request) (resp alexa.Res
 		resp, err = h.DispatchIntents(ctx, req)
 	default:
 	}
+
+	if err != nil {
+		resp = alexa.NewResponse("error",
+			fmt.Sprintf("there was an error, %s", err.Error()),
+			false,
+		)
+	}
+
 	log.Println(utils.ToJSON(resp))
 	return
 }
