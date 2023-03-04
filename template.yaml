@@ -1,0 +1,30 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+Description: Alexa Skill How-Old-Is
+
+Globals:
+  Function:
+    Runtime: go1.x
+    Timeout: 300
+    Handler: main
+
+
+Parameters:
+  ApiKey:
+    Type: String
+    Description: OpenAI API Key
+    Default:
+
+Resources:
+
+  ChatGPTFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: chatGPT
+      CodeUri: ./cmd
+      Events:
+        AlexaSkillEvent:
+          Type: AlexaSkill
+      Environment:
+        Variables:
+          OPENAI_API_KEY: !Ref ApiKey
