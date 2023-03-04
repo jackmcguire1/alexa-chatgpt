@@ -93,3 +93,75 @@ func TestAutoCompleteIntent(t *testing.T) {
 	assert.NoError(t, err)
 	assert.EqualValues(t, "the boy fell down the chimney", resp.Body.OutputSpeech.Text)
 }
+
+func TestStopIntent(t *testing.T) {
+	mockChatGptService := &chatgpt.MockClient{}
+	h := &Handler{
+		mockChatGptService,
+	}
+
+	req := alexa.Request{
+		Version: "",
+		Session: alexa.Session{},
+		Body: alexa.ReqBody{
+			Intent: alexa.Intent{
+				Name: alexa.StopIntent,
+			},
+			Type: alexa.IntentRequestType,
+		},
+		Context: alexa.Context{},
+	}
+
+	resp, err := h.Invoke(context.Background(), req)
+	assert.NoError(t, err)
+	assert.EqualValues(t, resp.Body.OutputSpeech.Text, "Good bye")
+	assert.True(t, resp.Body.ShouldEndSession)
+}
+
+func TestCancelIntent(t *testing.T) {
+	mockChatGptService := &chatgpt.MockClient{}
+	h := &Handler{
+		mockChatGptService,
+	}
+
+	req := alexa.Request{
+		Version: "",
+		Session: alexa.Session{},
+		Body: alexa.ReqBody{
+			Intent: alexa.Intent{
+				Name: alexa.CancelIntent,
+			},
+			Type: alexa.IntentRequestType,
+		},
+		Context: alexa.Context{},
+	}
+
+	resp, err := h.Invoke(context.Background(), req)
+	assert.NoError(t, err)
+	assert.EqualValues(t, resp.Body.OutputSpeech.Text, "okay, i'm listening")
+	assert.False(t, resp.Body.ShouldEndSession)
+}
+
+func TestHelpIntent(t *testing.T) {
+	mockChatGptService := &chatgpt.MockClient{}
+	h := &Handler{
+		mockChatGptService,
+	}
+
+	req := alexa.Request{
+		Version: "",
+		Session: alexa.Session{},
+		Body: alexa.ReqBody{
+			Intent: alexa.Intent{
+				Name: alexa.HelpIntent,
+			},
+			Type: alexa.IntentRequestType,
+		},
+		Context: alexa.Context{},
+	}
+
+	resp, err := h.Invoke(context.Background(), req)
+	assert.NoError(t, err)
+	assert.EqualValues(t, resp.Body.OutputSpeech.Text, "Simply repeat, complete the sentence followed by a desired sentence")
+	assert.False(t, resp.Body.ShouldEndSession)
+}

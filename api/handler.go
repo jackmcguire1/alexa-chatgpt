@@ -28,6 +28,8 @@ func (h *Handler) randomResponse(ctx context.Context) (string, error) {
 		"Robbie got a new rank in tekken called",
 		"Perry wrote new lyrics about his",
 		"Jack created a new application that solved",
+		"George looted a new armor item called",
+		"Nitish loved to play the computer game",
 	}
 
 	rand.Seed(time.Now().Unix())
@@ -61,7 +63,13 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 	case alexa.HelpIntent:
 		res = alexa.NewResponse(
 			"Help",
-			"Simply ask me a question",
+			"Simply repeat, complete the sentence followed by a desired sentence",
+			false,
+		)
+	case alexa.CancelIntent:
+		res = alexa.NewResponse(
+			"Next Question",
+			"okay, i'm listening",
 			false,
 		)
 	case alexa.NoIntent, alexa.StopIntent:
@@ -69,12 +77,6 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 			"Bye",
 			"Good bye",
 			true,
-		)
-	case alexa.CancelIntent:
-		res = alexa.NewResponse(
-			"Next Question",
-			"okay, i'm listening",
-			false,
 		)
 	case alexa.FallbackIntent:
 

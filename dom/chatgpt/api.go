@@ -11,11 +11,11 @@ type API interface {
 	AutoComplete(context.Context, string) (gogpt.CompletionResponse, error)
 }
 
-type MockAPI struct {
+type mockAPI struct {
 	mock.Mock
 }
 
-func (api *MockAPI) AutoComplete(ctx context.Context, prompt string) (res gogpt.CompletionResponse, err error) {
+func (api *mockAPI) AutoComplete(ctx context.Context, prompt string) (res gogpt.CompletionResponse, err error) {
 	args := api.Called(ctx, prompt)
 	res = args.Get(0).(gogpt.CompletionResponse)
 	return res, args.Error(1)
