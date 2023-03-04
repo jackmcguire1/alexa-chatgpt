@@ -16,38 +16,36 @@
 
 1. Create a new Alexa skill with a name of your choice
 
-2. Set Alexa skill invocation method as 'open jack'
+2. Set Alexa skill invocation with a sentence of your choice
 
 3. Set built-in invent invocations to their relevant phrases i.e. 'help', 'stop', 'cancel', etc.
 
-4. Set a random phrase for the built-in fallback intent, i.e. 'bumbaclart'
+4. Set the fallback intent phrase to be 'random'
 
-5. Create new Intent named 'ChatGPTIntent'
+5. Create new Intent named 'AutoCompleteIntent'
 
 6. Create new intent slot named 'name', with <b>SLOT TYPE</b> 'prompt'
 
-7. Add invocation phrase for the 'ChatGPTIntent' intent with phrase 'chatgpt prompt'
+7. Add invocation phrase for the 'AutoCompleteTIntent' with value 'complete the sentence {prompt}'
 
-8. Configure slot values for the 'AMAZON.FirstName' <b>SLOT TYPE</b> i.e. 'Bob'
+8. deploy chatgpt lambda and take note of the ARN of the lambda
 
-10. deploy chatgpt lambda and take note of the ARN of the lambda
-
-11. Configure Alexa skill endpoint lambda ARN:<br>
+9. Configure Alexa skill endpoint lambda ARN:<br>
     Once the <b>'chatGPT'</b> lambda has been deployed, <br>
     retrieve the generated lambda ARN using the AWS console or<br>
     one of the describe stack methods found above.<br>
     input the lambda <b>ARN</b> as the default endpoint of your Alexa skill,<br>
     within your Alexa development console!
 
-12. Begin testing your Alexa skill by querying for 'chatgpt prompt'
+10. Begin testing your Alexa skill by querying for 'chatgpt prompt'
 
-13. Query Alexa 'my question is {question}'
+11. Query Alexa 'my question is {question}'
 
-14. Query Alexa 'bumbaclart' or your fallback invocation phrase!
+12. Query Alexa 'bumbaclart' or your fallback invocation phrase!
 
-15. Tell Alexa to 'stop'
+13. Tell Alexa to 'stop'
 
-16. <b>Testing complete!</b>
+14. <b>Testing complete!</b>
 
 ## Development
 

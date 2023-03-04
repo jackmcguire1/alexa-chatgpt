@@ -26,7 +26,7 @@ func (h *Handler) randomResponse(ctx context.Context) (string, error) {
 		"Carter found a",
 		"Chanel obtained a new rank in valorant called",
 		"Robbie got a new rank in tekken called",
-		"Perry wrote a new lyrics about his",
+		"Perry wrote new lyrics about his",
 		"Jack created a new application that solved",
 	}
 
