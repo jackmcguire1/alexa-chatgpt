@@ -16,7 +16,7 @@
 
 1. Create a new Alexa skill with a name of your choice
 
-2. Set Alexa skill invocation method as 'chatGPT prompt'
+2. Set Alexa skill invocation method as 'open jack'
 
 3. Set built-in invent invocations to their relevant phrases i.e. 'help', 'stop', 'cancel', etc.
 
@@ -24,18 +24,16 @@
 
 5. Create new Intent named 'ChatGPTIntent'
 
-6. Create new intent slot named 'name', with <b>SLOT TYPE</b> 'AMAZON.FirstName'
+6. Create new intent slot named 'name', with <b>SLOT TYPE</b> 'prompt'
 
 7. Add invocation phrase for the 'ChatGPTIntent' intent with phrase 'chatgpt prompt'
 
 8. Configure slot values for the 'AMAZON.FirstName' <b>SLOT TYPE</b> i.e. 'Bob'
 
-9. Edit the 'internal/dom/age.go' file to feature your name and DoB in RFC3339 format
-
-10. Package and deploy how-old-is lambda
+10. deploy chatgpt lambda and take note of the ARN of the lambda
 
 11. Configure Alexa skill endpoint lambda ARN:<br>
-    Once the <b>'how-old-is'</b> lambda has been deployed, <br>
+    Once the <b>'chatGPT'</b> lambda has been deployed, <br>
     retrieve the generated lambda ARN using the AWS console or<br>
     one of the describe stack methods found above.<br>
     input the lambda <b>ARN</b> as the default endpoint of your Alexa skill,<br>
@@ -43,7 +41,7 @@
 
 12. Begin testing your Alexa skill by querying for 'chatgpt prompt'
 
-13. Query Alexa 'chatgpt prompt {question}'
+13. Query Alexa 'my question is {question}'
 
 14. Query Alexa 'bumbaclart' or your fallback invocation phrase!
 

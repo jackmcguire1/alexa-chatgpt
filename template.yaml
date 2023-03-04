@@ -13,7 +13,6 @@ Parameters:
   ApiKey:
     Type: String
     Description: OpenAI API Key
-    Default: xxx-xxx-xxx
 
 Resources:
 

@@ -2,7 +2,6 @@ package api
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"math/rand"
 	"time"
@@ -92,7 +91,7 @@ func (h *Handler) Invoke(ctx context.Context, req alexa.Request) (resp alexa.Res
 
 	if err != nil {
 		resp = alexa.NewResponse("error",
-			fmt.Sprintf("there was an error, %s", err.Error()),
+			"an error occured when processing your prompt",
 			false,
 		)
 	}
