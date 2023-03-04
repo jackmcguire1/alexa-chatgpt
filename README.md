@@ -11,9 +11,9 @@
 
 
 # Examples
-![Random Phrase](https://github.com/jackmcguire1/alexa-chatgpt/images/image.png)
+![Random Phrase](./images/image.png)
 
-![George looted something](https://github.com/jackmcguire1/alexa-chatgpt/images/image_1.png)
+![Alex is not as great](./images/image_1.png)
 
 ## SETUP
 > How to configure your Alexa Skill
