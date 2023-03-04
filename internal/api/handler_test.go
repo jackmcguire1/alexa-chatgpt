@@ -2,11 +2,12 @@ package api
 
 import (
 	"context"
-	"github.com/jackmcguire1/alexa-chatgpt/dom/chatgpt"
-	"github.com/jackmcguire1/alexa-chatgpt/pkg/alexa"
+	"testing"
+
+	"github.com/jackmcguire1/alexa-chatgpt/internal/dom/chatgpt"
+	"github.com/jackmcguire1/alexa-chatgpt/internal/pkg/alexa"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"testing"
 )
 
 func TestLaunchIntent(t *testing.T) {

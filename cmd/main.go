@@ -4,8 +4,8 @@ import (
 	"os"
 
 	"github.com/aws/aws-lambda-go/lambda"
-	"github.com/jackmcguire1/alexa-chatgpt/api"
-	"github.com/jackmcguire1/alexa-chatgpt/dom/chatgpt"
+	"github.com/jackmcguire1/alexa-chatgpt/internal/api"
+	"github.com/jackmcguire1/alexa-chatgpt/internal/dom/chatgpt"
 )
 
 func main() {

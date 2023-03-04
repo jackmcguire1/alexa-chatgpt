@@ -7,9 +7,9 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/jackmcguire1/alexa-chatgpt/dom/chatgpt"
-	"github.com/jackmcguire1/alexa-chatgpt/pkg/alexa"
-	"github.com/jackmcguire1/alexa-chatgpt/pkg/utils"
+	"github.com/jackmcguire1/alexa-chatgpt/internal/dom/chatgpt"
+	"github.com/jackmcguire1/alexa-chatgpt/internal/pkg/alexa"
+	"github.com/jackmcguire1/alexa-chatgpt/internal/pkg/utils"
 )
 
 type Handler struct {
