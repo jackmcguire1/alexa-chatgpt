@@ -24,36 +24,31 @@
 
 1. Create a new Alexa skill with a name of your choice
 
-2. Set Alexa skill invocation with a sentence of your choice
+2. Set Alexa skill invocation with a sentence of your choice or i.e. 'sentence completer'
 
 3. Set built-in invent invocations to their relevant phrases i.e. 'help', 'stop', 'cancel', etc.
 
-4. Set the fallback intent phrase to be 'random'
+4. Set the fallback intent invocation phrase to be 'random phrase'
 
 5. Create new Intent named 'AutoCompleteIntent'
 
-6. Create new intent slot named 'name', with <b>SLOT TYPE</b> 'prompt'
+6. Add invocation phrase for the 'AutoCompleteIntent' with value 'complete the sentence {prompt}'
 
-7. Add invocation phrase for the 'AutoCompleteTIntent' with value 'complete the sentence {prompt}'
+7. deploy chatgpt lambda and take note of the ARN of the lambda
 
-8. deploy chatgpt lambda and take note of the ARN of the lambda
-
-9. Configure Alexa skill endpoint lambda ARN:<br>
+8. Configure the Alexa skill endpoint default region lambda ARN:<br>
     Once the <b>'chatGPT'</b> lambda has been deployed, <br>
-    retrieve the generated lambda ARN using the AWS console or<br>
-    one of the describe stack methods found above.<br>
-    input the lambda <b>ARN</b> as the default endpoint of your Alexa skill,<br>
-    within your Alexa development console!
+    retrieve the generated lambda ARN using the AWS console
 
-10. Begin testing your Alexa skill by querying for 'chatgpt prompt'
+9. Begin testing your Alexa skill by querying for 'sentence completer' or your chosen invocation phrase
 
-11. Query Alexa 'my question is {question}'
+10. Query Alexa 'complete the sentence {your sentence here}'
 
-12. Query Alexa 'bumbaclart' or your fallback invocation phrase!
+11. Query Alexa 'random phrase'!
 
-13. Tell Alexa to 'stop'
+12. Tell Alexa to 'stop'
 
-14. <b>Testing complete!</b>
+13. <b>Testing complete!</b>
 
 ## Development
 
@@ -67,10 +62,6 @@ sure you have the following installed:
 - [golangCI-Lint][golint]
 - [AWS CLI][aws-cli]
 - [AWS SAM CLI][aws-sam-cli]
-
->You will need to activate [Modules][modules] for your version of [GO][golang],
-
-> by setting the `GO111MODULE=on` environment variable set
 
 ### [AWS CLI Configuration][aws-cli-config]
 > Make sure you configure the AWS CLI
