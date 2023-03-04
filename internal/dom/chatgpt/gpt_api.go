@@ -3,27 +3,31 @@ package chatgpt
 import (
 	"context"
 
-	gogpt "github.com/sashabaranov/go-gpt3"
+	"github.com/sashabaranov/go-openai"
 )
 
 type ChatGPTApiClient struct {
-	Token  string
-	Client *gogpt.Client
+	Token        string
+	OpenAIClient *openai.Client
 }
 
 func NewChatGptClient(token string) *ChatGPTApiClient {
-	c := gogpt.NewClient(token)
+	openAIClient := openai.NewClient("your token")
 	return &ChatGPTApiClient{
-		Token:  token,
-		Client: c,
+		Token:        token,
+		OpenAIClient: openAIClient,
 	}
 }
 
-func (api *ChatGPTApiClient) AutoComplete(ctx context.Context, prompt string) (gogpt.CompletionResponse, error) {
-	req := gogpt.CompletionRequest{
-		Model:     gogpt.GPT3Ada,
-		MaxTokens: 5,
-		Prompt:    prompt,
+func (api *ChatGPTApiClient) AutoComplete(ctx context.Context, prompt string) (openai.ChatCompletionResponse, error) {
+	req := openai.ChatCompletionRequest{
+		Model: openai.GPT3Dot5Turbo,
+		Messages: []openai.ChatCompletionMessage{
+			{
+				Role:    openai.ChatMessageRoleUser,
+				Content: prompt,
+			},
+		},
 	}
-	return api.Client.CreateCompletion(ctx, req)
+	return api.OpenAIClient.CreateChatCompletion(ctx, req)
 }

@@ -16,6 +16,6 @@ func (client *Client) AutoComplete(ctx context.Context, prompt string) (string, 
 		return "", err
 	}
 
-	choice := resp.Choices[0]
-	return choice.Text, nil
+	message := resp.Choices[0].Message.Content
+	return message, nil
 }

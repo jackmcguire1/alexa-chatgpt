@@ -4,24 +4,23 @@ import (
 	"context"
 	"testing"
 
-	gogpt "github.com/sashabaranov/go-gpt3"
+	"github.com/sashabaranov/go-openai"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
 func TestAutoComplete(t *testing.T) {
 	api := &mockAPI{}
-	mockResponse := gogpt.CompletionResponse{
+	mockResponse := openai.ChatCompletionResponse{
 		ID:      "",
 		Object:  "",
 		Created: 0,
 		Model:   "",
-		Choices: []gogpt.CompletionChoice{
-			gogpt.CompletionChoice{
-				Text: "is the best",
+		Choices: []openai.ChatCompletionChoice{
+			openai.ChatCompletionChoice{
+				Message: openai.ChatCompletionMessage{Content: "is the best"},
 			},
 		},
-		Usage: gogpt.Usage{},
 	}
 	api.On("AutoComplete", mock.Anything, "steve").Return(mockResponse, nil)
 	c := Client{&Resources{Api: api}}
