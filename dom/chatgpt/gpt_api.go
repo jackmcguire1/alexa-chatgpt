@@ -2,6 +2,7 @@ package chatgpt
 
 import (
 	"context"
+
 	gogpt "github.com/sashabaranov/go-gpt3"
 )
 
@@ -18,7 +19,7 @@ func NewChatGptClient(token string) *ChatGPTApiClient {
 	}
 }
 
-func (api *ChatGPTApiClient) GetChatPrompt(ctx context.Context, prompt string) (gogpt.CompletionResponse, error) {
+func (api *ChatGPTApiClient) AutoComplete(ctx context.Context, prompt string) (gogpt.CompletionResponse, error) {
 	req := gogpt.CompletionRequest{
 		Model:     gogpt.GPT3Ada,
 		MaxTokens: 5,

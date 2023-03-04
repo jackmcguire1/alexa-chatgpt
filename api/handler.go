@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"math/rand"
 	"time"
@@ -15,36 +16,48 @@ type Handler struct {
 	ChatGptService chatgpt.Service
 }
 
-func randomResponse() string {
+func (h *Handler) randomResponse(ctx context.Context) (string, error) {
 	responses := []string{
-		"did not compute, repeat did not compute, for futher assistance please ask for 'help'",
-		"Alert! Our control point is being captured",
-		"For The Horde!",
-		"For The Alliance!",
-		"Snake?! Snakeeeeee!",
+		"The cat sat on the",
+		"The fox ran over the",
+		"The pig rolled in",
+		"Peppa pig jumped in a muddie puddle and",
+		"ed, edd and eddy came up with a new hustle that involed",
+		"Carter found a",
+		"Chanel obtained a new rank in valorant called",
+		"Robbie got a new rank in tekken called",
+		"Perry wrote a new lyrics about his",
+		"Jack created a new application that solved",
 	}
+
 	rand.Seed(time.Now().Unix())
 	i := rand.Intn(len(responses))
 	if i == len(responses) {
 		i = i - 1
 	}
 
-	return responses[i]
+	resp, err := h.ChatGptService.AutoComplete(ctx, responses[i])
+	if err != nil {
+		return "", err
+	}
+	phrase := fmt.Sprintf("%s %s", responses[i], resp)
+
+	return phrase, nil
 }
 
 func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res alexa.Response, err error) {
 	switch req.Body.Intent.Name {
-	case chatgpt.ChatGPTIntent:
+	case alexa.AutoCompleteIntent:
 		prompt := req.Body.Intent.Slots["prompt"].Value
-		log.Println("found name", prompt)
+		log.Println("found phrase to autocomplete", prompt)
 
 		var chatGptRes string
-		chatGptRes, err = h.ChatGptService.GetPrompt(ctx, prompt)
+		chatGptRes, err = h.ChatGptService.AutoComplete(ctx, prompt)
 		if err != nil {
 			return
 		}
 
-		res = alexa.NewResponse("Prompt", chatGptRes, false)
+		res = alexa.NewResponse("Autocomplete", fmt.Sprintf("%s %s", prompt, chatGptRes), false)
 	case alexa.HelpIntent:
 		res = alexa.NewResponse(
 			"Help",
@@ -63,11 +76,23 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 			"okay, i'm listening",
 			false,
 		)
-	default:
+	case alexa.FallbackIntent:
+
+		phrase, err := h.randomResponse(ctx)
+		if err != nil {
+			break
+		}
+
 		res = alexa.NewResponse(
 			"Random response",
-			randomResponse(),
-			true,
+			phrase,
+			false,
+		)
+	default:
+		res = alexa.NewResponse(
+			"unsupported intent",
+			"unsupported intent!",
+			false,
 		)
 	}
 
@@ -84,9 +109,8 @@ func (h *Handler) Invoke(ctx context.Context, req alexa.Request) (resp alexa.Res
 			"Hi, lets begin our convesation!",
 			false,
 		)
-	case alexa.IntentRequestType:
-		resp, err = h.DispatchIntents(ctx, req)
 	default:
+		resp, err = h.DispatchIntents(ctx, req)
 	}
 
 	if err != nil {

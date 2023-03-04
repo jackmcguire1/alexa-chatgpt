@@ -5,8 +5,8 @@ import (
 	"fmt"
 )
 
-func (client *Client) GetPrompt(ctx context.Context, prompt string) (string, error) {
-	resp, err := client.Api.GetChatPrompt(ctx, prompt)
+func (client *Client) AutoComplete(ctx context.Context, prompt string) (string, error) {
+	resp, err := client.Api.AutoComplete(ctx, prompt)
 	if err != nil {
 		return "", err
 	}

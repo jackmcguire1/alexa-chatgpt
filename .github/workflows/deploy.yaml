@@ -18,4 +18,4 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
       - run: sam build
-      - run: sam deploy --stack-name chat-gpt --s3-bucket cloudformation-devops-serverless --parameter-overrides 'ApiKey=${{ secrets.OPENAI_API_KEY }}' --capabilities CAPABILITY_IAM
+      - run: sam deploy --stack-name chat-gpt --s3-bucket ${{ secrets.S3_BUCKET }} --parameter-overrides 'ApiKey=${{ secrets.OPENAI_API_KEY }}' --capabilities CAPABILITY_IAM

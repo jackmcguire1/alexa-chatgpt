@@ -5,13 +5,6 @@ const (
 	IntentRequestType       = "IntentRequest"
 	LaunchRequestType       = "LaunchRequest"
 	SessionEndedRequestType = "SessionEndedRequest"
-
-	// built-in intents
-	HelpIntent     = "AMAZON.HelpIntent"
-	CancelIntent   = "AMAZON.CancelIntent"
-	NoIntent       = "AMAZON.NoIntent"
-	StopIntent     = "AMAZON.StopIntent"
-	FallbackIntent = "AMAZON.FallbackIntent"
 )
 
 // Request represents the structure of the request sent from Alexa.
