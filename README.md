@@ -9,6 +9,12 @@
 [aws-cli-config]: https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html
 [aws-sam-cli]: https://github.com/awslabs/aws-sam-cli
 
+
+# Examples
+![Random Phrase](https://github.com/jackmcguire1/alexa-chatgpt/images/image.png)
+
+![George looted something](https://github.com/jackmcguire1/alexa-chatgpt/images/image_1.png)
+
 ## SETUP
 > How to configure your Alexa Skill
 
