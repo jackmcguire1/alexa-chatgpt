@@ -11,9 +11,11 @@
 
 
 # Examples
-![Random Phrase](./images/image.png)
 
-![Alex is not as great](./images/image_1.png)
+<p align="center">
+  <img src="./images/image.png" width="350" height="500" title="Random Phrase">
+  <img src="./images/image_1.png" width="350" height="500" title="Alexa is inferior">
+</p>
 
 ## SETUP
 > How to configure your Alexa Skill
