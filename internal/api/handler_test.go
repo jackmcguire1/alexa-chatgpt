@@ -166,3 +166,27 @@ func TestHelpIntent(t *testing.T) {
 	assert.EqualValues(t, resp.Body.OutputSpeech.Text, "Simply repeat, complete the sentence followed by a desired sentence")
 	assert.False(t, resp.Body.ShouldEndSession)
 }
+
+func TestUnsupportedIntent(t *testing.T) {
+	mockChatGptService := &chatgpt.MockClient{}
+	h := &Handler{
+		mockChatGptService,
+	}
+
+	req := alexa.Request{
+		Version: "",
+		Session: alexa.Session{},
+		Body: alexa.ReqBody{
+			Intent: alexa.Intent{
+				Name: "AMAZON.random",
+			},
+			Type: "AMAZON.random",
+		},
+		Context: alexa.Context{},
+	}
+
+	resp, err := h.Invoke(context.Background(), req)
+	assert.NoError(t, err)
+	assert.EqualValues(t, resp.Body.OutputSpeech.Text, "unsupported intent!")
+	assert.False(t, resp.Body.ShouldEndSession)
+}

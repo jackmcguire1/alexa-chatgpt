@@ -17,5 +17,7 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
+      - run: go test -race -coverprofile=coverage.out -covermode=atomic
+      - uses: codecov/codecov-action@v3
       - run: sam build
       - run: sam deploy --stack-name chat-gpt --s3-bucket ${{ secrets.S3_BUCKET }} --parameter-overrides 'ApiKey=${{ secrets.OPENAI_API_KEY }}' --capabilities CAPABILITY_IAM

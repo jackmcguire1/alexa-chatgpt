@@ -10,6 +10,8 @@
 [aws-sam-cli]: https://github.com/awslabs/aws-sam-cli
 
 
+[![Go Report Card](https://goreportcard.com/badge/github.com/jackmcguire1/alexa-chatgpt)](https://goreportcard.com/report/github.com/jackmcguire1/alexa-chatgpt)
+
 # Examples
 
 <p align="center">
