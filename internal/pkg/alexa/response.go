@@ -7,13 +7,15 @@ func NewResponse(title, text string, endSession bool) Response {
 		Version: "1.0",
 		Body: ResBody{
 			OutputSpeech: &Payload{
-				Type: "PlainText",
-				Text: text,
+				Type:  "PlainText",
+				Text:  text,
+				Title: title,
 			},
 			Card: &Payload{
 				Type:    "Simple",
 				Title:   title,
 				Content: text,
+				Text:    text,
 			},
 			ShouldEndSession: endSession,
 		},
