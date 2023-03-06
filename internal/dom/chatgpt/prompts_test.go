@@ -26,5 +26,21 @@ func TestAutoComplete(t *testing.T) {
 	c := Client{&Resources{Api: api}}
 	resp, err := c.AutoComplete(context.Background(), "steve")
 	assert.NoError(t, err)
-	assert.EqualValues(t, resp, "is the best")
+	assert.EqualValues(t, "is the best", resp)
+}
+
+func TestAutoCompleteMissingChoices(t *testing.T) {
+	api := &mockAPI{}
+	mockResponse := openai.ChatCompletionResponse{
+		ID:      "",
+		Object:  "",
+		Created: 0,
+		Model:   "",
+		Choices: []openai.ChatCompletionChoice{},
+	}
+	api.On("AutoComplete", mock.Anything, "steve").Return(mockResponse, nil)
+	c := Client{&Resources{Api: api}}
+	_, err := c.AutoComplete(context.Background(), "steve")
+	assert.Error(t, err)
+	assert.Equal(t, "missing choices", err.Error())
 }
