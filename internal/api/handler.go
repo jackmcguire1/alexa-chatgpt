@@ -63,7 +63,7 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 	case alexa.HelpIntent:
 		res = alexa.NewResponse(
 			"Help",
-			"Simply repeat, complete the sentence followed by a desired sentence",
+			"Simply repeat, question followed by a desired sentence",
 			false,
 		)
 	case alexa.CancelIntent:
@@ -79,15 +79,9 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 			true,
 		)
 	case alexa.FallbackIntent:
-
-		phrase, err := h.randomResponse(ctx)
-		if err != nil {
-			break
-		}
-
 		res = alexa.NewResponse(
-			"Random response",
-			phrase,
+			"Try again!",
+			"Try again!",
 			false,
 		)
 	default:

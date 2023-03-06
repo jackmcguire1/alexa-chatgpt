@@ -13,7 +13,6 @@ import (
 func TestLaunchIntent(t *testing.T) {
 	mockChatGptService := &chatgpt.MockClient{}
 
-	mockChatGptService.On("AutoComplete", mock.Anything, mock.Anything).Return("chimney", nil)
 	h := &Handler{
 		mockChatGptService,
 	}
@@ -34,8 +33,6 @@ func TestLaunchIntent(t *testing.T) {
 
 func TestFallbackIntent(t *testing.T) {
 	mockChatGptService := &chatgpt.MockClient{}
-
-	mockChatGptService.On("AutoComplete", mock.Anything, mock.Anything).Return("chimney", nil)
 	h := &Handler{
 		mockChatGptService,
 	}
@@ -60,7 +57,7 @@ func TestFallbackIntent(t *testing.T) {
 
 	resp, err := h.Invoke(context.Background(), req)
 	assert.NoError(t, err)
-	assert.Contains(t, resp.Body.OutputSpeech.Text, "chimney")
+	assert.Contains(t, resp.Body.OutputSpeech.Text, "Try again")
 }
 
 func TestAutoCompleteIntent(t *testing.T) {
@@ -163,7 +160,7 @@ func TestHelpIntent(t *testing.T) {
 
 	resp, err := h.Invoke(context.Background(), req)
 	assert.NoError(t, err)
-	assert.EqualValues(t, resp.Body.OutputSpeech.Text, "Simply repeat, complete the sentence followed by a desired sentence")
+	assert.EqualValues(t, resp.Body.OutputSpeech.Text, "Simply repeat, question followed by a desired sentence")
 	assert.False(t, resp.Body.ShouldEndSession)
 }
 
