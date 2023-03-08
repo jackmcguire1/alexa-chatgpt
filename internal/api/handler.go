@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"math/rand"
 	"time"
 
 	"github.com/jackmcguire1/alexa-chatgpt/internal/dom/chatgpt"
@@ -12,39 +11,19 @@ import (
 	"github.com/jackmcguire1/alexa-chatgpt/internal/pkg/utils"
 )
 
-type Handler struct {
-	ChatGptService chatgpt.Service
+type LastResponse struct {
+	Prompt   string
+	Response string
+	TimeDiff time.Duration
 }
 
-func (h *Handler) randomResponse(ctx context.Context) (string, error) {
-	responses := []string{
-		"The cat sat on the",
-		"The fox ran over the",
-		"The pig rolled in",
-		"Peppa pig jumped in a muddie puddle and",
-		"ed, edd and eddy came up with a new hustle that involed",
-		"Carter found a",
-		"Chanel obtained a new rank in valorant called",
-		"Robbie got a new rank in tekken called",
-		"Perry wrote new lyrics about his",
-		"Jack created a new application that solved",
-		"George looted a new armor item called",
-		"Nitish loved to play the computer game",
-	}
+type Handler struct {
+	ChatGptService chatgpt.Service
+	lastResponse   *LastResponse
+}
 
-	rand.Seed(time.Now().Unix())
-	i := rand.Intn(len(responses))
-	if i == len(responses) {
-		i = i - 1
-	}
-
-	resp, err := h.ChatGptService.AutoComplete(ctx, responses[i])
-	if err != nil {
-		return "", err
-	}
-	phrase := fmt.Sprintf("%s %s", responses[i], resp)
-
-	return phrase, nil
+func (h *Handler) randomFact(ctx context.Context) (string, error) {
+	return h.ChatGptService.AutoComplete(ctx, "tell me a random fact")
 }
 
 func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res alexa.Response, err error) {
@@ -53,13 +32,44 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 		prompt := req.Body.Intent.Slots["prompt"].Value
 		log.Println("found phrase to autocomplete", prompt)
 
+		execTime := time.Now().UTC()
+
 		var chatGptRes string
 		chatGptRes, err = h.ChatGptService.AutoComplete(ctx, prompt)
 		if err != nil {
 			break
 		}
 
-		res = alexa.NewResponse("Autocomplete", fmt.Sprintf("%s %s", prompt, chatGptRes), false)
+		res = alexa.NewResponse("Autocomplete", chatGptRes, false)
+		h.lastResponse = &LastResponse{Prompt: prompt, Response: chatGptRes, TimeDiff: time.Since(execTime)}
+
+	case alexa.RandomFactIntent:
+		var randomFact string
+
+		execTime := time.Now().UTC()
+
+		randomFact, err = h.randomFact(ctx)
+		if err != nil {
+			break
+		}
+		res = alexa.NewResponse("Random Fact", randomFact, false)
+		h.lastResponse = &LastResponse{Response: randomFact, TimeDiff: time.Since(execTime)}
+
+	case alexa.LastResponseIntent:
+		log.Println("fetching last response")
+		if h.lastResponse != nil {
+			res = alexa.NewResponse("Last Response",
+				fmt.Sprintf(
+					"%s, this took %s to fetch the answer",
+					h.lastResponse.Response,
+					h.lastResponse.TimeDiff.String(),
+				),
+				false,
+			)
+		} else {
+			res = alexa.NewResponse("Last Response", "I do not have a answer to your last prompt", false)
+		}
+
 	case alexa.HelpIntent:
 		res = alexa.NewResponse(
 			"Help",

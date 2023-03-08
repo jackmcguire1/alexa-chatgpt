@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"testing"
+	"time"
 
 	"github.com/jackmcguire1/alexa-chatgpt/internal/dom/chatgpt"
 	"github.com/jackmcguire1/alexa-chatgpt/internal/pkg/alexa"
@@ -14,7 +15,7 @@ func TestLaunchIntent(t *testing.T) {
 	mockChatGptService := &chatgpt.MockClient{}
 
 	h := &Handler{
-		mockChatGptService,
+		ChatGptService: mockChatGptService,
 	}
 
 	req := alexa.Request{
@@ -34,7 +35,7 @@ func TestLaunchIntent(t *testing.T) {
 func TestFallbackIntent(t *testing.T) {
 	mockChatGptService := &chatgpt.MockClient{}
 	h := &Handler{
-		mockChatGptService,
+		ChatGptService: mockChatGptService,
 	}
 
 	req := alexa.Request{
@@ -65,7 +66,7 @@ func TestAutoCompleteIntent(t *testing.T) {
 
 	mockChatGptService.On("AutoComplete", mock.Anything, mock.Anything).Return("chimney", nil)
 	h := &Handler{
-		mockChatGptService,
+		ChatGptService: mockChatGptService,
 	}
 
 	req := alexa.Request{
@@ -89,13 +90,77 @@ func TestAutoCompleteIntent(t *testing.T) {
 
 	resp, err := h.Invoke(context.Background(), req)
 	assert.NoError(t, err)
-	assert.EqualValues(t, "the boy fell down the chimney", resp.Body.OutputSpeech.Text)
+	assert.EqualValues(t, "chimney", resp.Body.OutputSpeech.Text)
+}
+
+func TestRandomIntent(t *testing.T) {
+	mockChatGptService := &chatgpt.MockClient{}
+
+	mockChatGptService.On("AutoComplete", mock.Anything, mock.Anything).Return("santa fell down the chimney", nil)
+	h := &Handler{
+		ChatGptService: mockChatGptService,
+	}
+
+	req := alexa.Request{
+		Version: "",
+		Session: alexa.Session{},
+		Body: alexa.ReqBody{
+			Intent: alexa.Intent{
+				Name: alexa.RandomFactIntent,
+				Slots: map[string]alexa.Slot{
+					"prompt": {
+						Name:        "prompt",
+						Value:       "tell me a random fact",
+						Resolutions: alexa.Resolutions{},
+					},
+				},
+			},
+			Type: alexa.RandomFactIntent,
+		},
+		Context: alexa.Context{},
+	}
+
+	resp, err := h.Invoke(context.Background(), req)
+	assert.NoError(t, err)
+	assert.EqualValues(t, "santa fell down the chimney", resp.Body.OutputSpeech.Text)
+}
+
+func TestLastResponseIntent(t *testing.T) {
+	lastResponse := &LastResponse{Prompt: "hello", Response: "hello", TimeDiff: time.Since(time.Now().Add(-time.Second))}
+	mockChatGptService := &chatgpt.MockClient{}
+	h := &Handler{
+		lastResponse:   lastResponse,
+		ChatGptService: mockChatGptService,
+	}
+
+	req := alexa.Request{
+		Version: "",
+		Session: alexa.Session{},
+		Body: alexa.ReqBody{
+			Intent: alexa.Intent{
+				Name: alexa.LastResponseIntent,
+				Slots: map[string]alexa.Slot{
+					"prompt": {
+						Name:        "prompt",
+						Value:       "hello",
+						Resolutions: alexa.Resolutions{},
+					},
+				},
+			},
+			Type: alexa.LastResponseIntent,
+		},
+		Context: alexa.Context{},
+	}
+
+	resp, err := h.Invoke(context.Background(), req)
+	assert.NoError(t, err)
+	assert.Contains(t, resp.Body.OutputSpeech.Text, "hello")
 }
 
 func TestStopIntent(t *testing.T) {
 	mockChatGptService := &chatgpt.MockClient{}
 	h := &Handler{
-		mockChatGptService,
+		ChatGptService: mockChatGptService,
 	}
 
 	req := alexa.Request{
@@ -119,7 +184,7 @@ func TestStopIntent(t *testing.T) {
 func TestCancelIntent(t *testing.T) {
 	mockChatGptService := &chatgpt.MockClient{}
 	h := &Handler{
-		mockChatGptService,
+		ChatGptService: mockChatGptService,
 	}
 
 	req := alexa.Request{
@@ -143,7 +208,7 @@ func TestCancelIntent(t *testing.T) {
 func TestHelpIntent(t *testing.T) {
 	mockChatGptService := &chatgpt.MockClient{}
 	h := &Handler{
-		mockChatGptService,
+		ChatGptService: mockChatGptService,
 	}
 
 	req := alexa.Request{
@@ -167,7 +232,7 @@ func TestHelpIntent(t *testing.T) {
 func TestUnsupportedIntent(t *testing.T) {
 	mockChatGptService := &chatgpt.MockClient{}
 	h := &Handler{
-		mockChatGptService,
+		ChatGptService: mockChatGptService,
 	}
 
 	req := alexa.Request{

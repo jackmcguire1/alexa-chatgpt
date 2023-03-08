@@ -7,4 +7,6 @@ const (
 	StopIntent         = "AMAZON.StopIntent"
 	FallbackIntent     = "AMAZON.FallbackIntent"
 	AutoCompleteIntent = "AutoCompleteIntent"
+	RandomFactIntent   = "RandomFactIntent"
+	LastResponseIntent = "LastResponseIntent"
 )
