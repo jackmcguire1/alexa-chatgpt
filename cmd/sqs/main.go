@@ -61,7 +61,7 @@ func main() {
 		ChatGptSvc: chatgpt.NewClient(&chatgpt.Resources{
 			Api: chatgpt.NewChatGptClient(os.Getenv("OPENAI_API_KEY")),
 		}),
-		ResponseQueue: queue.NewQueue(os.Getenv("RESPONSE_QUEUE_URI")),
+		ResponseQueue: queue.NewQueue(os.Getenv("RESPONSES_QUEUE_URI")),
 	}
 	lambda.Start(h.ProcessSQS)
 }

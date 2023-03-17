@@ -9,7 +9,7 @@ Globals:
     Handler: main
     Environment:
       Variables:
-        RESPONSES_QUEUE_URI: !Ref ResponseQueue
+        RESPONSES_QUEUE_URI: !Ref ResponsesQueue
         REQUESTS_QUEUE_URI: !Ref RequestsQueue
         OPENAI_API_KEY: !Ref ApiKey
         POLL_DELAY: 7
