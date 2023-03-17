@@ -20,9 +20,8 @@
 # Examples
 
 <p align="center">
-  <img src="./images/image.png" width="350" height="500" title="Random Phrase">
-  <img src="./images/image_1.png" width="350" height="500" title="Alexa is inferior">
-</p>
+  <img src="./images/image.png" width="400" height="500" title="Random Phrase">
+  </p>
 
 ## SETUP
 > How to configure your Alexa Skill
