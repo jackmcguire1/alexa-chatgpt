@@ -87,8 +87,8 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 			res = alexa.NewResponse("Last Response",
 				fmt.Sprintf(
 					"%s, this took %s to fetch the answer",
-					h.lastResponse.Response,
-					h.lastResponse.TimeDiff,
+					response.Response,
+					response.TimeDiff,
 				),
 				false,
 			)
