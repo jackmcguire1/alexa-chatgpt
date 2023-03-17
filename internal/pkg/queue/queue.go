@@ -58,7 +58,7 @@ func (q *Queue) PullMessage(ctx context.Context, wait int) ([]byte, error) {
 	}
 
 	if len(resp.Messages) == 0 {
-		return nil, EmptyMessageErr
+		return nil, nil
 	}
 
 	return []byte(*resp.Messages[0].Body), nil
