@@ -84,7 +84,14 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 				log.Println("failed to unmarshal response", string(data), err)
 				return
 			}
-			res = alexa.NewResponse("Autocomplete", response.Response, false)
+			res = alexa.NewResponse("Last Response",
+				fmt.Sprintf(
+					"%s, this took %s to fetch the answer",
+					h.lastResponse.Response,
+					h.lastResponse.TimeDiff.String(),
+				),
+				false,
+			)
 			h.lastResponse = response
 			return
 		}
