@@ -2,24 +2,24 @@ package api
 
 import (
 	"context"
+	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"time"
 
 	"github.com/jackmcguire1/alexa-chatgpt/internal/dom/chatgpt"
 	"github.com/jackmcguire1/alexa-chatgpt/internal/pkg/alexa"
+	"github.com/jackmcguire1/alexa-chatgpt/internal/pkg/queue"
 	"github.com/jackmcguire1/alexa-chatgpt/internal/pkg/utils"
 )
 
-type LastResponse struct {
-	Prompt   string
-	Response string
-	TimeDiff time.Duration
-}
-
 type Handler struct {
 	ChatGptService chatgpt.Service
-	lastResponse   *LastResponse
+	lastResponse   *chatgpt.LastResponse
+	ResponsesQueue queue.PullPoll
+	RequestsQueue  queue.PullPoll
+	PollDelay      int
 }
 
 func (h *Handler) randomFact(ctx context.Context) (string, error) {
@@ -32,17 +32,29 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 		prompt := req.Body.Intent.Slots["prompt"].Value
 		log.Println("found phrase to autocomplete", prompt)
 
-		execTime := time.Now().UTC()
-
-		var chatGptRes string
-		chatGptRes, err = h.ChatGptService.AutoComplete(ctx, prompt)
+		err = h.RequestsQueue.PushMessage(ctx, &chatgpt.Request{Prompt: prompt})
 		if err != nil {
 			break
 		}
 
-		res = alexa.NewResponse("Autocomplete", chatGptRes, false)
-		h.lastResponse = &LastResponse{Prompt: prompt, Response: chatGptRes, TimeDiff: time.Since(execTime)}
+		var data []byte
+		data, err = h.ResponsesQueue.PullMessage(ctx, h.PollDelay)
+		if err != nil && !errors.Is(err, queue.EmptyMessageErr) {
+			break
+		}
 
+		if len(data) > 0 {
+			var response *chatgpt.LastResponse
+			err = json.Unmarshal(data, &response)
+			if err != nil {
+				return
+			}
+			res = alexa.NewResponse("Autocomplete", response.Response, false)
+			h.lastResponse = response
+
+			return
+		}
+		res = alexa.NewResponse("Autocomplete", "your response will be available momentarily", false)
 	case alexa.RandomFactIntent:
 		var randomFact string
 
@@ -50,13 +62,31 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 
 		randomFact, err = h.randomFact(ctx)
 		if err != nil {
-			break
+			return
 		}
 		res = alexa.NewResponse("Random Fact", randomFact, false)
-		h.lastResponse = &LastResponse{Response: randomFact, TimeDiff: time.Since(execTime)}
+		h.lastResponse = &chatgpt.LastResponse{Response: randomFact, TimeDiff: time.Since(execTime)}
 
 	case alexa.LastResponseIntent:
 		log.Println("fetching last response")
+
+		var data []byte
+		data, err = h.ResponsesQueue.PullMessage(ctx, h.PollDelay)
+		if err != nil && !errors.Is(err, queue.EmptyMessageErr) {
+			break
+		}
+
+		if len(data) > 0 {
+			var response *chatgpt.LastResponse
+			err = json.Unmarshal(data, &response)
+			if err != nil {
+				break
+			}
+			res = alexa.NewResponse("Autocomplete", response.Response, false)
+			h.lastResponse = response
+			return
+		}
+
 		if h.lastResponse != nil {
 			res = alexa.NewResponse("Last Response",
 				fmt.Sprintf(
@@ -66,9 +96,10 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 				),
 				false,
 			)
-		} else {
-			res = alexa.NewResponse("Last Response", "I do not have a answer to your last prompt", false)
+			return
 		}
+
+		res = alexa.NewResponse("Last Response", "I do not have a answer to your last prompt", false)
 
 	case alexa.HelpIntent:
 		res = alexa.NewResponse(
@@ -112,7 +143,7 @@ func (h *Handler) Invoke(ctx context.Context, req alexa.Request) (resp alexa.Res
 	case alexa.LaunchRequestType:
 		log.Println("launch request type")
 		resp = alexa.NewResponse("chatGPT",
-			"Hi, lets begin our convesation!",
+			"Hi, lets begin our conversation!",
 			false,
 		)
 	default:
@@ -121,7 +152,7 @@ func (h *Handler) Invoke(ctx context.Context, req alexa.Request) (resp alexa.Res
 
 	if err != nil {
 		resp = alexa.NewResponse("error",
-			"an error occured when processing your prompt",
+			"an error occurred when processing your prompt",
 			true,
 		)
 	}

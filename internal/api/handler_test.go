@@ -2,6 +2,8 @@ package api
 
 import (
 	"context"
+	"github.com/jackmcguire1/alexa-chatgpt/internal/pkg/queue"
+	"github.com/jackmcguire1/alexa-chatgpt/internal/pkg/utils"
 	"testing"
 	"time"
 
@@ -29,7 +31,7 @@ func TestLaunchIntent(t *testing.T) {
 
 	resp, err := h.Invoke(context.Background(), req)
 	assert.NoError(t, err)
-	assert.EqualValues(t, "Hi, lets begin our convesation!", resp.Body.OutputSpeech.Text)
+	assert.EqualValues(t, "Hi, lets begin our conversation!", resp.Body.OutputSpeech.Text)
 }
 
 func TestFallbackIntent(t *testing.T) {
@@ -63,10 +65,20 @@ func TestFallbackIntent(t *testing.T) {
 
 func TestAutoCompleteIntent(t *testing.T) {
 	mockChatGptService := &chatgpt.MockClient{}
-
 	mockChatGptService.On("AutoComplete", mock.Anything, mock.Anything).Return("chimney", nil)
+
+	mockRequestsQueue := &queue.MockQueue{}
+	mockRequestsQueue.On("PushMessage", mock.Anything, mock.Anything).Return(nil)
+
+	mockResponsesQueue := &queue.MockQueue{}
+	queueResponse := chatgpt.LastResponse{Response: "chimney"}
+	jsonResp := utils.ToJSON(queueResponse)
+	mockResponsesQueue.On("PullMessage", mock.Anything, mock.Anything).Return([]byte(jsonResp), nil)
+
 	h := &Handler{
 		ChatGptService: mockChatGptService,
+		ResponsesQueue: mockResponsesQueue,
+		RequestsQueue:  mockRequestsQueue,
 	}
 
 	req := alexa.Request{
@@ -126,11 +138,17 @@ func TestRandomIntent(t *testing.T) {
 }
 
 func TestLastResponseIntent(t *testing.T) {
-	lastResponse := &LastResponse{Prompt: "hello", Response: "hello", TimeDiff: time.Since(time.Now().Add(-time.Second))}
+
+	mockResponsesQueue := &queue.MockQueue{}
+	queueResponse := chatgpt.LastResponse{Response: "chimney", TimeDiff: time.Since(time.Now().Add(-time.Second))}
+	jsonResp := utils.ToJSON(queueResponse)
+	mockResponsesQueue.On("PullMessage", mock.Anything, mock.Anything).Return([]byte(jsonResp), nil)
+
 	mockChatGptService := &chatgpt.MockClient{}
 	h := &Handler{
-		lastResponse:   lastResponse,
+		lastResponse:   &queueResponse,
 		ChatGptService: mockChatGptService,
+		ResponsesQueue: mockResponsesQueue,
 	}
 
 	req := alexa.Request{
@@ -154,7 +172,7 @@ func TestLastResponseIntent(t *testing.T) {
 
 	resp, err := h.Invoke(context.Background(), req)
 	assert.NoError(t, err)
-	assert.Contains(t, resp.Body.OutputSpeech.Text, "hello")
+	assert.Contains(t, resp.Body.OutputSpeech.Text, "chimney")
 }
 
 func TestStopIntent(t *testing.T) {
