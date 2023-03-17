@@ -7,7 +7,12 @@ Globals:
     Runtime: go1.x
     Timeout: 300
     Handler: main
-
+    Environment:
+      Variables:
+        RESPONSES_QUEUE_URI: !Ref ResponseQueue
+        REQUESTS_QUEUE_URI: !Ref RequestsQueue
+        OPENAI_API_KEY: !Ref ApiKey
+        POLL_DELAY: 7
 
 Parameters:
   ApiKey:
@@ -16,14 +21,57 @@ Parameters:
 
 Resources:
 
+  RequestsQueue:
+    Type: 'AWS::SQS::Queue'
+    Properties:
+      QueueName: !Sub ${AWS::StackName}-Requests
+      RedrivePolicy:
+        maxReceiveCount: 5
+        deadLetterTargetArn: !GetAtt RequestsDLQ.Arn
+      VisibilityTimeout: 301
+
+  RequestsDLQ:
+    Type: 'AWS::SQS::Queue'
+    Properties:
+      QueueName: !Sub ${AWS::StackName}-Requests-DLQ
+
+  ResponsesQueue:
+    Type: 'AWS::SQS::Queue'
+    Properties:
+      QueueName: !Sub ${AWS::StackName}-Responses
+      VisibilityTimeout: 301
+
   ChatGPTFunction:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: chatGPT
-      CodeUri: ./cmd
+      CodeUri: ./cmd/alexa
       Events:
         AlexaSkillEvent:
           Type: AlexaSkill
       Environment:
         Variables:
           OPENAI_API_KEY: !Ref ApiKey
+      Policies:
+        - SQSPollerPolicy:
+            QueueName:
+              !GetAtt ResponsesQueue.QueueName
+        - SQSSendMessagePolicy:
+            QueueName:
+              !GetAtt RequestsQueue.QueueName
+
+  ChatGPTRequests:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: chatGPTRequests
+      CodeUri: ./cmd/sqs
+      Events:
+        MySQSEvent:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt RequestsQueue.Arn
+            BatchSize: 1
+      Policies:
+        - SQSSendMessagePolicy:
+            QueueName:
+              !GetAtt ResponsesQueue.QueueName
