@@ -61,5 +61,13 @@ func (q *Queue) PullMessage(ctx context.Context, wait int) ([]byte, error) {
 		return nil, nil
 	}
 
+	_, err = q.client.DeleteMessage(ctx, &sqs.DeleteMessageInput{
+		QueueUrl:      &q.queueUri,
+		ReceiptHandle: resp.Messages[0].ReceiptHandle,
+	})
+	if err != nil {
+		return nil, err
+	}
+
 	return []byte(*resp.Messages[0].Body), nil
 }
