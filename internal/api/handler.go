@@ -47,6 +47,7 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 			var response *chatgpt.LastResponse
 			err = json.Unmarshal(data, &response)
 			if err != nil {
+				log.Println("failed to unmarshal response", string(data), err)
 				return
 			}
 			res = alexa.NewResponse("Autocomplete", response.Response, false)
@@ -80,7 +81,8 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 			var response *chatgpt.LastResponse
 			err = json.Unmarshal(data, &response)
 			if err != nil {
-				break
+				log.Println("failed to unmarshal response", string(data), err)
+				return
 			}
 			res = alexa.NewResponse("Autocomplete", response.Response, false)
 			h.lastResponse = response

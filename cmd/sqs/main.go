@@ -47,7 +47,7 @@ func (handler *SqsHandler) ProcessSQS(ctx context.Context, event events.SQSEvent
 
 	var request *chatgpt.Request
 
-	err := json.Unmarshal([]byte(rawData), request)
+	err := json.Unmarshal([]byte(rawData), &request)
 	if err != nil {
 		log.Println("failed to unmarshal event", rawData, err)
 		return err
