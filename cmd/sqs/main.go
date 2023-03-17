@@ -33,7 +33,7 @@ func (handler *SqsHandler) ProcessChatGPTRequest(ctx context.Context, req *chatg
 	err = handler.ResponseQueue.PushMessage(ctx, &chatgpt.LastResponse{
 		Prompt:   req.Prompt,
 		Response: response,
-		TimeDiff: since,
+		TimeDiff: since.String(),
 	})
 	if err != nil {
 		log.Println("failed to publish message to queue", err)

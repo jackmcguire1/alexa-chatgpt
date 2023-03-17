@@ -140,7 +140,7 @@ func TestRandomIntent(t *testing.T) {
 func TestLastResponseIntent(t *testing.T) {
 
 	mockResponsesQueue := &queue.MockQueue{}
-	queueResponse := chatgpt.LastResponse{Response: "chimney", TimeDiff: time.Since(time.Now().Add(-time.Second))}
+	queueResponse := chatgpt.LastResponse{Response: "chimney", TimeDiff: time.Since(time.Now().Add(-time.Second)).String()}
 	jsonResp := utils.ToJSON(queueResponse)
 	mockResponsesQueue.On("PullMessage", mock.Anything, mock.Anything).Return([]byte(jsonResp), nil)
 

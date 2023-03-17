@@ -66,7 +66,7 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 			return
 		}
 		res = alexa.NewResponse("Random Fact", randomFact, false)
-		h.lastResponse = &chatgpt.LastResponse{Response: randomFact, TimeDiff: time.Since(execTime)}
+		h.lastResponse = &chatgpt.LastResponse{Response: randomFact, TimeDiff: time.Since(execTime).String()}
 
 	case alexa.LastResponseIntent:
 		log.Println("fetching last response")
@@ -88,7 +88,7 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 				fmt.Sprintf(
 					"%s, this took %s to fetch the answer",
 					h.lastResponse.Response,
-					h.lastResponse.TimeDiff.String(),
+					h.lastResponse.TimeDiff,
 				),
 				false,
 			)
@@ -101,7 +101,7 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 				fmt.Sprintf(
 					"%s, this took %s to fetch the answer",
 					h.lastResponse.Response,
-					h.lastResponse.TimeDiff.String(),
+					h.lastResponse.TimeDiff,
 				),
 				false,
 			)
