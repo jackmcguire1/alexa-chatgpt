@@ -38,7 +38,7 @@
 
 6. Add a new Alexa slot to this Intent and name it 'prompt' with type AMAZON.SearchQuery'
 
-7. Add invocation phrase for the 'AutoCompleteIntent' with value 'complete the sentence {prompt}'
+7. Add invocation phrase for the 'AutoCompleteIntent' with value 'question {prompt}'
 
 8. Deploy the stack to your AWS account. > sam build  && sam deploy --stack-name chatGPT
 
