@@ -20,7 +20,7 @@
 # Examples
 
 <p align="center">
-  <img src="./images/image.png" width="400" height="500" title="Random Phrase">
+  <img src="./images/image.png" width="400" height="500" title="Example question">
   </p>
 
 ## SETUP
@@ -30,27 +30,27 @@
 
 1. Create a new Alexa skill with a name of your choice
 
-2. Set Alexa skill invocation with a sentence of your choice or i.e. 'sentence completer'
+2. Set the Alexa skill invocation with a phrase i.e. 'My question'
 
 3. Set built-in invent invocations to their relevant phrases i.e. 'help', 'stop', 'cancel', etc.
 
-4. Set the fallback intent invocation phrase to be 'random phrase'
+5. Create a new Intent named 'AutoCompleteIntent'
 
-5. Create new Intent named 'AutoCompleteIntent'
+6. Add a new Alexa slot to this Intent and name it 'prompt' with type AMAZON.SearchQuery'
 
-6. Add invocation phrase for the 'AutoCompleteIntent' with value 'complete the sentence {prompt}'
+7. Add invocation phrase for the 'AutoCompleteIntent' with value 'complete the sentence {prompt}'
 
-7. deploy chatgpt lambda and take note of the ARN of the lambda
+8. Deploy the stack to your AWS account. > sam build  && sam deploy --stack-name chatGPT
 
-8. Configure the Alexa skill endpoint default region lambda ARN:<br>
+9. Once the stack has deployed, Configure the Alexa skill Endpoint, apply the default region lambda ARN:<br>
     Once the <b>'chatGPT'</b> lambda has been deployed, <br>
-    retrieve the generated lambda ARN using the AWS console
+    retrieve the generated lambda ARN using the AWS console or sam describe
 
-9. Begin testing your Alexa skill by querying for 'sentence completer' or your chosen invocation phrase
+10. Begin testing your Alexa skill by querying for 'My question' or your chosen invocation phrase, Alexa should respond with "Hi, let's begin our conversation!"
 
-10. Query Alexa 'complete the sentence {your sentence here}'
+11. Query Alexa 'question {your sentence here}'
 
-11. Query Alexa 'random phrase'!
+11. > Note the OpenAI API may take longer than 8 seconds to respond, in this scenario Alexa will tell you your answer will be ready momentarily, simply then ask Alexa 'last response'
 
 12. Tell Alexa to 'stop'
 
