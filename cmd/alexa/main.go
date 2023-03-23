@@ -12,7 +12,7 @@ import (
 
 func main() {
 	svc := chatgpt.NewClient(&chatgpt.Resources{
-		Api: chatgpt.NewChatGptClient(os.Getenv("OPENAI_API_KEY")),
+		Api: chatgpt.NewOpenAIClient(os.Getenv("OPENAI_API_KEY")),
 	})
 
 	pollDelay, _ := strconv.Atoi(os.Getenv("POLL_DELAY"))

@@ -6,22 +6,22 @@ import (
 	"github.com/sashabaranov/go-openai"
 )
 
-type ChatGPTApiClient struct {
+type OpenAIApiClient struct {
 	Token        string
 	OpenAIClient *openai.Client
 }
 
-func NewChatGptClient(token string) *ChatGPTApiClient {
+func NewOpenAIClient(token string) *OpenAIApiClient {
 	openAIClient := openai.NewClient(token)
-	return &ChatGPTApiClient{
+	return &OpenAIApiClient{
 		Token:        token,
 		OpenAIClient: openAIClient,
 	}
 }
 
-func (api *ChatGPTApiClient) AutoComplete(ctx context.Context, prompt string) (openai.ChatCompletionResponse, error) {
+func (api *OpenAIApiClient) AutoComplete(ctx context.Context, prompt string) (openai.ChatCompletionResponse, error) {
 	req := openai.ChatCompletionRequest{
-		Model: openai.GPT3Dot5Turbo,
+		Model: openai.GPT4,
 		Messages: []openai.ChatCompletionMessage{
 			{
 				Role:    openai.ChatMessageRoleUser,
