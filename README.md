@@ -26,8 +26,35 @@
 ## SETUP
 > How to configure your Alexa Skill
 
-> Please Configure the Makefile with your own available S3 bucket
+### Prerequisites
 
+- [Git][git]
+- [Go 1.20][golang]+
+- [golangCI-Lint][golint]
+- [AWS CLI][aws-cli]
+- [AWS SAM CLI][aws-sam-cli]
+
+### [AWS CLI Configuration][aws-cli-config]
+> Make sure you configure the AWS CLI
+- AWS Access Key ID
+- AWS Secret Access Key
+- Default region 'us-east-1'
+```shell
+aws configure
+```
+
+### Requirements
+- <b>OPENAI API KEY</b>
+  * please set environment variables for your OPENAI API key
+    > export API_KEY=123456
+
+
+- <b>Create a S3 Bucket on your AWS Account</b>
+  * Set envrionment variable of the S3 Bucket name you have created [this is where AWS SAM]
+    > export S3_BUCKET=bucket_name
+
+
+### Deployment Steps
 1. Create a new Alexa skill with a name of your choice
 
 
@@ -50,7 +77,8 @@
 > sam build  && sam deploy --stack-name chat-gpt --s3-bucket $S3_BUCKET_NAME --parameter-overrides 'ApiKey=$API_KEY' --capabilities CAPABILITY_IAM
 
 
-9. Once the stack has deployed, make note of lambda ARN from the 'ChatGPTLambdaArn' field, from the the output of > sam list stack-outputs --stack-name chat-gpt
+9. Once the stack has deployed, make note of lambda ARN from the 'ChatGPTLambdaArn' field, from the the output of 
+> sam list stack-outputs --stack-name chat-gpt
 
 
 10. Apply this lambda ARN to your 'Default Endpoint' configuration within your Alexa skill, i.e. 'arn:aws:lambda:us-east-1:123456789:function:chatGPT'
@@ -60,37 +88,13 @@
 
 
 12. Query Alexa 'question {your sentence here}'
+> Note the OpenAI API may take longer than 8 seconds to respond, in this scenario Alexa will tell you your answer will be ready momentarily, simply then ask Alexa 'last response'
 
 
-13. > Note the OpenAI API may take longer than 8 seconds to respond, in this scenario Alexa will tell you your answer will be ready momentarily, simply then ask Alexa 'last response'
+13. Tell Alexa to 'stop'
 
 
-14. Tell Alexa to 'stop'
-
-
-15. <b>Testing complete!</b>
-
-## Development
-
-To develop `how-old-is` or interact with its source code in any meaningful way, be
-sure you have the following installed:
-
-### Prerequisites
-
-- [Git][git]
-- [Go 1.20][golang]+
-- [golangCI-Lint][golint]
-- [AWS CLI][aws-cli]
-- [AWS SAM CLI][aws-sam-cli]
-
-### [AWS CLI Configuration][aws-cli-config]
-> Make sure you configure the AWS CLI
-- AWS Access Key ID
-- AWS Secret Access Key
-- Default region 'us-east-1'
-```shell
-aws configure
-```
+14. <b>Testing complete!</b>
 
 ## Contributors
 
