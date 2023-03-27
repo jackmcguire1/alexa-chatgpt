@@ -30,31 +30,45 @@
 
 1. Create a new Alexa skill with a name of your choice
 
+
 2. Set the Alexa skill invocation with a phrase i.e. 'My question'
+
 
 3. Set built-in invent invocations to their relevant phrases i.e. 'help', 'stop', 'cancel', etc.
 
-5. Create a new Intent named 'AutoCompleteIntent'
 
-6. Add a new Alexa slot to this Intent and name it 'prompt' with type AMAZON.SearchQuery'
+4. Create a new Intent named 'AutoCompleteIntent'
 
-7. Add invocation phrase for the 'AutoCompleteIntent' with value 'question {prompt}'
 
-8. Deploy the stack to your AWS account. > sam build  && sam deploy --stack-name chatGPT
+5. Add a new Alexa slot to this Intent and name it 'prompt' with type AMAZON.SearchQuery'
 
-9. Once the stack has deployed, Configure the Alexa skill Endpoint, apply the default region lambda ARN:<br>
-    Once the <b>'chatGPT'</b> lambda has been deployed, <br>
-    retrieve the generated lambda ARN using the AWS console or sam describe
 
-10. Begin testing your Alexa skill by querying for 'My question' or your chosen invocation phrase, Alexa should respond with "Hi, let's begin our conversation!"
+6. Add invocation phrase for the 'AutoCompleteIntent' with value 'question {prompt}'
 
-11. Query Alexa 'question {your sentence here}'
 
-11. > Note the OpenAI API may take longer than 8 seconds to respond, in this scenario Alexa will tell you your answer will be ready momentarily, simply then ask Alexa 'last response'
+7. Deploy the stack to your AWS account.
+> sam build  && sam deploy --stack-name chat-gpt --s3-bucket $S3_BUCKET_NAME --parameter-overrides 'ApiKey=$API_KEY' --capabilities CAPABILITY_IAM
 
-12. Tell Alexa to 'stop'
 
-13. <b>Testing complete!</b>
+9. Once the stack has deployed, make note of lambda ARN from the 'ChatGPTLambdaArn' field, from the the output of > sam list stack-outputs --stack-name chat-gpt
+
+
+10. Apply this lambda ARN to your 'Default Endpoint' configuration within your Alexa skill, i.e. 'arn:aws:lambda:us-east-1:123456789:function:chatGPT'
+
+
+11. Begin testing your Alexa skill by querying for 'My question' or your chosen invocation phrase, Alexa should respond with "Hi, let's begin our conversation!"
+
+
+12. Query Alexa 'question {your sentence here}'
+
+
+13. > Note the OpenAI API may take longer than 8 seconds to respond, in this scenario Alexa will tell you your answer will be ready momentarily, simply then ask Alexa 'last response'
+
+
+14. Tell Alexa to 'stop'
+
+
+15. <b>Testing complete!</b>
 
 ## Development
 
