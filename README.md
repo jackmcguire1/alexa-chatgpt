@@ -51,7 +51,7 @@ aws configure
 
 - <b>Create a S3 Bucket on your AWS Account</b>
   * Set envrionment variable of the S3 Bucket name you have created [this is where AWS SAM]
-    > export S3_BUCKET=bucket_name
+    > export S3_BUCKET_NAME=bucket_name
 
 
 ### Deployment Steps
