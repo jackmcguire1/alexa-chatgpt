@@ -75,3 +75,24 @@ Resources:
         - SQSSendMessagePolicy:
             QueueName:
               !GetAtt ResponsesQueue.QueueName
+
+Outputs:
+  ChatGPTLambdaArn:
+    Description: "chatGPT alexa skill lambda ARN"
+    Value: !GetAtt ChatGPTFunction.Arn
+
+  ChatGPTRequestsArn:
+    Description: "chatGPT requests handling lambda ARN"
+    Value: !GetAtt ChatGPTRequests.Arn
+
+  RequestsQueue:
+    Description: "chatGPT prompt requests queue"
+    Value: !GetAtt RequestsQueue.Arn
+
+  RequestsDLQ:
+    Description: "chatGPT prompt requests dead letter queue"
+    Value: !GetAtt RequestsDLQ.Arn
+
+  ResponsesQueue:
+    Description: "chatGPT responses queue"
+    Value: !GetAtt ResponsesQueue.Arn
