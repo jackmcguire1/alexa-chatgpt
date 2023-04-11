@@ -23,4 +23,4 @@ jobs:
             token: ${{ secrets.CODECOV_TOKEN }}
             verbose: true
       - run: sam build
-      - run: sam deploy --stack-name chat-gpt --s3-bucket ${{ secrets.S3_BUCKET }} --parameter-overrides 'ApiKey=${{ secrets.OPENAI_API_KEY }}' --capabilities CAPABILITY_IAM
+      - run: sam deploy --stack-name chat-gpt --s3-bucket ${{ secrets.S3_BUCKET }} --parameter-overrides 'ApiKey=${{ secrets.OPENAI_API_KEY }}' --capabilities CAPABILITY_IAM --use-container
