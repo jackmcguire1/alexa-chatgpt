@@ -45,7 +45,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: chatGPT
-      CodeUri:.
+      CodeUri: .
       Events:
         AlexaSkillEvent:
           Type: AlexaSkill
