@@ -59,8 +59,8 @@ Resources:
         - SQSSendMessagePolicy:
             QueueName:
               !GetAtt RequestsQueue.QueueName
-         Metadata:
-    BuildMethod: makefile
+    Metadata:
+      BuildMethod: makefile
 
   ChatGPTRequests:
     Type: AWS::Serverless::Function
@@ -77,8 +77,8 @@ Resources:
         - SQSSendMessagePolicy:
             QueueName:
               !GetAtt ResponsesQueue.QueueName
-      Metadata:
-    BuildMethod: makefile
+    Metadata:
+      BuildMethod: makefile
 
 Outputs:
   ChatGPTLambdaArn:
