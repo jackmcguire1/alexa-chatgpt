@@ -27,5 +27,5 @@ jobs:
         with:
             token: ${{ secrets.CODECOV_TOKEN }}
             verbose: true
-      - run: sam build
+      - run: sam build --parameter-overrides Runtime=provided.al2 Handler=bootstrap Architecture=arm64 ApiKey=${{ secrets.OPENAI_API_KEY }}
       - run: sam deploy --stack-name chat-gpt --s3-bucket ${{ secrets.S3_BUCKET }} --parameter-overrides Runtime=provided.al2 Handler=bootstrap Architecture=arm64 ApiKey=${{ secrets.OPENAI_API_KEY }} --capabilities CAPABILITY_IAM
