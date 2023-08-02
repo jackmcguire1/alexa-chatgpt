@@ -28,7 +28,7 @@ func (handler *SqsHandler) ProcessChatGPTRequest(ctx context.Context, req *chatg
 	}
 
 	since := time.Since(execTime)
-	log.Println("pushing response to queue", response, since)
+	log.Printf("pushing response to queue %q %s", response, since)
 
 	err = handler.ResponseQueue.PushMessage(ctx, &chatgpt.LastResponse{
 		Prompt:   req.Prompt,
