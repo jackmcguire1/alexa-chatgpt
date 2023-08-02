@@ -2,6 +2,11 @@ on:
   push:
     branches:
       - main
+
+env:
+  HANDLER: bootstrap
+  ARCH: GOARCH=arm64
+
 jobs:
   build-deploy:
     runs-on: ubuntu-latest
@@ -23,4 +28,4 @@ jobs:
             token: ${{ secrets.CODECOV_TOKEN }}
             verbose: true
       - run: sam build
-      - run: sam deploy --stack-name chat-gpt --s3-bucket ${{ secrets.S3_BUCKET }} --parameter-overrides 'ApiKey=${{ secrets.OPENAI_API_KEY }}' --capabilities CAPABILITY_IAM
+      - run: sam deploy --stack-name chat-gpt --s3-bucket ${{ secrets.S3_BUCKET }} --parameter-overrides Runtime=provided.al2 Handler=bootstrap Architecture=arm64 ApiKey=${{ secrets.OPENAI_API_KEY }} --capabilities CAPABILITY_IAM
