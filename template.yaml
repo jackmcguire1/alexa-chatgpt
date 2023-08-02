@@ -17,17 +17,17 @@ Parameters:
     Type: String
     Description: OpenAI API Key
 
-    Runtime:
-      Type: String
-      Default: go1.x
+  Runtime:
+    Type: String
+    Default: go1.x
 
-    Architecture:
-      Type: String
-      Default: "x86_64"
+  Architecture:
+    Type: String
+    Default: "x86_64"
 
-    Handler:
-      Type: String
-      Default: main
+  Handler:
+    Type: String
+    Default: main
 
 Resources:
 
