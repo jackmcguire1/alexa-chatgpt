@@ -26,6 +26,13 @@
 ## SETUP
 > How to configure your Alexa Skill
 
+### Environment
+> we use handler env var to name the go binary either 'main' or 'bootstrap' for AL2.Provided purposes, devs should use 'main'
+
+```shell
+  export HANDLER=main
+```
+
 ### Prerequisites
 
 - [Git][git]
