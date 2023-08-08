@@ -84,7 +84,7 @@ Resources:
       Architectures:
         - !Ref Architecture
       FunctionName: chatGPTRequests
-      CodeUri: .
+      CodeUri: ./cmd/sqs
       Events:
         MySQSEvent:
           Type: SQS
@@ -96,7 +96,7 @@ Resources:
             QueueName:
               !GetAtt ResponsesQueue.QueueName
     Metadata:
-      BuildMethod: makefile
+      BuildMethod: go1.x
 
 Outputs:
   ChatGPTLambdaArn:
