@@ -59,7 +59,7 @@ Resources:
       Architectures:
         - !Ref Architecture
       FunctionName: chatGPT
-      CodeUri: .
+      CodeUri: ./cmd/alexa
       Events:
         AlexaSkillEvent:
           Type: AlexaSkill
