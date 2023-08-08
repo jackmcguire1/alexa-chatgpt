@@ -4,7 +4,6 @@ on:
       - main
 
 env:
-  HANDLER: bootstrap
   ARCH: GOARCH=arm64
 
 jobs:

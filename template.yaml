@@ -74,7 +74,7 @@ Resources:
             QueueName:
               !GetAtt RequestsQueue.QueueName
     Metadata:
-      BuildMethod: makefile
+      BuildMethod: go1.x
 
   ChatGPTRequests:
     Type: AWS::Serverless::Function
