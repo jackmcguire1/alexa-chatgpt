@@ -13,6 +13,12 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/jackmcguire1/alexa-chatgpt)](https://goreportcard.com/report/github.com/jackmcguire1/alexa-chatgpt)
 [![codecov](https://codecov.io/gh/jackmcguire1/alexa-chatgpt/branch/main/graph/badge.svg)](https://codecov.io/gh/jackmcguire1/alexa-chatgpt)
 
+# Logic
+- The Alexa skill lambda will send request to lambda that processes chatGPT prompts via SQS, the Alexa skill lambda will then poll the response SQS and return the response if a message is avaliable in <7 seconds.
+
+> Due to the Alexa skill response constraint of 8 seconds following logic has been applied
+- if the Alexa skill doesn't receive a SQS message when polling the response SQS within ~7 seconds, it will return 'your response will be available momentarily', to not end the Alexa skill session.
+- Querying the Alexa skill with 'Last Response', the Alexa Skill lambda will immediately poll the response SQS to retrieve the delayed response and output the prompt with the timestamp of response time
 
 # Infrastructure
   <img src="./images/infra.png">
