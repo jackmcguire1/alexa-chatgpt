@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
+	"log/slog"
 	"time"
 
 	"github.com/jackmcguire1/alexa-chatgpt/internal/dom/chatgpt"
@@ -15,6 +15,7 @@ import (
 )
 
 type Handler struct {
+	Logger         *slog.Logger
 	ChatGptService chatgpt.Service
 	lastResponse   *chatgpt.LastResponse
 	ResponsesQueue queue.PullPoll
@@ -30,7 +31,7 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 	switch req.Body.Intent.Name {
 	case alexa.AutoCompleteIntent:
 		prompt := req.Body.Intent.Slots["prompt"].Value
-		log.Println("found phrase to autocomplete", prompt)
+		h.Logger.With("prompt", prompt).Info("found phrase to autocomplete")
 
 		err = h.RequestsQueue.PushMessage(ctx, &chatgpt.Request{Prompt: prompt})
 		if err != nil {
@@ -47,7 +48,10 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 			var response *chatgpt.LastResponse
 			err = json.Unmarshal(data, &response)
 			if err != nil {
-				log.Println("failed to unmarshal response", string(data), err)
+				h.Logger.
+					With("error", err).
+					With("data", string(data)).
+					Error("failed to unmarshal chatgpt response")
 				return
 			}
 			res = alexa.NewResponse("Autocomplete", response.Response, false)
@@ -57,6 +61,7 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 		}
 		res = alexa.NewResponse("Autocomplete", "your response will be available momentarily", false)
 	case alexa.RandomFactIntent:
+		h.Logger.Debug("random fact")
 		var randomFact string
 
 		execTime := time.Now().UTC()
@@ -69,7 +74,7 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 		h.lastResponse = &chatgpt.LastResponse{Response: randomFact, TimeDiff: time.Since(execTime).String()}
 
 	case alexa.LastResponseIntent:
-		log.Println("fetching last response")
+		h.Logger.Debug("fetching last response")
 
 		var data []byte
 		data, err = h.ResponsesQueue.PullMessage(ctx, h.PollDelay)
@@ -81,7 +86,7 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 			var response *chatgpt.LastResponse
 			err = json.Unmarshal(data, &response)
 			if err != nil {
-				log.Println("failed to unmarshal response", string(data), err)
+				h.Logger.With("error", err).Error("failed to unmarshal response")
 				return
 			}
 			res = alexa.NewResponse("Last Response",
@@ -93,7 +98,6 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 				false,
 			)
 			h.lastResponse = response
-			return
 		}
 
 		if h.lastResponse != nil {
@@ -117,24 +121,28 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 			false,
 		)
 	case alexa.CancelIntent:
+		h.Logger.Debug("user has invoked cancelled intent")
 		res = alexa.NewResponse(
 			"Next Question",
 			"okay, i'm listening",
 			false,
 		)
 	case alexa.NoIntent, alexa.StopIntent:
+		h.Logger.Debug("user has invoked no or stop intent")
 		res = alexa.NewResponse(
 			"Bye",
 			"Good bye",
 			true,
 		)
 	case alexa.FallbackIntent:
+		h.Logger.Debug("user has invoked fallback intent")
 		res = alexa.NewResponse(
 			"Try again!",
 			"Try again!",
 			false,
 		)
 	default:
+		h.Logger.Error("user has invoked unsupported intent")
 		res = alexa.NewResponse(
 			"unsupported intent",
 			"unsupported intent!",
@@ -146,11 +154,13 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 }
 
 func (h *Handler) Invoke(ctx context.Context, req alexa.Request) (resp alexa.Response, err error) {
-	log.Println(utils.ToJSON(req))
+	h.Logger.
+		With("payload", utils.ToJSON(req)).
+		Debug("lambda invoked")
 
 	switch req.Body.Type {
 	case alexa.LaunchRequestType:
-		log.Println("launch request type")
+		h.Logger.Debug("launch request type found")
 		resp = alexa.NewResponse("chatGPT",
 			"Hi, lets begin our conversation!",
 			false,
@@ -160,12 +170,20 @@ func (h *Handler) Invoke(ctx context.Context, req alexa.Request) (resp alexa.Res
 	}
 
 	if err != nil {
+		h.Logger.
+			With("error", err).
+			Error("there as an error processing the request")
+
+		err = nil
 		resp = alexa.NewResponse("error",
 			"an error occurred when processing your prompt",
 			true,
 		)
 	}
 
-	log.Println(utils.ToJSON(resp))
+	h.Logger.
+		With("response", utils.ToJSON(resp)).
+		Debug("returning response to alexa")
+
 	return
 }

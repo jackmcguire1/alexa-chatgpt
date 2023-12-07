@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log/slog"
 	"os"
 	"strconv"
 
@@ -11,8 +12,10 @@ import (
 )
 
 func main() {
+	jsonLogH := slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo})
+	logger := slog.New(jsonLogH)
 	svc := chatgpt.NewClient(&chatgpt.Resources{
-		Api: chatgpt.NewChatGptClient(os.Getenv("OPENAI_API_KEY")),
+		Api: chatgpt.NewOpenAiApiClient(os.Getenv("OPENAI_API_KEY")),
 	})
 
 	pollDelay, _ := strconv.Atoi(os.Getenv("POLL_DELAY"))
@@ -22,6 +25,7 @@ func main() {
 		RequestsQueue:  queue.NewQueue(os.Getenv("REQUESTS_QUEUE_URI")),
 		ResponsesQueue: queue.NewQueue(os.Getenv("RESPONSES_QUEUE_URI")),
 		PollDelay:      pollDelay,
+		Logger:         logger,
 	}
 	lambda.Start(h.Invoke)
 }

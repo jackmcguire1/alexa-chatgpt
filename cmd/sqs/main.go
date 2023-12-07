@@ -59,7 +59,7 @@ func (handler *SqsHandler) ProcessSQS(ctx context.Context, event events.SQSEvent
 func main() {
 	h := &SqsHandler{
 		ChatGptSvc: chatgpt.NewClient(&chatgpt.Resources{
-			Api: chatgpt.NewChatGptClient(os.Getenv("OPENAI_API_KEY")),
+			Api: chatgpt.NewOpenAiApiClient(os.Getenv("OPENAI_API_KEY")),
 		}),
 		ResponseQueue: queue.NewQueue(os.Getenv("RESPONSES_QUEUE_URI")),
 	}

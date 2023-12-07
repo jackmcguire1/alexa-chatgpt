@@ -2,10 +2,13 @@ package api
 
 import (
 	"context"
-	"github.com/jackmcguire1/alexa-chatgpt/internal/pkg/queue"
-	"github.com/jackmcguire1/alexa-chatgpt/internal/pkg/utils"
+	"log/slog"
+	"os"
 	"testing"
 	"time"
+
+	"github.com/jackmcguire1/alexa-chatgpt/internal/pkg/queue"
+	"github.com/jackmcguire1/alexa-chatgpt/internal/pkg/utils"
 
 	"github.com/jackmcguire1/alexa-chatgpt/internal/dom/chatgpt"
 	"github.com/jackmcguire1/alexa-chatgpt/internal/pkg/alexa"
@@ -13,11 +16,16 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
+var (
+	jsonLogH = slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelError})
+	logger   = slog.New(jsonLogH)
+)
+
 func TestLaunchIntent(t *testing.T) {
 	mockChatGptService := &chatgpt.MockClient{}
-
 	h := &Handler{
 		ChatGptService: mockChatGptService,
+		Logger:         logger,
 	}
 
 	req := alexa.Request{
@@ -38,6 +46,7 @@ func TestFallbackIntent(t *testing.T) {
 	mockChatGptService := &chatgpt.MockClient{}
 	h := &Handler{
 		ChatGptService: mockChatGptService,
+		Logger:         logger,
 	}
 
 	req := alexa.Request{
@@ -79,6 +88,7 @@ func TestAutoCompleteIntent(t *testing.T) {
 		ChatGptService: mockChatGptService,
 		ResponsesQueue: mockResponsesQueue,
 		RequestsQueue:  mockRequestsQueue,
+		Logger:         logger,
 	}
 
 	req := alexa.Request{
@@ -109,8 +119,10 @@ func TestRandomIntent(t *testing.T) {
 	mockChatGptService := &chatgpt.MockClient{}
 
 	mockChatGptService.On("AutoComplete", mock.Anything, mock.Anything).Return("santa fell down the chimney", nil)
+
 	h := &Handler{
 		ChatGptService: mockChatGptService,
+		Logger:         logger,
 	}
 
 	req := alexa.Request{
@@ -149,6 +161,7 @@ func TestLastResponseIntent(t *testing.T) {
 		lastResponse:   &queueResponse,
 		ChatGptService: mockChatGptService,
 		ResponsesQueue: mockResponsesQueue,
+		Logger:         logger,
 	}
 
 	req := alexa.Request{
@@ -179,6 +192,7 @@ func TestStopIntent(t *testing.T) {
 	mockChatGptService := &chatgpt.MockClient{}
 	h := &Handler{
 		ChatGptService: mockChatGptService,
+		Logger:         logger,
 	}
 
 	req := alexa.Request{
@@ -203,6 +217,7 @@ func TestCancelIntent(t *testing.T) {
 	mockChatGptService := &chatgpt.MockClient{}
 	h := &Handler{
 		ChatGptService: mockChatGptService,
+		Logger:         logger,
 	}
 
 	req := alexa.Request{
@@ -227,6 +242,7 @@ func TestHelpIntent(t *testing.T) {
 	mockChatGptService := &chatgpt.MockClient{}
 	h := &Handler{
 		ChatGptService: mockChatGptService,
+		Logger:         logger,
 	}
 
 	req := alexa.Request{
@@ -251,6 +267,7 @@ func TestUnsupportedIntent(t *testing.T) {
 	mockChatGptService := &chatgpt.MockClient{}
 	h := &Handler{
 		ChatGptService: mockChatGptService,
+		Logger:         logger,
 	}
 
 	req := alexa.Request{
