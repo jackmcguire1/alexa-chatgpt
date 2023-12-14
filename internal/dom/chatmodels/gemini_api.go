@@ -21,13 +21,12 @@ func NewGeminiApiClient(token string) *GeminiApiClient {
 }
 
 func (api *GeminiApiClient) GeminiChat(ctx context.Context, prompt string) (*genai.GenerateContentResponse, error) {
-	client, err := genai.NewClient(ctx, option.WithAPIKey(api.Token))
+	client, err := genai.NewClient(ctx, option.WithAPIKey(api.Token), option.WithQuotaProject(""), option.)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer client.Close()
 	model := client.GenerativeModel("gemini-pro")
-	cs := model.StartChat()
 
-	return cs.SendMessage(ctx, genai.Text(prompt))
+	return model.GenerateContent(ctx, genai.Text(prompt))
 }
