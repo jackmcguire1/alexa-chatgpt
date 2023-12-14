@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"strings"
 	"time"
 
 	"github.com/jackmcguire1/alexa-chatgpt/internal/dom/chatmodels"
@@ -34,7 +35,7 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 		prompt := req.Body.Intent.Slots["prompt"].Value
 		h.Logger.With("prompt", prompt).Info("found phrase to autocomplete")
 
-		switch prompt {
+		switch strings.ToLower(prompt) {
 		case "use gemini":
 			h.Model = chatmodels.CHAT_MODEL_GEMINI
 			res = alexa.NewResponse("Autocomplete", "ok", false)
