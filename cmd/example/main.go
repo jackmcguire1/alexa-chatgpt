@@ -5,14 +5,14 @@ import (
 	"log"
 	"os"
 
-	"github.com/jackmcguire1/alexa-chatgpt/internal/dom/chatgpt"
+	"github.com/jackmcguire1/alexa-chatgpt/internal/dom/chatmodels"
 )
 
 func main() {
-	svc := chatgpt.NewClient(&chatgpt.Resources{
-		Api: chatgpt.NewOpenAiApiClient(os.Getenv("OPENAI_API_KEY")),
+	svc := chatmodels.NewClient(&chatmodels.Resources{
+		GPTApi: chatmodels.NewOpenAiApiClient(os.Getenv("OPENAI_API_KEY")),
 	})
-	resp, err := svc.AutoComplete(context.Background(), "tell me a random fact")
+	resp, err := svc.AutoComplete(context.Background(), "tell me a random fact", chatmodels.CHAT_MODEL_GPT)
 	if err != nil {
 		log.Fatal(err)
 	}

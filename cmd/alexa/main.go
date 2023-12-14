@@ -7,15 +7,15 @@ import (
 
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/jackmcguire1/alexa-chatgpt/internal/api"
-	"github.com/jackmcguire1/alexa-chatgpt/internal/dom/chatgpt"
+	"github.com/jackmcguire1/alexa-chatgpt/internal/dom/chatmodels"
 	"github.com/jackmcguire1/alexa-chatgpt/internal/pkg/queue"
 )
 
 func main() {
 	jsonLogH := slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo})
 	logger := slog.New(jsonLogH)
-	svc := chatgpt.NewClient(&chatgpt.Resources{
-		Api: chatgpt.NewOpenAiApiClient(os.Getenv("OPENAI_API_KEY")),
+	svc := chatmodels.NewClient(&chatmodels.Resources{
+		GPTApi: chatmodels.NewOpenAiApiClient(os.Getenv("OPENAI_API_KEY")),
 	})
 
 	pollDelay, _ := strconv.Atoi(os.Getenv("POLL_DELAY"))
@@ -26,6 +26,7 @@ func main() {
 		ResponsesQueue: queue.NewQueue(os.Getenv("RESPONSES_QUEUE_URI")),
 		PollDelay:      pollDelay,
 		Logger:         logger,
+		Model:          chatmodels.CHAT_MODEL_GPT,
 	}
 	lambda.Start(h.Invoke)
 }

@@ -8,7 +8,7 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/jackmcguire1/alexa-chatgpt/internal/dom/chatgpt"
+	"github.com/jackmcguire1/alexa-chatgpt/internal/dom/chatmodels"
 	"github.com/jackmcguire1/alexa-chatgpt/internal/pkg/alexa"
 	"github.com/jackmcguire1/alexa-chatgpt/internal/pkg/queue"
 	"github.com/jackmcguire1/alexa-chatgpt/internal/pkg/utils"
@@ -16,15 +16,16 @@ import (
 
 type Handler struct {
 	Logger         *slog.Logger
-	ChatGptService chatgpt.Service
-	lastResponse   *chatgpt.LastResponse
+	ChatGptService chatmodels.Service
+	lastResponse   *chatmodels.LastResponse
 	ResponsesQueue queue.PullPoll
 	RequestsQueue  queue.PullPoll
 	PollDelay      int
+	Model          chatmodels.ChatModel
 }
 
 func (h *Handler) randomFact(ctx context.Context) (string, error) {
-	return h.ChatGptService.AutoComplete(ctx, "tell me a random fact")
+	return h.ChatGptService.AutoComplete(ctx, "tell me a random fact", chatmodels.CHAT_MODEL_GPT)
 }
 
 func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res alexa.Response, err error) {
@@ -33,7 +34,21 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 		prompt := req.Body.Intent.Slots["prompt"].Value
 		h.Logger.With("prompt", prompt).Info("found phrase to autocomplete")
 
-		err = h.RequestsQueue.PushMessage(ctx, &chatgpt.Request{Prompt: prompt})
+		switch prompt {
+		case "use google":
+			h.Model = chatmodels.CHAT_MODEL_GOOGLE
+			res = alexa.NewResponse("Autocomplete", "ok", false)
+			return
+		case "use gpt":
+			h.Model = chatmodels.CHAT_MODEL_GPT
+			res = alexa.NewResponse("Autocomplete", "ok", false)
+			return
+		case "what model":
+			res = alexa.NewResponse("Autocomplete", fmt.Sprintf("I am using the model %s", h.Model.String()), false)
+			return
+		}
+
+		err = h.RequestsQueue.PushMessage(ctx, &chatmodels.Request{Prompt: prompt, Model: h.Model})
 		if err != nil {
 			break
 		}
@@ -45,7 +60,7 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 		}
 
 		if len(data) > 0 {
-			var response *chatgpt.LastResponse
+			var response *chatmodels.LastResponse
 			err = json.Unmarshal(data, &response)
 			if err != nil {
 				h.Logger.
@@ -54,12 +69,16 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 					Error("failed to unmarshal chatgpt response")
 				return
 			}
-			res = alexa.NewResponse("Autocomplete", response.Response, false)
+			res = alexa.NewResponse(
+				"Autocomplete",
+				fmt.Sprintf("%s from the %s model", response.Response, response.Model),
+				false,
+			)
 			h.lastResponse = response
 
 			return
 		}
-		res = alexa.NewResponse("Autocomplete", "your response will be available momentarily", false)
+		res = alexa.NewResponse("Autocomplete", "your response will be available shortly", false)
 	case alexa.RandomFactIntent:
 		h.Logger.Debug("random fact")
 		var randomFact string
@@ -71,7 +90,7 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 			return
 		}
 		res = alexa.NewResponse("Random Fact", randomFact, false)
-		h.lastResponse = &chatgpt.LastResponse{Response: randomFact, TimeDiff: time.Since(execTime).String()}
+		h.lastResponse = &chatmodels.LastResponse{Response: randomFact, TimeDiff: time.Since(execTime).String()}
 
 	case alexa.LastResponseIntent:
 		h.Logger.Debug("fetching last response")
@@ -83,7 +102,7 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 		}
 
 		if len(data) > 0 {
-			var response *chatgpt.LastResponse
+			var response *chatmodels.LastResponse
 			err = json.Unmarshal(data, &response)
 			if err != nil {
 				h.Logger.With("error", err).Error("failed to unmarshal response")
@@ -91,8 +110,9 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 			}
 			res = alexa.NewResponse("Last Response",
 				fmt.Sprintf(
-					"%s, this took %s to fetch the answer",
+					"%s, from the %s model, this took %s to fetch the answer",
 					response.Response,
+					response.Model,
 					response.TimeDiff,
 				),
 				false,
