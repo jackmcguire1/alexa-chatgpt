@@ -33,6 +33,7 @@ func TestHandler(t *testing.T) {
 
 	request := &chatmodels.Request{
 		Prompt: "tell me a random fact",
+		Model:  chatmodels.CHAT_MODEL_GPT,
 	}
 
 	err := h.ProcessSQS(context.Background(), events.SQSEvent{
