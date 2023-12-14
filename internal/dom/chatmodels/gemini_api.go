@@ -10,18 +10,18 @@ import (
 )
 
 type GeminiApiClient struct {
-	Token        string
+	Token        []byte
 	OpenAIClient *openai.Client
 }
 
 func NewGeminiApiClient(token string) *GeminiApiClient {
 	return &GeminiApiClient{
-		Token: token,
+		Token: []byte(token),
 	}
 }
 
 func (api *GeminiApiClient) GeminiChat(ctx context.Context, prompt string) (*genai.GenerateContentResponse, error) {
-	client, err := genai.NewClient(ctx, option.WithAPIKey(api.Token))
+	client, err := genai.NewClient(ctx, option.WithCredentialsJSON(api.Token))
 	if err != nil {
 		log.Fatal(err)
 	}
