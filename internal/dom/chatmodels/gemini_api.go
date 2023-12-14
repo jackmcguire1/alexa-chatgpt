@@ -3,9 +3,11 @@ package chatmodels
 import (
 	"context"
 	"encoding/base64"
+	"log"
 
 	"github.com/google/generative-ai-go/genai"
 	"github.com/sashabaranov/go-openai"
+	"golang.org/x/oauth2/google"
 	"google.golang.org/api/option"
 )
 
@@ -23,7 +25,13 @@ func NewGeminiApiClient(token string) *GeminiApiClient {
 }
 
 func (api *GeminiApiClient) GeminiChat(ctx context.Context, prompt string) (*genai.GenerateContentResponse, error) {
-	client, err := genai.NewClient(ctx, option.WithCredentialsJSON(api.Token))
+	creds, err := google.CredentialsFromJSON(ctx, api.Token)
+	if err != nil {
+		log.Printf("got token %s err:%s \n", string(api.Token), err)
+		return nil, err
+	}
+
+	client, err := genai.NewClient(ctx, option.WithCredentials(creds))
 	if err != nil {
 		return nil, err
 	}
