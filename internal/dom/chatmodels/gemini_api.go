@@ -16,7 +16,7 @@ type GeminiApiClient struct {
 }
 
 func NewGeminiApiClient(token string) *GeminiApiClient {
-	tkn, _ := base64.StdEncoding.DecodeString(token)
+	tkn, _ := base64.RawStdEncoding.DecodeString(token)
 
 	return &GeminiApiClient{
 		Token: tkn,
