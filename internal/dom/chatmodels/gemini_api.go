@@ -21,7 +21,7 @@ func NewGeminiApiClient(token string) *GeminiApiClient {
 }
 
 func (api *GeminiApiClient) GeminiChat(ctx context.Context, prompt string) (*genai.GenerateContentResponse, error) {
-	client, err := genai.NewClient(ctx, option.WithAPIKey(api.Token), option.WithQuotaProject(""), option.)
+	client, err := genai.NewClient(ctx, option.WithAPIKey(api.Token))
 	if err != nil {
 		log.Fatal(err)
 	}
