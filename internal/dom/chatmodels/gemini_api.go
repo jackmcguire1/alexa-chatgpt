@@ -29,7 +29,7 @@ func (api *GeminiApiClient) GeminiChat(ctx context.Context, prompt string) (*gen
 	if err != nil {
 		slog.
 			With("token-json", string(api.Token)).
-			Error("failed to process gemini generative req")
+			Error("failed to process gemini generative request")
 
 		return nil, err
 	}
