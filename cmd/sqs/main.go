@@ -29,7 +29,8 @@ func (handler *SqsHandler) ProcessChatGPTRequest(ctx context.Context, req *chatm
 			With("prompt", req.Prompt).
 			With("error", err).
 			Error("failed to process chat model request")
-		return err
+
+		response = "I encountered an error processing your request, " + err.Error()
 	}
 
 	since := time.Since(execTime)
