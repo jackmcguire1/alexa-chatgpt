@@ -9,13 +9,18 @@ Globals:
       Variables:
         RESPONSES_QUEUE_URI: !Ref ResponsesQueue
         REQUESTS_QUEUE_URI: !Ref RequestsQueue
-        OPENAI_API_KEY: !Ref ApiKey
+        OPENAI_API_KEY: !Ref GptApiKey
+        GEMINI_API_KEY: !Ref GeminiApiKey
         POLL_DELAY: 7
 
 Parameters:
-  ApiKey:
+  GptApiKey:
     Type: String
     Description: OpenAI API Key
+
+  GeminiApiKey:
+    Type: String
+    Description: Google gemini API Key
 
   Runtime:
     Type: String
@@ -63,9 +68,6 @@ Resources:
       Events:
         AlexaSkillEvent:
           Type: AlexaSkill
-      Environment:
-        Variables:
-          OPENAI_API_KEY: !Ref ApiKey
       Policies:
         - SQSPollerPolicy:
             QueueName:

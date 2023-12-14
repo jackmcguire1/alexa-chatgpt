@@ -10,7 +10,7 @@ import (
 	"github.com/jackmcguire1/alexa-chatgpt/internal/pkg/queue"
 	"github.com/jackmcguire1/alexa-chatgpt/internal/pkg/utils"
 
-	"github.com/jackmcguire1/alexa-chatgpt/internal/dom/chatgpt"
+	"github.com/jackmcguire1/alexa-chatgpt/internal/dom/chatmodels"
 	"github.com/jackmcguire1/alexa-chatgpt/internal/pkg/alexa"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -22,7 +22,7 @@ var (
 )
 
 func TestLaunchIntent(t *testing.T) {
-	mockChatGptService := &chatgpt.MockClient{}
+	mockChatGptService := &chatmodels.MockClient{}
 	h := &Handler{
 		ChatGptService: mockChatGptService,
 		Logger:         logger,
@@ -43,10 +43,11 @@ func TestLaunchIntent(t *testing.T) {
 }
 
 func TestFallbackIntent(t *testing.T) {
-	mockChatGptService := &chatgpt.MockClient{}
+	mockChatGptService := &chatmodels.MockClient{}
 	h := &Handler{
 		ChatGptService: mockChatGptService,
 		Logger:         logger,
+		Model:          chatmodels.CHAT_MODEL_GPT,
 	}
 
 	req := alexa.Request{
@@ -73,14 +74,14 @@ func TestFallbackIntent(t *testing.T) {
 }
 
 func TestAutoCompleteIntent(t *testing.T) {
-	mockChatGptService := &chatgpt.MockClient{}
-	mockChatGptService.On("AutoComplete", mock.Anything, mock.Anything).Return("chimney", nil)
+	mockChatGptService := &chatmodels.MockClient{}
+	mockChatGptService.On("AutoComplete", mock.Anything, mock.Anything, mock.Anything).Return("chimney", nil)
 
 	mockRequestsQueue := &queue.MockQueue{}
 	mockRequestsQueue.On("PushMessage", mock.Anything, mock.Anything).Return(nil)
 
 	mockResponsesQueue := &queue.MockQueue{}
-	queueResponse := chatgpt.LastResponse{Response: "chimney"}
+	queueResponse := chatmodels.LastResponse{Response: "chimney", Model: chatmodels.CHAT_MODEL_GPT}
 	jsonResp := utils.ToJSON(queueResponse)
 	mockResponsesQueue.On("PullMessage", mock.Anything, mock.Anything).Return([]byte(jsonResp), nil)
 
@@ -89,6 +90,7 @@ func TestAutoCompleteIntent(t *testing.T) {
 		ResponsesQueue: mockResponsesQueue,
 		RequestsQueue:  mockRequestsQueue,
 		Logger:         logger,
+		Model:          chatmodels.CHAT_MODEL_GPT,
 	}
 
 	req := alexa.Request{
@@ -112,17 +114,18 @@ func TestAutoCompleteIntent(t *testing.T) {
 
 	resp, err := h.Invoke(context.Background(), req)
 	assert.NoError(t, err)
-	assert.EqualValues(t, "chimney", resp.Body.OutputSpeech.Text)
+	assert.EqualValues(t, "chimney from the gpt model", resp.Body.OutputSpeech.Text)
 }
 
 func TestRandomIntent(t *testing.T) {
-	mockChatGptService := &chatgpt.MockClient{}
+	mockChatGptService := &chatmodels.MockClient{}
 
-	mockChatGptService.On("AutoComplete", mock.Anything, mock.Anything).Return("santa fell down the chimney", nil)
+	mockChatGptService.On("AutoComplete", mock.Anything, mock.Anything, mock.Anything).Return("santa fell down the chimney", nil)
 
 	h := &Handler{
 		ChatGptService: mockChatGptService,
 		Logger:         logger,
+		Model:          chatmodels.CHAT_MODEL_GPT,
 	}
 
 	req := alexa.Request{
@@ -152,11 +155,16 @@ func TestRandomIntent(t *testing.T) {
 func TestLastResponseIntent(t *testing.T) {
 
 	mockResponsesQueue := &queue.MockQueue{}
-	queueResponse := chatgpt.LastResponse{Response: "chimney", TimeDiff: time.Since(time.Now().Add(-time.Second)).String()}
+	queueResponse := chatmodels.LastResponse{
+		Model:    chatmodels.CHAT_MODEL_GPT,
+		Response: "chimney",
+		TimeDiff: time.Since(time.Now().Add(-time.Second)).String(),
+	}
+
 	jsonResp := utils.ToJSON(queueResponse)
 	mockResponsesQueue.On("PullMessage", mock.Anything, mock.Anything).Return([]byte(jsonResp), nil)
 
-	mockChatGptService := &chatgpt.MockClient{}
+	mockChatGptService := &chatmodels.MockClient{}
 	h := &Handler{
 		lastResponse:   &queueResponse,
 		ChatGptService: mockChatGptService,
@@ -189,10 +197,11 @@ func TestLastResponseIntent(t *testing.T) {
 }
 
 func TestStopIntent(t *testing.T) {
-	mockChatGptService := &chatgpt.MockClient{}
+	mockChatGptService := &chatmodels.MockClient{}
 	h := &Handler{
 		ChatGptService: mockChatGptService,
 		Logger:         logger,
+		Model:          chatmodels.CHAT_MODEL_GPT,
 	}
 
 	req := alexa.Request{
@@ -214,10 +223,11 @@ func TestStopIntent(t *testing.T) {
 }
 
 func TestCancelIntent(t *testing.T) {
-	mockChatGptService := &chatgpt.MockClient{}
+	mockChatGptService := &chatmodels.MockClient{}
 	h := &Handler{
 		ChatGptService: mockChatGptService,
 		Logger:         logger,
+		Model:          chatmodels.CHAT_MODEL_GPT,
 	}
 
 	req := alexa.Request{
@@ -239,10 +249,11 @@ func TestCancelIntent(t *testing.T) {
 }
 
 func TestHelpIntent(t *testing.T) {
-	mockChatGptService := &chatgpt.MockClient{}
+	mockChatGptService := &chatmodels.MockClient{}
 	h := &Handler{
 		ChatGptService: mockChatGptService,
 		Logger:         logger,
+		Model:          chatmodels.CHAT_MODEL_GPT,
 	}
 
 	req := alexa.Request{
@@ -264,10 +275,11 @@ func TestHelpIntent(t *testing.T) {
 }
 
 func TestUnsupportedIntent(t *testing.T) {
-	mockChatGptService := &chatgpt.MockClient{}
+	mockChatGptService := &chatmodels.MockClient{}
 	h := &Handler{
 		ChatGptService: mockChatGptService,
 		Logger:         logger,
+		Model:          chatmodels.CHAT_MODEL_GPT,
 	}
 
 	req := alexa.Request{

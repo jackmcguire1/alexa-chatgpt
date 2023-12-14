@@ -1,13 +1,14 @@
-package chatgpt
+package chatmodels
 
 import "context"
 
 type Resources struct {
-	Api API
+	GPTApi    GptAPI
+	GoogleAPI GoogleApi
 }
 
 type Service interface {
-	AutoComplete(context.Context, string) (string, error)
+	AutoComplete(context.Context, string, ChatModel) (string, error)
 }
 
 type Client struct {
