@@ -3,11 +3,10 @@ package chatmodels
 import (
 	"context"
 	"encoding/base64"
-	"log"
+	"log/slog"
 
 	"github.com/google/generative-ai-go/genai"
 	"github.com/sashabaranov/go-openai"
-	"golang.org/x/oauth2/google"
 	"google.golang.org/api/option"
 )
 
@@ -25,18 +24,23 @@ func NewGeminiApiClient(token string) *GeminiApiClient {
 }
 
 func (api *GeminiApiClient) GeminiChat(ctx context.Context, prompt string) (*genai.GenerateContentResponse, error) {
-	creds, err := google.CredentialsFromJSON(ctx, api.Token)
+	client, err := genai.NewClient(ctx, option.WithCredentialsJSON(api.Token))
 	if err != nil {
-		log.Printf("got token %s err:%s \n", string(api.Token), err)
-		return nil, err
-	}
+		slog.
+			With("token-json", string(api.Token)).
+			Error("failed to process gemini generative req")
 
-	client, err := genai.NewClient(ctx, option.WithCredentials(creds))
-	if err != nil {
 		return nil, err
 	}
 	defer client.Close()
 	model := client.GenerativeModel("gemini-pro")
 
-	return model.GenerateContent(ctx, genai.Text(prompt))
+	res, err := model.GenerateContent(ctx, genai.Text(prompt))
+	if err != nil {
+		slog.
+			With("prompt", prompt).
+			With("token-json", string(api.Token)).
+			Error("failed to process gemini generative req")
+	}
+	return res, err
 }
