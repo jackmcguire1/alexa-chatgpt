@@ -26,7 +26,7 @@ func (api *GeminiApiClient) GeminiChat(ctx context.Context, prompt string) (*gen
 		log.Fatal(err)
 	}
 	defer client.Close()
-	model := client.GenerativeModel("")
+	model := client.GenerativeModel("gemini-pro")
 	cs := model.StartChat()
 
 	return cs.SendMessage(ctx, genai.Text(prompt))
