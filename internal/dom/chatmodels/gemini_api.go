@@ -2,6 +2,7 @@ package chatmodels
 
 import (
 	"context"
+	"encoding/base64"
 
 	"github.com/google/generative-ai-go/genai"
 	"github.com/sashabaranov/go-openai"
@@ -14,8 +15,10 @@ type GeminiApiClient struct {
 }
 
 func NewGeminiApiClient(token string) *GeminiApiClient {
+	tkn, _ := base64.StdEncoding.DecodeString(token)
+
 	return &GeminiApiClient{
-		Token: []byte(token),
+		Token: tkn,
 	}
 }
 
