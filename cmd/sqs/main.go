@@ -81,7 +81,7 @@ func main() {
 	h := &SqsHandler{
 		ChatModelSvc: chatmodels.NewClient(&chatmodels.Resources{
 			GPTApi:    chatmodels.NewOpenAiApiClient(os.Getenv("OPENAI_API_KEY")),
-			GoogleAPI: chatmodels.NewGeminiApiClient(os.Getenv("GEMINI_API_KEY")),
+			GeminiAPI: chatmodels.NewGeminiApiClient(os.Getenv("GEMINI_API_KEY")),
 		}),
 		ResponseQueue: queue.NewQueue(os.Getenv("RESPONSES_QUEUE_URI")),
 		Logger:        logger,

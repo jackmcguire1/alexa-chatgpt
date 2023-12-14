@@ -35,8 +35,8 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 		h.Logger.With("prompt", prompt).Info("found phrase to autocomplete")
 
 		switch prompt {
-		case "use google":
-			h.Model = chatmodels.CHAT_MODEL_GOOGLE
+		case "use gemini":
+			h.Model = chatmodels.CHAT_MODEL_GEMINI
 			res = alexa.NewResponse("Autocomplete", "ok", false)
 			return
 		case "use gpt":

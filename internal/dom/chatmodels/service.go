@@ -4,7 +4,7 @@ import "context"
 
 type Resources struct {
 	GPTApi    GptAPI
-	GoogleAPI GoogleApi
+	GeminiAPI GeminiAPI
 }
 
 type Service interface {

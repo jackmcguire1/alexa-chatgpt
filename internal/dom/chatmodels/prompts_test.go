@@ -67,9 +67,9 @@ func TestGeminiChat(t *testing.T) {
 		},
 		PromptFeedback: nil,
 	}
-	api.On("GoogleChat", mock.Anything, "steve").Return(mockResponse, nil)
-	c := Client{&Resources{GoogleAPI: api}}
-	resp, err := c.AutoComplete(context.Background(), "steve", CHAT_MODEL_GOOGLE)
+	api.On("GeminiChat", mock.Anything, "steve").Return(mockResponse, nil)
+	c := Client{&Resources{GeminiAPI: api}}
+	resp, err := c.AutoComplete(context.Background(), "steve", CHAT_MODEL_GEMINI)
 	assert.NoError(t, err)
 	assert.EqualValues(t, "is the best", resp)
 }

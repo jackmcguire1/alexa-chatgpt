@@ -9,8 +9,8 @@ import (
 
 func (client *Client) AutoComplete(ctx context.Context, prompt string, model ChatModel) (string, error) {
 	switch model {
-	case CHAT_MODEL_GOOGLE:
-		res, err := client.GoogleAPI.GoogleChat(ctx, prompt)
+	case CHAT_MODEL_GEMINI:
+		res, err := client.GeminiAPI.GeminiChat(ctx, prompt)
 		if err != nil {
 			return "", err
 		}
