@@ -5,20 +5,23 @@ import (
 	"encoding/base64"
 
 	"github.com/google/generative-ai-go/genai"
+	"golang.org/x/oauth2/google"
 	"google.golang.org/api/option"
 )
 
 type GeminiApiClient struct {
-	Token []byte
+	credentials *google.Credentials
 }
 
 func NewGeminiApiClient(token string) *GeminiApiClient {
 	tkn, _ := base64.StdEncoding.DecodeString(token)
-	return &GeminiApiClient{Token: tkn}
+	creds, _ := google.CredentialsFromJSON(context.Background(), tkn, "https://www.googleapis.com/auth/generative-language")
+
+	return &GeminiApiClient{credentials: creds}
 }
 
 func (api *GeminiApiClient) GeminiChat(ctx context.Context, prompt string) (*genai.GenerateContentResponse, error) {
-	client, err := genai.NewClient(ctx, option.WithCredentialsJSON(api.Token))
+	client, err := genai.NewClient(ctx, option.WithCredentials(api.credentials))
 	if err != nil {
 		return nil, err
 	}
