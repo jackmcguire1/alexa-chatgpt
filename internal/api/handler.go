@@ -31,23 +31,27 @@ func (h *Handler) randomFact(ctx context.Context) (string, error) {
 
 func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res alexa.Response, err error) {
 	switch req.Body.Intent.Name {
-	case alexa.AutoCompleteIntent:
-		prompt := req.Body.Intent.Slots["prompt"].Value
-		h.Logger.With("prompt", prompt).Info("found phrase to autocomplete")
+	case alexa.ModelIntent:
+		model := req.Body.Intent.Slots["chatModel"].Value
+		h.Logger.With("model", model).Info("found model to use")
 
-		switch strings.ToLower(prompt) {
-		case "use gemini":
+		switch strings.ToLower(model) {
+		case "gemini":
 			h.Model = chatmodels.CHAT_MODEL_GEMINI
 			res = alexa.NewResponse("Autocomplete", "ok", false)
 			return
-		case "use gpt":
+		case "gpt":
 			h.Model = chatmodels.CHAT_MODEL_GPT
 			res = alexa.NewResponse("Autocomplete", "ok", false)
 			return
-		case "what model", "what model is in use":
+		default:
 			res = alexa.NewResponse("Autocomplete", fmt.Sprintf("I am using the model %s", h.Model.String()), false)
 			return
 		}
+
+	case alexa.AutoCompleteIntent:
+		prompt := req.Body.Intent.Slots["prompt"].Value
+		h.Logger.With("prompt", prompt).Info("found phrase to autocomplete")
 
 		err = h.RequestsQueue.PushMessage(ctx, &chatmodels.Request{Prompt: prompt, Model: h.Model})
 		if err != nil {

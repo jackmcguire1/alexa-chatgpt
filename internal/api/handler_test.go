@@ -278,6 +278,43 @@ func TestHelpIntent(t *testing.T) {
 	assert.False(t, resp.Body.ShouldEndSession)
 }
 
+func TestModelIntent(t *testing.T) {
+	mockChatGptService := &chatmodels.MockClient{}
+	h := &Handler{
+		ChatGptService: mockChatGptService,
+		Logger:         logger,
+		Model:          chatmodels.CHAT_MODEL_GPT,
+	}
+
+	req := alexa.Request{
+		Version: "",
+		Session: alexa.Session{},
+		Body: alexa.ReqBody{
+			Intent: alexa.Intent{
+				Name: alexa.ModelIntent,
+				Slots: map[string]alexa.Slot{
+					"chatModel": {
+						Name:        "chatModel",
+						Value:       "gpt",
+						Resolutions: alexa.Resolutions{},
+					},
+				},
+			},
+			Type: alexa.IntentRequestType,
+		},
+		Context: alexa.Context{},
+	}
+
+	resp, err := h.Invoke(context.Background(), req)
+	assert.NoError(t, err)
+	assert.EqualValues(
+		t,
+		resp.Body.OutputSpeech.Text,
+		"ok",
+	)
+	assert.False(t, resp.Body.ShouldEndSession)
+}
+
 func TestUnsupportedIntent(t *testing.T) {
 	mockChatGptService := &chatmodels.MockClient{}
 	h := &Handler{

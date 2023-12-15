@@ -8,5 +8,6 @@ const (
 	FallbackIntent     = "AMAZON.FallbackIntent"
 	AutoCompleteIntent = "AutoCompleteIntent"
 	RandomFactIntent   = "RandomFactIntent"
+	ModelIntent        = "Model"
 	LastResponseIntent = "LastResponseIntent"
 )
