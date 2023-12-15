@@ -36,11 +36,11 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 		h.Logger.With("model", model).Info("found model to use")
 
 		switch strings.ToLower(model) {
-		case "gemini":
+		case chatmodels.CHAT_MODEL_GEMINI.String():
 			h.Model = chatmodels.CHAT_MODEL_GEMINI
 			res = alexa.NewResponse("Autocomplete", "ok", false)
 			return
-		case "gpt":
+		case chatmodels.CHAT_MODEL_GPT.String():
 			h.Model = chatmodels.CHAT_MODEL_GPT
 			res = alexa.NewResponse("Autocomplete", "ok", false)
 			return
