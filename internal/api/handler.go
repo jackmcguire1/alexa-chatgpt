@@ -44,7 +44,7 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 			h.Model = chatmodels.CHAT_MODEL_GPT
 			res = alexa.NewResponse("Autocomplete", "ok", false)
 			return
-		case "what model":
+		case "what model", "what model is in use":
 			res = alexa.NewResponse("Autocomplete", fmt.Sprintf("I am using the model %s", h.Model.String()), false)
 			return
 		}
@@ -138,7 +138,7 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 	case alexa.HelpIntent:
 		res = alexa.NewResponse(
 			"Help",
-			"Simply repeat, question followed by a desired sentence",
+			"simply repeat, question followed by a desired sentence, to change model simply say 'use' followed by 'gpt' or 'gemini'",
 			false,
 		)
 	case alexa.CancelIntent:

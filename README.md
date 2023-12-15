@@ -1,5 +1,5 @@
 # Alexa-ChatGPT
-> This repository contains the Alexa skill to use the OpenAI API
+> This repository contains the Alexa skill serverless backend to prompt generative ai 'chat' models
 
 [git]:    https://git-scm.com/
 [golang]: https://golang.org/
@@ -14,11 +14,29 @@
 [![codecov](https://codecov.io/gh/jackmcguire1/alexa-chatgpt/branch/main/graph/badge.svg)](https://codecov.io/gh/jackmcguire1/alexa-chatgpt)
 
 # Logic
-- The Alexa skill lambda will send request to lambda that processes chatGPT prompts via SQS, the Alexa skill lambda will then poll the response SQS and return the response if a message is avaliable in <7 seconds.
+- A user will prompt the Alexa skill.
+- The Alexa will invoke the assigned Lambda, this will then push the user prompt to a SQS.
+- The requests lambda will process the prompt via an external chat model [OpenAI ChatGPT or Google Gemini] and put the response onto a seperate SQS.
+- The Alexa skill lambda will continuously poll the response SQS to return the response of the prompt by a chat model to the end-user.
 
-> Due to the Alexa skill response constraint of 8 seconds following logic has been applied
-- if the Alexa skill doesn't receive a SQS message when polling the response SQS within ~7 seconds, it will return 'your response will be available momentarily', to not end the Alexa skill session.
+> [!CAUTION]
+> Due to the Alexa skill idle constraint of 8 seconds, following logic has been applied
+
+- if the Alexa skill does not poll a SQS message within ~87 seconds, it will return 'your response will be available shortly', to avoid the max period of time a Alexa skill session is allowed to be idle.
+
+
 - Querying the Alexa skill with 'Last Response', the Alexa Skill lambda will immediately poll the response SQS to retrieve the delayed response and output the prompt with the timestamp of response time
+
+## Supported Models
+
+> [!NOTE]
+> Users are able to change which chat model is in use
+
+### OpenAI ChatGPT
+- user's can select this by prompting 'use gpt'
+
+### Google's GenerativeAI Gemini
+- user's can select this by prompting 'use gemini'
 
 # Infrastructure
   <img src="./images/infra.png">
@@ -36,13 +54,15 @@
 > we use handler env var to name the go binary either 'main' or 'bootstrap' for AL2.Provided purposes, devs should use 'main'
 
 ```shell
-  export HANDLER=main
+  HANDLER=main
+  OPENAI_API_KEY=xxx
+  GEMINI_API_KEY=xxx
 ```
 
 ### Prerequisites
 
 - [Git][git]
-- [Go 1.20][golang]+
+- [Go 1.21][golang]+
 - [golangCI-Lint][golint]
 - [AWS CLI][aws-cli]
 - [AWS SAM CLI][aws-sam-cli]

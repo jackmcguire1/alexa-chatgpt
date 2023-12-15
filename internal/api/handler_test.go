@@ -270,7 +270,11 @@ func TestHelpIntent(t *testing.T) {
 
 	resp, err := h.Invoke(context.Background(), req)
 	assert.NoError(t, err)
-	assert.EqualValues(t, resp.Body.OutputSpeech.Text, "Simply repeat, question followed by a desired sentence")
+	assert.EqualValues(
+		t,
+		resp.Body.OutputSpeech.Text,
+		"simply repeat, question followed by a desired sentence, to change model simply say 'use' followed by 'gpt' or 'gemini'",
+	)
 	assert.False(t, resp.Body.ShouldEndSession)
 }
 
