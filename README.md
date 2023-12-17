@@ -1,5 +1,5 @@
 # Alexa-ChatGPT
-> This repository contains the Alexa skill serverless backend to prompt generative ai 'chat' models
+> This repository contains the Alexa skill serverless backend to prompt generative ai LLM models
 
 [git]:    https://git-scm.com/
 [golang]: https://golang.org/
@@ -14,18 +14,19 @@
 [![codecov](https://codecov.io/gh/jackmcguire1/alexa-chatgpt/branch/main/graph/badge.svg)](https://codecov.io/gh/jackmcguire1/alexa-chatgpt)
 
 # Logic
-- A user will prompt the Alexa skill.
-- The Alexa will invoke the assigned Lambda, this will then push the user prompt to a SQS.
-- The requests lambda will process the prompt via an external chat model [OpenAI ChatGPT or Google Gemini] and put the response onto a seperate SQS.
-- The Alexa skill lambda will continuously poll the response SQS to return the response of the prompt by a chat model to the end-user.
+- A user prompts the Alexa skill.
+- The Alexa skill will invoke the assigned Lambda with an 'AutoComplete' Intent.
+- The Lambda will push the user prompt to a SQS.
+- The request lambda will be invoked with the SQS message and begin to process the user's prompt via the chosen chat model [OpenAI ChatGPT , Google Gemini] and put the response onto a seperate SQS.
+- Meanwhile the Alexa skill lambda will be polling the response SQS in order to return the response for the prompt.
 
 > [!CAUTION]
-> Due to the Alexa skill idle constraint of 8 seconds, following logic has been applied
+> Due to the Alexa skill idle lambda response constraint of ~8 seconds, the following logic has been applied.
 
-- if the Alexa skill does not poll a SQS message within ~87 seconds, it will return 'your response will be available shortly', to avoid the max period of time a Alexa skill session is allowed to be idle.
+- If the Alexa skill does not poll a SQS message within ~7 seconds, users will be given a response of 'your response will be available shortly', this is too avoid the Alexa skill session expiring.
 
 
-- Querying the Alexa skill with 'Last Response', the Alexa Skill lambda will immediately poll the response SQS to retrieve the delayed response and output the prompt with the timestamp of response time
+- Querying the Alexa skill with 'Last Response', the lambda will immediately poll the response SQS to retrieve the delayed response and output the prompt with the timestamp of response time
 
 ## Supported Models
 
@@ -38,6 +39,24 @@
 ### Google's GenerativeAI Gemini
 - user's can select this by prompting 'use gemini'
 
+## Alexa Intents
+> The Alexa Intents or phrases to interact with the Alexa Skill
+
+
+- AutoComplete
+- > the intent to 
+- 
+- Model
+- > Allows users to select LLM model to use
+
+- Last Response
+- > Fetch delayed LLM response to user's prompt
+- Cancel
+- Stop
+- Help
+
+
+- 
 # Infrastructure
   <img src="./images/infra.png">
 
