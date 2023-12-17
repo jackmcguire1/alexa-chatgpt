@@ -44,19 +44,28 @@
 
 
 - AutoComplete
-- > the intent to 
-- 
+> the intent used to prompt the LLM models
+
 - Model
-- > Allows users to select LLM model to use
+> Allows users to select LLM model to use
+
 
 - Last Response
-- > Fetch delayed LLM response to user's prompt
+> Fetch delayed LLM response to user's prompt
+
+
 - Cancel
+> Force Alexa to await for next intent
+
+
 - Stop
+> Terminate Alexa skill session
+
+
 - Help
+> List all avalible interactions or intents
 
 
-- 
 # Infrastructure
   <img src="./images/infra.png">
 
