@@ -6,14 +6,14 @@ require (
 	github.com/aws/aws-lambda-go v1.42.0
 	github.com/aws/aws-sdk-go-v2/config v1.26.1
 	github.com/aws/aws-sdk-go-v2/service/sqs v1.29.5
-	github.com/google/generative-ai-go v0.3.0
+	github.com/google/generative-ai-go v0.5.0
 	github.com/sashabaranov/go-openai v1.17.9
 	github.com/stretchr/testify v1.8.4
+	golang.org/x/oauth2 v0.15.0
 	google.golang.org/api v0.154.0
 )
 
 require (
-	cloud.google.com/go v0.111.0 // indirect
 	cloud.google.com/go/ai v0.3.0 // indirect
 	cloud.google.com/go/compute v1.23.3 // indirect
 	cloud.google.com/go/compute/metadata v0.2.3 // indirect
@@ -49,7 +49,6 @@ require (
 	go.opentelemetry.io/otel/trace v1.21.0 // indirect
 	golang.org/x/crypto v0.16.0 // indirect
 	golang.org/x/net v0.19.0 // indirect
-	golang.org/x/oauth2 v0.15.0 // indirect
 	golang.org/x/sync v0.5.0 // indirect
 	golang.org/x/sys v0.15.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
