@@ -9,12 +9,12 @@ Globals:
       Variables:
         RESPONSES_QUEUE_URI: !Ref ResponsesQueue
         REQUESTS_QUEUE_URI: !Ref RequestsQueue
-        OPENAI_API_KEY: !Ref GptApiKey
+        OPENAI_API_KEY: !Ref OpenAIApiKey
         GEMINI_API_KEY: !Ref GeminiApiKey
         POLL_DELAY: 7
 
 Parameters:
-  GptApiKey:
+  OpenAIApiKey:
     Type: String
     Description: OpenAI API Key
 
