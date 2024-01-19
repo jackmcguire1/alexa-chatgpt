@@ -3,7 +3,7 @@ module github.com/jackmcguire1/alexa-chatgpt
 go 1.21
 
 require (
-	github.com/aws/aws-lambda-go v1.44.0
+	github.com/aws/aws-lambda-go v1.45.0
 	github.com/aws/aws-sdk-go-v2/config v1.26.3
 	github.com/aws/aws-sdk-go-v2/service/sqs v1.29.7
 	github.com/google/generative-ai-go v0.5.0
@@ -14,7 +14,6 @@ require (
 )
 
 require (
-	cloud.google.com/go v0.112.0 // indirect
 	cloud.google.com/go/ai v0.3.0 // indirect
 	cloud.google.com/go/compute v1.23.3 // indirect
 	cloud.google.com/go/compute/metadata v0.2.3 // indirect
