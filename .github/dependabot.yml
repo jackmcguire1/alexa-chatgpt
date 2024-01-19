@@ -8,7 +8,7 @@ updates:
   - package-ecosystem: "gomod" # See documentation for possible values
     directory: "/"
     schedule:
-      interval: "Weekly"
+      interval: "weekly"
 
   - package-ecosystem: "github-actions"
     directory: "/"
