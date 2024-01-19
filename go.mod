@@ -7,7 +7,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/config v1.26.3
 	github.com/aws/aws-sdk-go-v2/service/sqs v1.29.7
 	github.com/google/generative-ai-go v0.5.0
-	github.com/sashabaranov/go-openai v1.17.11
+	github.com/sashabaranov/go-openai v1.18.3
 	github.com/stretchr/testify v1.8.4
 	golang.org/x/oauth2 v0.16.0
 	google.golang.org/api v0.156.0
