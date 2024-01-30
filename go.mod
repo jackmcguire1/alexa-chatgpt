@@ -10,7 +10,7 @@ require (
 	github.com/sashabaranov/go-openai v1.19.2
 	github.com/stretchr/testify v1.8.4
 	golang.org/x/oauth2 v0.16.0
-	google.golang.org/api v0.159.0
+	google.golang.org/api v0.160.0
 )
 
 require (
