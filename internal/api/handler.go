@@ -33,6 +33,14 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 	switch req.Body.Intent.Name {
 	case alexa.PurgeIntent:
 		err = h.ResponsesQueue.Purge(ctx)
+		if err != nil {
+			return res, err
+		}
+		res = alexa.NewResponse(
+			"Purged",
+			"successfully purged queue",
+			false,
+		)
 	case alexa.ModelIntent:
 		model := req.Body.Intent.Slots["chatModel"].Value
 		h.Logger.With("model", model).Info("found model to use")
