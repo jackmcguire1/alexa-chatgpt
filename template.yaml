@@ -75,6 +75,14 @@ Resources:
         - SQSSendMessagePolicy:
             QueueName:
               !GetAtt RequestsQueue.QueueName
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - sqs:PurgeQueue
+              Resource:
+                - !GetAtt RequestsQueue.Arn
+                - !GetAtt ResponsesQueue.Arn
     Metadata:
       BuildMethod: go1.x
 
