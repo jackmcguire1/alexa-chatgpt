@@ -9,5 +9,6 @@ const (
 	AutoCompleteIntent = "AutoCompleteIntent"
 	RandomFactIntent   = "RandomFactIntent"
 	ModelIntent        = "Model"
+	PurgeIntent        = "Purge"
 	LastResponseIntent = "LastResponseIntent"
 )

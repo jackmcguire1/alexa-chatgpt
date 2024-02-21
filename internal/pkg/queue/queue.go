@@ -13,6 +13,7 @@ import (
 var EmptyMessageErr = fmt.Errorf("no messages found")
 
 type PullPoll interface {
+	Purge(context.Context) error
 	PullMessage(context.Context, int) ([]byte, error)
 	PushMessage(context.Context, any) error
 }
@@ -70,4 +71,9 @@ func (q *Queue) PullMessage(ctx context.Context, wait int) ([]byte, error) {
 	}
 
 	return []byte(*resp.Messages[0].Body), nil
+}
+
+func (q *Queue) Purge(ctx context.Context) error {
+	_, err := q.client.PurgeQueue(ctx, &sqs.PurgeQueueInput{QueueUrl: &q.queueUri})
+	return err
 }

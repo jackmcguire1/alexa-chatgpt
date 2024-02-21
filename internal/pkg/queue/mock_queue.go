@@ -24,3 +24,8 @@ func (q *MockQueue) PullMessage(ctx context.Context, wait int) (res []byte, err 
 
 	return res, args.Error(1)
 }
+
+func (q *MockQueue) Purge(ctx context.Context) error {
+	args := q.Called(ctx)
+	return args.Error(0)
+}
