@@ -47,7 +47,6 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 
 		switch strings.ToLower(model) {
 		case chatmodels.CHAT_MODEL_GEMINI.String():
-		case chatmodels.CHAT_MODEL_GEMINI.String():
 			h.Model = chatmodels.CHAT_MODEL_GEMINI
 			res = alexa.NewResponse("Autocomplete", "ok", false)
 			return
