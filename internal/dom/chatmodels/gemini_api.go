@@ -12,6 +12,7 @@ import (
 
 type GeminiApiClient struct {
 	credentials *google.Credentials
+	Token       string
 }
 
 func NewGeminiApiClient(token string) *GeminiApiClient {
@@ -20,11 +21,17 @@ func NewGeminiApiClient(token string) *GeminiApiClient {
 	if err != nil {
 		slog.With("error", err).Error("failed to init google creds")
 	}
-	return &GeminiApiClient{credentials: creds}
+	authToken, err := google.JWTAccessTokenSourceWithScope([]byte(tkn), "https://www.googleapis.com/auth/generative-language")
+	authTokenObj, err := authToken.Token()
+	if err != nil && authTokenObj != nil {
+		slog.With("error", err).Error("failed to get google creds access token")
+	}
+
+	return &GeminiApiClient{credentials: creds, Token: authTokenObj.AccessToken}
 }
 
 func (api *GeminiApiClient) GeminiChat(ctx context.Context, prompt string) (*genai.GenerateContentResponse, error) {
-	client, err := genai.NewClient(ctx, option.WithCredentials(api.credentials))
+	client, err := genai.NewClient(ctx, option.WithAPIKey(api.Token))
 	if err != nil {
 		return nil, err
 	}
