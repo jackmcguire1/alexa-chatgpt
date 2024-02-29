@@ -3,6 +3,7 @@ package chatmodels
 import (
 	"context"
 	"encoding/base64"
+	"log/slog"
 
 	"github.com/google/generative-ai-go/genai"
 	"golang.org/x/oauth2/google"
@@ -15,8 +16,10 @@ type GeminiApiClient struct {
 
 func NewGeminiApiClient(token string) *GeminiApiClient {
 	tkn, _ := base64.StdEncoding.DecodeString(token)
-	creds, _ := google.CredentialsFromJSON(context.Background(), tkn, "https://www.googleapis.com/auth/generative-language")
-
+	creds, err := google.CredentialsFromJSON(context.Background(), tkn, "https://www.googleapis.com/auth/generative-language")
+	if err != nil {
+		slog.With("error", err).Error("failed to init google creds")
+	}
 	return &GeminiApiClient{credentials: creds}
 }
 
