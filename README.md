@@ -90,6 +90,7 @@
   HANDLER=main
   OPENAI_API_KEY=xxx
   GEMINI_API_KEY=xxx
+  GOOGLE_PROJECT_ID=xxx
 ```
 
 ### Prerequisites
