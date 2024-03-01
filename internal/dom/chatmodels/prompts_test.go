@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/google/generative-ai-go/genai"
+	"cloud.google.com/go/vertexai/genai"
 	"github.com/sashabaranov/go-openai"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -62,7 +62,6 @@ func TestGeminiChat(t *testing.T) {
 				FinishReason:     0,
 				SafetyRatings:    nil,
 				CitationMetadata: nil,
-				TokenCount:       0,
 			},
 		},
 		PromptFeedback: nil,

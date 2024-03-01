@@ -11,6 +11,7 @@ Globals:
         REQUESTS_QUEUE_URI: !Ref RequestsQueue
         OPENAI_API_KEY: !Ref OpenAIApiKey
         GEMINI_API_KEY: !Ref GeminiApiKey
+        GOOGLE_PROJECT_ID: !Ref GoogleProjectId
         POLL_DELAY: 7
 
 Parameters:
@@ -21,6 +22,10 @@ Parameters:
   GeminiApiKey:
     Type: String
     Description: Google gemini API Key
+
+  GoogleProjectId:
+    Type: String
+    Description: Google Project ID
 
   Runtime:
     Type: String

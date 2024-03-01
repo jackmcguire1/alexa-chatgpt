@@ -3,7 +3,7 @@ package chatmodels
 import (
 	"context"
 
-	"github.com/google/generative-ai-go/genai"
+	"cloud.google.com/go/vertexai/genai"
 	"github.com/sashabaranov/go-openai"
 	"github.com/stretchr/testify/mock"
 )
