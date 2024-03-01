@@ -26,10 +26,11 @@ type Handler struct {
 }
 
 func (h *Handler) randomFact(ctx context.Context) (string, error) {
-	return h.ChatGptService.AutoComplete(ctx, "tell me a random fact", chatmodels.CHAT_MODEL_GPT)
+	return h.ChatGptService.AutoComplete(ctx, "tell me a random fact", h.Model)
 }
 
 func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res alexa.Response, err error) {
+	h.Logger.With("intent", req.Body.Intent.Name).Debug("got intent")
 	switch req.Body.Intent.Name {
 	case alexa.PurgeIntent:
 		err = h.ResponsesQueue.Purge(ctx)
@@ -105,7 +106,7 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 			return
 		}
 		res = alexa.NewResponse("Random Fact", randomFact, false)
-		h.lastResponse = &chatmodels.LastResponse{Response: randomFact, TimeDiff: time.Since(execTime).String()}
+		h.lastResponse = &chatmodels.LastResponse{Response: randomFact, TimeDiff: fmt.Sprintf("%.0f", time.Since(execTime).Seconds()), Model: h.Model}
 
 	case alexa.LastResponseIntent:
 		h.Logger.Debug("fetching last response")
@@ -133,13 +134,15 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 				false,
 			)
 			h.lastResponse = response
+			return
 		}
 
 		if h.lastResponse != nil {
 			res = alexa.NewResponse("Last Response",
 				fmt.Sprintf(
-					"%s, this took %s to fetch the answer",
+					"%s, from the %s model, this took %s seconds to fetch the answer",
 					h.lastResponse.Response,
+					h.lastResponse.Model,
 					h.lastResponse.TimeDiff,
 				),
 				false,
@@ -147,6 +150,7 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 			return
 		}
 
+		h.Logger.Debug("no cached or polled last response")
 		res = alexa.NewResponse("Last Response", "I do not have a answer to your last prompt", false)
 
 	case alexa.HelpIntent:

@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log/slog"
 	"os"
 	"time"
@@ -43,7 +44,7 @@ func (handler *SqsHandler) ProcessChatGPTRequest(ctx context.Context, req *chatm
 	event := &chatmodels.LastResponse{
 		Prompt:   req.Prompt,
 		Response: response,
-		TimeDiff: since.String(),
+		TimeDiff: fmt.Sprintf("%.0f", since.Seconds()),
 		Model:    req.Model,
 	}
 	err = handler.ResponseQueue.PushMessage(ctx, event)
