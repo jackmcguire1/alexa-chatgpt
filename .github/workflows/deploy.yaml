@@ -31,4 +31,4 @@ jobs:
             token: ${{ secrets.CODECOV_TOKEN }}
             verbose: true
       - run: sam build --parameter-overrides Runtime=${{ env.LAMBDA_RUNTIME }} Handler=${{ env.LAMBDA_HANDLER }} Architecture=${{ env.LAMBDA_ARCH }}
-      - run: sam deploy --stack-name chat-gpt --s3-bucket ${{ secrets.S3_BUCKET }} --parameter-overrides Runtime=${{ env.LAMBDA_RUNTIME }} Handler=${{ env.LAMBDA_HANDLER }} Architecture=${{ env.LAMBDA_ARCH }} OpenAIApiKey=${{ secrets.OPENAI_API_KEY }} GeminiApiKey=${{ secrets.GEMINI_API_KEY }} GoogleProjectId=${{ secrets.GOOGLE_PROJECT_ID }} --capabilities CAPABILITY_IAM
+      - run: sam deploy --stack-name chat-gpt --s3-bucket ${{ secrets.S3_BUCKET }} --parameter-overrides Runtime=${{ env.LAMBDA_RUNTIME }} Handler=${{ env.LAMBDA_HANDLER }} Architecture=${{ env.LAMBDA_ARCH }} OpenAIApiKey=${{ secrets.OPENAI_API_KEY }} GeminiApiKey=${{ secrets.GEMINI_API_KEY }} --capabilities CAPABILITY_IAM

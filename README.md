@@ -89,8 +89,7 @@
 ```shell
   HANDLER=main
   OPENAI_API_KEY=xxx
-  GEMINI_API_KEY=xxx
-  GOOGLE_PROJECT_ID=xxx
+  GEMINI_API_KEY={base64 service account json}
 ```
 
 ### Prerequisites
