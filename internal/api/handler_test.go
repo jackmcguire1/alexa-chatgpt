@@ -278,7 +278,7 @@ func TestHelpIntent(t *testing.T) {
 	assert.False(t, resp.Body.ShouldEndSession)
 }
 
-func TestModelIntent(t *testing.T) {
+func TestModelIntentGPT(t *testing.T) {
 	mockChatGptService := &chatmodels.MockClient{}
 	h := &Handler{
 		ChatGptService: mockChatGptService,
@@ -296,6 +296,43 @@ func TestModelIntent(t *testing.T) {
 					"chatModel": {
 						Name:        "chatModel",
 						Value:       "gpt",
+						Resolutions: alexa.Resolutions{},
+					},
+				},
+			},
+			Type: alexa.IntentRequestType,
+		},
+		Context: alexa.Context{},
+	}
+
+	resp, err := h.Invoke(context.Background(), req)
+	assert.NoError(t, err)
+	assert.EqualValues(
+		t,
+		resp.Body.OutputSpeech.Text,
+		"ok",
+	)
+	assert.False(t, resp.Body.ShouldEndSession)
+}
+
+func TestModelIntentGemini(t *testing.T) {
+	mockChatGptService := &chatmodels.MockClient{}
+	h := &Handler{
+		ChatGptService: mockChatGptService,
+		Logger:         logger,
+		Model:          chatmodels.CHAT_MODEL_GEMINI,
+	}
+
+	req := alexa.Request{
+		Version: "",
+		Session: alexa.Session{},
+		Body: alexa.ReqBody{
+			Intent: alexa.Intent{
+				Name: alexa.ModelIntent,
+				Slots: map[string]alexa.Slot{
+					"chatModel": {
+						Name:        "chatModel",
+						Value:       "gemini",
 						Resolutions: alexa.Resolutions{},
 					},
 				},
@@ -338,5 +375,40 @@ func TestUnsupportedIntent(t *testing.T) {
 	resp, err := h.Invoke(context.Background(), req)
 	assert.NoError(t, err)
 	assert.EqualValues(t, resp.Body.OutputSpeech.Text, "unsupported intent!")
+	assert.False(t, resp.Body.ShouldEndSession)
+}
+
+func TestPurgeIntent(t *testing.T) {
+
+	mockQueue := &queue.MockQueue{}
+	mockQueue.On("Purge", mock.Anything).Return(nil)
+
+	mockChatGptService := &chatmodels.MockClient{}
+	h := &Handler{
+		ChatGptService: mockChatGptService,
+		Logger:         logger,
+		Model:          chatmodels.CHAT_MODEL_GEMINI,
+		ResponsesQueue: mockQueue,
+	}
+
+	req := alexa.Request{
+		Version: "",
+		Session: alexa.Session{},
+		Body: alexa.ReqBody{
+			Intent: alexa.Intent{
+				Name: alexa.PurgeIntent,
+			},
+			Type: alexa.IntentRequestType,
+		},
+		Context: alexa.Context{},
+	}
+
+	resp, err := h.Invoke(context.Background(), req)
+	assert.NoError(t, err)
+	assert.EqualValues(
+		t,
+		resp.Body.OutputSpeech.Text,
+		"successfully purged queue",
+	)
 	assert.False(t, resp.Body.ShouldEndSession)
 }

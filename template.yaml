@@ -20,7 +20,7 @@ Parameters:
 
   GeminiApiKey:
     Type: String
-    Description: Google gemini API Key
+    Description: Google Service Account JSON B64
 
   Runtime:
     Type: String

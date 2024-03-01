@@ -35,7 +35,7 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 	case alexa.PurgeIntent:
 		err = h.ResponsesQueue.Purge(ctx)
 		if err != nil {
-			return res, err
+			break
 		}
 		res = alexa.NewResponse(
 			"Purged",
