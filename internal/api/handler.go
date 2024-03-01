@@ -82,7 +82,7 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 				h.Logger.
 					With("error", err).
 					With("data", string(data)).
-					Error("failed to unmarshal chatgpt response")
+					Error("failed to unmarshal chat model response")
 				return
 			}
 			res = alexa.NewResponse(
@@ -126,7 +126,7 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 			}
 			res = alexa.NewResponse("Last Response",
 				fmt.Sprintf(
-					"%s, from the %s model, this took %s to fetch the answer",
+					"%s, from the %s model, this took %s seconds to fetch the answer",
 					response.Response,
 					response.Model,
 					response.TimeDiff,
