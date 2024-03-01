@@ -5,14 +5,15 @@ import (
 	"encoding/base64"
 	"log/slog"
 
-	"github.com/google/generative-ai-go/genai"
+	//"github.com/google/generative-ai-go/genai"
+
+	"cloud.google.com/go/vertexai/genai"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/option"
 )
 
 type GeminiApiClient struct {
 	credentials *google.Credentials
-	Token       string
 }
 
 func NewGeminiApiClient(token string) *GeminiApiClient {
@@ -21,22 +22,17 @@ func NewGeminiApiClient(token string) *GeminiApiClient {
 	if err != nil {
 		slog.With("error", err).Error("failed to init google creds")
 	}
-	authToken, err := google.JWTAccessTokenSourceWithScope([]byte(tkn), "https://www.googleapis.com/auth/generative-language")
-	authTokenObj, err := authToken.Token()
-	if err != nil && authTokenObj != nil {
-		slog.With("error", err).Error("failed to get google creds access token")
-	}
 
-	return &GeminiApiClient{credentials: creds, Token: authTokenObj.AccessToken}
+	return &GeminiApiClient{credentials: creds}
 }
 
 func (api *GeminiApiClient) GeminiChat(ctx context.Context, prompt string) (*genai.GenerateContentResponse, error) {
-	client, err := genai.NewClient(ctx, option.WithAPIKey(api.Token))
+	client, err := genai.NewClient(ctx, "My first Project", "us-central1", option.WithCredentials(api.credentials))
 	if err != nil {
 		return nil, err
 	}
 	defer client.Close()
 
-	model := client.GenerativeModel("gemini-pro")
+	model := client.GenerativeModel("gemini-1.0-pro")
 	return model.GenerateContent(ctx, genai.Text(prompt))
 }
