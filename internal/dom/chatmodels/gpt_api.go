@@ -21,7 +21,7 @@ func NewOpenAiApiClient(token string) *OpenAIApiClient {
 
 func (api *OpenAIApiClient) AutoComplete(ctx context.Context, prompt string) (openai.ChatCompletionResponse, error) {
 	req := openai.ChatCompletionRequest{
-		Model: openai.GPT3Dot5Turbo,
+		Model: openai.GPT4TurboPreview,
 		Messages: []openai.ChatCompletionMessage{
 			{
 				Role:    openai.ChatMessageRoleUser,
