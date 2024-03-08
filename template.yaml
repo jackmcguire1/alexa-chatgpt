@@ -12,6 +12,8 @@ Globals:
         OPENAI_API_KEY: !Ref OpenAIApiKey
         GEMINI_API_KEY: !Ref GeminiApiKey
         POLL_DELAY: 7
+        CLOUDFLARE_ACCOUNT_ID: !Ref CloudFlareAccountId
+        CLOUDFLARE_API_KEY: !Ref CloudFlareAPIKey
 
 Parameters:
   OpenAIApiKey:
@@ -21,6 +23,14 @@ Parameters:
   GeminiApiKey:
     Type: String
     Description: Google Service Account JSON B64
+
+  CloudFlareAccountId:
+    Type: String
+    Description: Cloudflare Account Id
+
+  CloudFlareAPIKey:
+    Type: String
+    Description: Cloudflare API key
 
   Runtime:
     Type: String

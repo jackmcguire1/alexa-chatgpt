@@ -3,8 +3,9 @@ package chatmodels
 import "context"
 
 type Resources struct {
-	GPTApi    GptAPI
-	GeminiAPI GeminiAPI
+	GPTApi              GptAPI
+	GeminiAPI           GeminiAPI
+	CloudflareApiClient CloudFlareAiWorkerAPI
 }
 
 type Service interface {

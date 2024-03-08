@@ -55,6 +55,22 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 			h.Model = chatmodels.CHAT_MODEL_GPT
 			res = alexa.NewResponse("Autocomplete", "ok", false)
 			return
+		case chatmodels.CHAT_MODEL_META.String():
+			h.Model = chatmodels.CHAT_MODEL_META
+			res = alexa.NewResponse("Autocomplete", "ok", false)
+			return
+		case chatmodels.CHAT_MODEL_SQL.String():
+			h.Model = chatmodels.CHAT_MODEL_SQL
+			res = alexa.NewResponse("Autocomplete", "ok", false)
+			return
+		case chatmodels.CHAT_MODEL_OPEN.String():
+			h.Model = chatmodels.CHAT_MODEL_OPEN
+			res = alexa.NewResponse("Autocomplete", "ok", false)
+			return
+		case chatmodels.CHAT_MODEL_AWQ.String():
+			h.Model = chatmodels.CHAT_MODEL_AWQ
+			res = alexa.NewResponse("Autocomplete", "ok", false)
+			return
 		default:
 			res = alexa.NewResponse("Autocomplete", fmt.Sprintf("I am using the model %s", h.Model.String()), false)
 			return

@@ -16,6 +16,10 @@ type GeminiAPI interface {
 	GeminiChat(context.Context, string) (*genai.GenerateContentResponse, error)
 }
 
+type CloudFlareAiWorkerAPI interface {
+	GenerateText(context.Context, string, string) (string, error)
+}
+
 type mockAPI struct {
 	mock.Mock
 }
@@ -30,4 +34,9 @@ func (api *mockAPI) GeminiChat(ctx context.Context, prompt string) (res *genai.G
 	args := api.Called(ctx, prompt)
 	res = args.Get(0).(*genai.GenerateContentResponse)
 	return res, args.Error(1)
+}
+
+func (api *mockAPI) GenerateText(ctx context.Context, prompt string, model string) (string, error) {
+	args := api.Called(ctx, prompt, model)
+	return args.String(0), args.Error(1)
 }
