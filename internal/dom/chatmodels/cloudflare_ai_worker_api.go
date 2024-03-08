@@ -22,7 +22,7 @@ type Response struct {
 	Result struct {
 		Response string `json:"response"`
 	} `json:"result"`
-	Success string `json:"success"`
+	Success bool `json:"success"`
 }
 
 type CloudflareApiClient struct {
@@ -66,13 +66,15 @@ func (api *CloudflareApiClient) GenerateText(ctx context.Context, prompt string,
 	if err != nil {
 		return "", err
 	}
+
 	var result *Response
 	err = json.Unmarshal(data, &result)
 	if err != nil {
+		err = fmt.Errorf("failed to unmarshal cloudflare response body %s", string(data))
 		return "", err
 	}
 
-	if result.Success != "true" {
+	if !result.Success {
 		err = fmt.Errorf("didn't get success from result %v", utils.ToJSON(result))
 		return "", err
 	}
