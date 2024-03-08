@@ -29,17 +29,33 @@
 - Querying the Alexa skill with 'Last Response', the lambda will immediately poll the response SQS to retrieve the delayed response and output the prompt with the timestamp of response time
 
 ## Supported Models
+> Find available models by asking 'model available'
+
+> Check the model in-use by asking 'model which'
 
 > [!NOTE]
 > Users are able to change which chat model is in use
 
 ### OpenAI ChatGPT
 
-- user's can select this by prompting 'use gpt'
+- user's can select this by prompting 'model gpt'
 
 ### Google's GenerativeAI Gemini
 
-- user's can select this by prompting 'use gemini'
+- user's can select this by prompting 'model gemini'
+
+### Cloudflare AI Workers
+> https://developers.cloudflare.com/workers-ai/models/
+
+Use the 'alias' to select one of the models below:
+- llama-2-7b-chat-int8
+  - alias "meta"
+- sqlcoder-7b-2
+  - alias "sql"
+- llama-2-13b-chat-awq
+  - alias "awq"
+- openchat-3.5-0106 
+  - alis "open chat"
 
 ## Alexa Intents
 
