@@ -75,7 +75,7 @@ func (api *CloudflareApiClient) GenerateText(ctx context.Context, prompt string,
 	}
 
 	if !result.Success {
-		err = fmt.Errorf("didn't get success from result %v", utils.ToJSON(result))
+		err = fmt.Errorf("didn't get success from result %v http-status: %d", utils.ToJSON(result), resp.StatusCode)
 		return "", err
 	}
 
