@@ -26,7 +26,8 @@ type Response struct {
 		Code    int    `json:"code"`
 		Message string `json:"message"`
 	} `json:"errors,omitempty"`
-	Success bool `json:"success"`
+	Messages []string `json:"messages,omitempty"`
+	Success  bool     `json:"success"`
 }
 
 type CloudflareApiClient struct {
@@ -83,5 +84,5 @@ func (api *CloudflareApiClient) GenerateText(ctx context.Context, prompt string,
 		return "", err
 	}
 
-	return result.Result.Response, nil
+	return utils.ToJSON(result), nil
 }
