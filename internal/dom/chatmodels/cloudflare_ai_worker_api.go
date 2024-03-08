@@ -13,7 +13,7 @@ import (
 
 const (
 	CF_LLAMA_2_7B_CHAT_INT8_MODEL = "@cf/meta/llama-2-7b-chat-int8"
-	CF_SQL_MODEL                  = "@cf/defog/sqlcoder-7b-2 model"
+	CF_SQL_MODEL                  = "@cf/defog/sqlcoder-7b-2"
 	CF_AWQ_MODEL                  = "@hf/thebloke/llama-2-13b-chat-awq"
 	CF_OPEN_CHAT_MODEL            = "@cf/openchat/openchat-3.5-0106"
 )
