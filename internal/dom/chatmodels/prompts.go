@@ -19,15 +19,8 @@ func (client *Client) AutoComplete(ctx context.Context, prompt string, model Cha
 			return fmt.Sprint(res.Candidates[0].Content.Parts[0]), nil
 		}
 		return "", fmt.Errorf("did not get enough info back from google %s", utils.ToJSON(res))
-
-	case CHAT_MODEL_META:
-		return client.CloudflareApiClient.GenerateText(ctx, prompt, CF_LLAMA_2_7B_CHAT_INT8_MODEL)
-	case CHAT_MODEL_SQL:
-		return client.CloudflareApiClient.GenerateText(ctx, prompt, CF_SQL_MODEL)
-	case CHAT_MODEL_OPEN:
-		return client.CloudflareApiClient.GenerateText(ctx, prompt, CF_OPEN_CHAT_MODEL)
-	case CF_AWQ_MODEL:
-		return client.CloudflareApiClient.GenerateText(ctx, prompt, CF_AWQ_MODEL)
+	case CHAT_MODEL_META, CHAT_MODEL_SQL, CHAT_MODEL_OPEN, CHAT_MODEL_AWQ:
+		return client.CloudflareApiClient.GenerateText(ctx, prompt, CHAT_MODEL_TO_CF_MODEL[model])
 	default:
 		resp, err := client.GPTApi.AutoComplete(ctx, prompt)
 		if err != nil {

@@ -18,6 +18,13 @@ const (
 	CF_OPEN_CHAT_MODEL            = "@cf/openchat/openchat-3.5-0106"
 )
 
+var CHAT_MODEL_TO_CF_MODEL = map[ChatModel]string{
+	CHAT_MODEL_SQL:  CF_SQL_MODEL,
+	CHAT_MODEL_AWQ:  CF_AWQ_MODEL,
+	CHAT_MODEL_META: CF_LLAMA_2_7B_CHAT_INT8_MODEL,
+	CHAT_MODEL_OPEN: CF_OPEN_CHAT_MODEL,
+}
+
 type Response struct {
 	Result struct {
 		Response string `json:"response"`

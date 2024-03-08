@@ -49,30 +49,37 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 		switch strings.ToLower(model) {
 		case chatmodels.CHAT_MODEL_GEMINI.String():
 			h.Model = chatmodels.CHAT_MODEL_GEMINI
-			res = alexa.NewResponse("Autocomplete", "ok", false)
+			res = alexa.NewResponse("Chat Models", "ok", false)
 			return
 		case chatmodels.CHAT_MODEL_GPT.String():
 			h.Model = chatmodels.CHAT_MODEL_GPT
-			res = alexa.NewResponse("Autocomplete", "ok", false)
+			res = alexa.NewResponse("Chat Models", "ok", false)
 			return
 		case chatmodels.CHAT_MODEL_META.String():
 			h.Model = chatmodels.CHAT_MODEL_META
-			res = alexa.NewResponse("Autocomplete", "ok", false)
+			res = alexa.NewResponse("Chat Models", "ok", false)
 			return
 		case chatmodels.CHAT_MODEL_SQL.String():
 			h.Model = chatmodels.CHAT_MODEL_SQL
-			res = alexa.NewResponse("Autocomplete", "ok", false)
+			res = alexa.NewResponse("Chat Models", "ok", false)
 			return
 		case chatmodels.CHAT_MODEL_OPEN.String():
 			h.Model = chatmodels.CHAT_MODEL_OPEN
-			res = alexa.NewResponse("Autocomplete", "ok", false)
+			res = alexa.NewResponse("Chat Models", "ok", false)
 			return
 		case chatmodels.CHAT_MODEL_AWQ.String():
 			h.Model = chatmodels.CHAT_MODEL_AWQ
-			res = alexa.NewResponse("Autocomplete", "ok", false)
+			res = alexa.NewResponse("Chat Models", "ok", false)
+			return
+		case "which":
+			res = alexa.NewResponse("Chat Models", fmt.Sprintf("I am using the model %s", h.Model.String()), false)
 			return
 		default:
-			res = alexa.NewResponse("Autocomplete", fmt.Sprintf("I am using the model %s", h.Model.String()), false)
+			res = alexa.NewResponse(
+				"Chat Models",
+				fmt.Sprintf("The avaliable chat models are \n - %s", strings.Join(chatmodels.AvaliableModels, "\n - ")),
+				false,
+			)
 			return
 		}
 
