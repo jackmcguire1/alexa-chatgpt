@@ -90,6 +90,8 @@
   HANDLER=main
   OPENAI_API_KEY=xxx
   GEMINI_API_KEY={base64 service account json}
+  CLOUDFLARE_ACCOUNT_ID=xxx
+  CLOUDFLARE_API_KEY=xxxx
 ```
 
 ### Prerequisites
@@ -99,6 +101,9 @@
 - [golangCI-Lint][golint]
 - [AWS CLI][aws-cli]
 - [AWS SAM CLI][aws-sam-cli]
+- CloudFlare account
+- Google Cloud account
+- AWS Account
 
 ### [AWS CLI Configuration][aws-cli-config]
 
@@ -117,7 +122,20 @@ aws configure
 - <b>OPENAI API KEY</b>
 
   - please set environment variables for your OPENAI API key
-    > export API_KEY=123456
+    > export OPENAI_API_KEY=123456
+
+- <b>Cloudflare AI Workers API KEY</b>
+
+  - fetch your cloudflare account ID and generate a cloudflare worker AI API KEY
+    > export CLOUDFLARE_ACCOUNT_ID=xxxx
+
+    > export CLOUDFLARE_API_KEY=xxxx 
+
+
+- <b>Google Service Account Credentials</b>
+
+  - create a Google Service Account JSON Credentials with access to vertex/generative ai, generate b64 string
+    > export GEMINI_API_KEY=xxxx
 
 - <b>Create a S3 Bucket on your AWS Account</b>
   - Set envrionment variable of the S3 Bucket name you have created [this is where AWS SAM]
