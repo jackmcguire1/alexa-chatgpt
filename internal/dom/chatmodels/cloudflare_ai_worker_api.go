@@ -84,5 +84,5 @@ func (api *CloudflareApiClient) GenerateText(ctx context.Context, prompt string,
 		return "", err
 	}
 
-	return utils.ToJSON(result), nil
+	return result.Result.Response, nil
 }
