@@ -33,6 +33,7 @@ func (hndler *SqsHandler) processImage(ctx context.Context, body []byte) ([]stri
 
 	reqId := uuid.New().String()
 	var imageUrls []string
+
 generate:
 	for _, dim := range dimensions {
 		resizedImage := imaging.Resize(img, dim.Width, dim.Height, imaging.Lanczos)
@@ -65,7 +66,7 @@ generate:
 					return nil, err
 				}
 				imageUrls = append(imageUrls, fileUrl)
-				goto generate
+				continue generate
 			}
 
 			// Decrease the quality for the next iteration
