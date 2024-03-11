@@ -60,7 +60,6 @@ Resources:
             AllowedOrigins:
               - "http://ask-ifr-download.s3.amazonaws.com"
               - "https://ask-ifr-download.s3.amazonaws.com"
-            ExposeHeaders: []
   RequestsQueue:
     Type: 'AWS::SQS::Queue'
     Properties:

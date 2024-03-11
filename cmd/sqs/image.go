@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"image"
 	"image/jpeg"
-	"log"
 
 	"github.com/disintegration/imaging"
 	"github.com/google/uuid"
@@ -16,17 +15,17 @@ func (hndler *SqsHandler) processImage(ctx context.Context, body []byte) ([]stri
 	// Decode the PNG image
 	img, _, err := image.Decode(bytes.NewReader(body))
 	if err != nil {
-		log.Fatal(err)
+		hndler.Logger.With("error", err).Error("failed to parse image bytes")
+		return nil, err
 	}
 
 	// Define dimensions for the images
 	dimensions := []struct {
-		Width    int
-		Height   int
-		Filename string
+		Width  int
+		Height int
 	}{
-		{720, 480, "output_720x480.jpg"},
-		{1200, 800, "output_1200x800.jpg"},
+		{720, 480},
+		{1200, 800},
 	}
 
 	// Set the target file size in kilobytes
@@ -47,7 +46,8 @@ func (hndler *SqsHandler) processImage(ctx context.Context, body []byte) ([]stri
 			// Encode the image to JPEG format with the current quality
 			err := jpeg.Encode(&buf, resizedImg, &jpeg.Options{Quality: quality})
 			if err != nil {
-				log.Fatal(err)
+				hndler.Logger.With("error", err).Error("failed to encode jpg image")
+				return nil, err
 			}
 
 			// Check the file size
@@ -71,7 +71,10 @@ func (hndler *SqsHandler) processImage(ctx context.Context, body []byte) ([]stri
 
 			// Break the loop if the quality becomes too low
 			if quality <= 0 {
-				log.Fatal("Unable to compress to the desired size.")
+				err = fmt.Errorf("quality is below or equal to 0")
+				hndler.Logger.
+					With("error", err).
+					Error("failed to adapt image quality")
 			}
 		}
 	}
