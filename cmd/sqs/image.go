@@ -68,14 +68,6 @@ func (hndler *SqsHandler) processImage(ctx context.Context, body []byte) ([]stri
 
 			// Decrease the quality for the next iteration
 			quality -= 10
-
-			// Break the loop if the quality becomes too low
-			if quality <= 0 {
-				err = fmt.Errorf("quality is below or equal to 0")
-				hndler.Logger.
-					With("error", err).
-					Error("failed to adapt image quality")
-			}
 		}
 	}
 
