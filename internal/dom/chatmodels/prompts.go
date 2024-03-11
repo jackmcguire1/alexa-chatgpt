@@ -36,3 +36,13 @@ func (client *Client) AutoComplete(ctx context.Context, prompt string, model Cha
 		return message, nil
 	}
 }
+
+func (client *Client) GenerateImage(ctx context.Context, prompt string, model ChatModel) ([]byte, error) {
+	switch model {
+	case CHAT_MODEL_STABLE_DIFFUSION:
+		fallthrough
+	default:
+		return client.CloudflareApiClient.GenerateImage(ctx, prompt, CHAT_MODEL_TO_CF_MODEL[model])
+	}
+	return nil, fmt.Errorf("unidentified image generation model")
+}

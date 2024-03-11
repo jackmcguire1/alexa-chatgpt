@@ -16,13 +16,15 @@ const (
 	CF_SQL_MODEL                  = "@cf/defog/sqlcoder-7b-2"
 	CF_AWQ_MODEL                  = "@hf/thebloke/llama-2-13b-chat-awq"
 	CF_OPEN_CHAT_MODEL            = "@cf/openchat/openchat-3.5-0106"
+	CF_STABLE_DIFFUSION           = "@cf/stabilityai/stable-diffusion-xl-base-1.0"
 )
 
 var CHAT_MODEL_TO_CF_MODEL = map[ChatModel]string{
-	CHAT_MODEL_SQL:  CF_SQL_MODEL,
-	CHAT_MODEL_AWQ:  CF_AWQ_MODEL,
-	CHAT_MODEL_META: CF_LLAMA_2_7B_CHAT_INT8_MODEL,
-	CHAT_MODEL_OPEN: CF_OPEN_CHAT_MODEL,
+	CHAT_MODEL_SQL:              CF_SQL_MODEL,
+	CHAT_MODEL_AWQ:              CF_AWQ_MODEL,
+	CHAT_MODEL_META:             CF_LLAMA_2_7B_CHAT_INT8_MODEL,
+	CHAT_MODEL_OPEN:             CF_OPEN_CHAT_MODEL,
+	CHAT_MODEL_STABLE_DIFFUSION: CF_STABLE_DIFFUSION,
 }
 
 type Response struct {
@@ -92,4 +94,37 @@ func (api *CloudflareApiClient) GenerateText(ctx context.Context, prompt string,
 	}
 
 	return result.Result.Response, nil
+}
+
+func (api *CloudflareApiClient) GenerateImage(ctx context.Context, prompt string, model string) ([]byte, error) {
+	url := fmt.Sprintf("https://api.cloudflare.com/client/v4/accounts/%s/ai/run/%s", api.AccountID, model)
+
+	payload := map[string]string{
+		"prompt": prompt,
+	}
+	jsonPayload, err := json.Marshal(payload)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequestWithContext(ctx, "POST", url, bytes.NewBuffer(jsonPayload))
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Authorization", "Bearer "+api.APIKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	return data, nil
 }

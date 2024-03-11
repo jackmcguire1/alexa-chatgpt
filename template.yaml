@@ -14,6 +14,7 @@ Globals:
         POLL_DELAY: 7
         CLOUDFLARE_ACCOUNT_ID: !Ref CloudFlareAccountId
         CLOUDFLARE_API_KEY: !Ref CloudFlareAPIKey
+        S3_BUCKET: !Ref Bucket
 
 Parameters:
   OpenAIApiKey:
@@ -46,6 +47,20 @@ Parameters:
 
 Resources:
 
+  Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub ${AWS::StackName}-contents
+      CorsConfiguration:
+        CorsRules:
+          - AllowedHeaders:
+              - "*"
+            AllowedMethods:
+              - GET
+            AllowedOrigins:
+              - "http://ask-ifr-download.s3.amazonaws.com"
+              - "https://ask-ifr-download.s3.amazonaws.com"
+            ExposeHeaders: []
   RequestsQueue:
     Type: 'AWS::SQS::Queue'
     Properties:
@@ -115,6 +130,8 @@ Resources:
         - SQSSendMessagePolicy:
             QueueName:
               !GetAtt ResponsesQueue.QueueName
+        - S3CrudPolicy:
+            BucketName: !Ref Bucket
     Metadata:
       BuildMethod: go1.x
 

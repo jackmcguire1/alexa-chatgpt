@@ -83,6 +83,20 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 			return
 		}
 
+	case alexa.ImageIntent:
+		prompt := req.Body.Intent.Slots["prompt"].Value
+		h.Logger.With("prompt", prompt).Info("found phrase to autocomplete")
+
+		err = h.RequestsQueue.PushMessage(ctx, &chatmodels.Request{Prompt: prompt, Model: chatmodels.CHAT_MODEL_STABLE_DIFFUSION})
+		if err != nil {
+			break
+		}
+		res = alexa.NewResponse(
+			"Image Models",
+			"requested image generation",
+			false,
+		)
+		return
 	case alexa.AutoCompleteIntent:
 		prompt := req.Body.Intent.Slots["prompt"].Value
 		h.Logger.With("prompt", prompt).Info("found phrase to autocomplete")
@@ -147,6 +161,24 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 				h.Logger.With("error", err).Error("failed to unmarshal response")
 				return
 			}
+
+			if response.Model == chatmodels.CHAT_MODEL_STABLE_DIFFUSION {
+				if len(response.ImagesResponse) == 0 {
+					res = alexa.NewResponse("Last Response", response.Response, false)
+					h.lastResponse = response
+					return
+				}
+				res = alexa.NewImageResponse(
+					"Last Response",
+					"here is your generated image",
+					response.ImagesResponse[0],
+					response.ImagesResponse[1],
+					false,
+				)
+				h.lastResponse = response
+				return
+			}
+
 			res = alexa.NewResponse("Last Response",
 				fmt.Sprintf(
 					"%s, from the %s model, this took %s seconds to fetch the answer",
@@ -161,6 +193,21 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 		}
 
 		if h.lastResponse != nil {
+			if h.lastResponse.Model == chatmodels.CHAT_MODEL_STABLE_DIFFUSION {
+				if len(h.lastResponse.ImagesResponse) == 0 {
+					res = alexa.NewResponse("Last Response", h.lastResponse.Response, false)
+					return
+				}
+				res = alexa.NewImageResponse(
+					"Last Response",
+					"here is your generated image",
+					h.lastResponse.ImagesResponse[0],
+					h.lastResponse.ImagesResponse[1],
+					false,
+				)
+				return
+			}
+
 			res = alexa.NewResponse("Last Response",
 				fmt.Sprintf(
 					"%s, from the %s model, this took %s seconds to fetch the answer",
@@ -170,7 +217,6 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 				),
 				false,
 			)
-			return
 		}
 
 		h.Logger.Debug("no cached or polled last response")

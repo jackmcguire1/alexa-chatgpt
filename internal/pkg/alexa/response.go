@@ -1,5 +1,7 @@
 package alexa
 
+const MAX_IMAGE_SIZE = int64(500 * 1024) // 500KB
+
 // NewResponse builds a simple response. The session can
 // be optionally ended by setting 'endSession' to true.
 func NewResponse(title, text string, endSession bool) Response {
@@ -12,10 +14,35 @@ func NewResponse(title, text string, endSession bool) Response {
 				Title: title,
 			},
 			Card: &Payload{
-				Type:    "Simple",
+				Type:    "Standard",
 				Title:   title,
 				Content: text,
 				Text:    text,
+			},
+			ShouldEndSession: endSession,
+		},
+	}
+	return r
+}
+
+func NewImageResponse(title, text string, imageSmallUrl string, imageLargeUrl string, endSession bool) Response {
+	r := Response{
+		Version: "1.0",
+		Body: ResBody{
+			OutputSpeech: &Payload{
+				Type:  "PlainText",
+				Text:  text,
+				Title: title,
+			},
+			Card: &Payload{
+				Type:    "Standard",
+				Title:   title,
+				Content: text,
+				Text:    text,
+				Image: Image{
+					SmallImageURL: imageSmallUrl,
+					LargeImageURL: imageLargeUrl,
+				},
 			},
 			ShouldEndSession: endSession,
 		},

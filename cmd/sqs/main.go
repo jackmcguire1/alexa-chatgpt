@@ -11,6 +11,7 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/jackmcguire1/alexa-chatgpt/internal/dom/chatmodels"
+	"github.com/jackmcguire1/alexa-chatgpt/internal/pkg/bucket"
 	"github.com/jackmcguire1/alexa-chatgpt/internal/pkg/queue"
 	"github.com/jackmcguire1/alexa-chatgpt/internal/pkg/utils"
 )
@@ -19,19 +20,49 @@ type SqsHandler struct {
 	ChatModelSvc  chatmodels.Service
 	ResponseQueue queue.PullPoll
 	Logger        *slog.Logger
+	Bucket        bucket.FilePersistance
 }
 
 func (handler *SqsHandler) ProcessChatGPTRequest(ctx context.Context, req *chatmodels.Request) error {
 	execTime := time.Now().UTC()
 
-	response, err := handler.ChatModelSvc.AutoComplete(ctx, req.Prompt, req.Model)
-	if err != nil {
-		handler.Logger.
-			With("prompt", req.Prompt).
-			With("error", err).
-			Error("failed to process chat model request")
+	var response string
+	var imagesResponse []string
+	var err error
+	switch req.Model {
+	case chatmodels.CHAT_MODEL_STABLE_DIFFUSION:
+		imageBody, err := handler.ChatModelSvc.GenerateImage(ctx, req.Prompt, req.Model)
+		if err != nil {
+			handler.Logger.
+				With("prompt", req.Prompt).
+				With("error", err).
+				Error("failed to generate image from request")
 
-		response = "I encountered an error processing your request, " + err.Error()
+			response = "I encountered an error when generating your text to image request " + err.Error()
+			break
+		}
+
+		imagesResponse, err = handler.processImage(ctx, imageBody)
+		if err != nil {
+			handler.Logger.
+				With("prompt", req.Prompt).
+				With("error", err).
+				Error("failed to persist image resolutions")
+
+			response = "I encountered an error when saving generated image " + err.Error()
+			break
+		}
+	default:
+		response, err = handler.ChatModelSvc.AutoComplete(ctx, req.Prompt, req.Model)
+		if err != nil {
+			handler.Logger.
+				With("prompt", req.Prompt).
+				With("error", err).
+				Error("failed to process chat model request")
+
+			response = "I encountered an error processing your request, " + err.Error()
+			break
+		}
 	}
 
 	since := time.Since(execTime)
@@ -42,10 +73,11 @@ func (handler *SqsHandler) ProcessChatGPTRequest(ctx context.Context, req *chatm
 		Info("pushing response to queue")
 
 	event := &chatmodels.LastResponse{
-		Prompt:   req.Prompt,
-		Response: response,
-		TimeDiff: fmt.Sprintf("%.0f", since.Seconds()),
-		Model:    req.Model,
+		Prompt:         req.Prompt,
+		Response:       response,
+		TimeDiff:       fmt.Sprintf("%.0f", since.Seconds()),
+		Model:          req.Model,
+		ImagesResponse: imagesResponse,
 	}
 	err = handler.ResponseQueue.PushMessage(ctx, event)
 	if err != nil {
@@ -88,6 +120,9 @@ func main() {
 		}),
 		ResponseQueue: queue.NewQueue(os.Getenv("RESPONSES_QUEUE_URI")),
 		Logger:        logger,
+		Bucket: &bucket.Bucket{
+			Name: os.Getenv("S3_BUCKET"),
+		},
 	}
 	lambda.Start(h.ProcessSQS)
 }
