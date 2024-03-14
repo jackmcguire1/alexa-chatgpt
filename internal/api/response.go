@@ -55,7 +55,7 @@ response:
 		}
 		res = alexa.NewImageResponse(
 			"Response",
-			fmt.Sprintf("your generated image took %s to fetch", response.TimeDiff),
+			fmt.Sprintf("your generated image took %s seconds to fetch", response.TimeDiff),
 			response.ImagesResponse[0],
 			response.ImagesResponse[1],
 			false,

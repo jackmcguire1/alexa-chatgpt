@@ -127,7 +127,7 @@ func TestImageIntent(t *testing.T) {
 	mockRequestsQueue.On("PushMessage", mock.Anything, mock.Anything).Return(nil)
 
 	mockResponsesQueue := &queue.MockQueue{}
-	queueResponse := chatmodels.LastResponse{Response: "", Model: chatmodels.CHAT_MODEL_STABLE_DIFFUSION, TimeDiff: "1s", ImagesResponse: []string{
+	queueResponse := chatmodels.LastResponse{Response: "", Model: chatmodels.CHAT_MODEL_STABLE_DIFFUSION, TimeDiff: "1", ImagesResponse: []string{
 		smallImageUrl,
 		largeImageUrl,
 	}}
@@ -163,7 +163,7 @@ func TestImageIntent(t *testing.T) {
 
 	resp, err := h.Invoke(context.Background(), req)
 	assert.NoError(t, err)
-	assert.EqualValues(t, "your generated image took 1s to fetch", resp.Body.OutputSpeech.Text)
+	assert.EqualValues(t, "your generated image took 1 seconds to fetch", resp.Body.OutputSpeech.Text)
 	assert.EqualValues(t, smallImageUrl, resp.Body.Card.Image.SmallImageURL)
 	assert.EqualValues(t, largeImageUrl, resp.Body.Card.Image.LargeImageURL)
 }
