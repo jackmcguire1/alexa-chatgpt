@@ -81,7 +81,7 @@ func TestAutoCompleteIntent(t *testing.T) {
 	mockRequestsQueue.On("PushMessage", mock.Anything, mock.Anything).Return(nil)
 
 	mockResponsesQueue := &queue.MockQueue{}
-	queueResponse := chatmodels.LastResponse{Response: "chimney", Model: chatmodels.CHAT_MODEL_GPT}
+	queueResponse := chatmodels.LastResponse{Response: "chimney", Model: chatmodels.CHAT_MODEL_GPT, TimeDiff: "1s"}
 	jsonResp := utils.ToJSON(queueResponse)
 	mockResponsesQueue.On("PullMessage", mock.Anything, mock.Anything).Return([]byte(jsonResp), nil)
 
@@ -114,7 +114,58 @@ func TestAutoCompleteIntent(t *testing.T) {
 
 	resp, err := h.Invoke(context.Background(), req)
 	assert.NoError(t, err)
-	assert.EqualValues(t, "chimney from the gpt model", resp.Body.OutputSpeech.Text)
+	assert.EqualValues(t, "chimney, from the gpt model, this took 1s seconds to fetch the answer", resp.Body.OutputSpeech.Text)
+}
+
+func TestImageIntent(t *testing.T) {
+	smallImageUrl := "https://s3.amazon.com/image-small.jpg"
+	largeImageUrl := "https://s3.amazon.com/image-large.jpg"
+
+	mockChatGptService := &chatmodels.MockClient{}
+
+	mockRequestsQueue := &queue.MockQueue{}
+	mockRequestsQueue.On("PushMessage", mock.Anything, mock.Anything).Return(nil)
+
+	mockResponsesQueue := &queue.MockQueue{}
+	queueResponse := chatmodels.LastResponse{Response: "", Model: chatmodels.CHAT_MODEL_STABLE_DIFFUSION, TimeDiff: "1s", ImagesResponse: []string{
+		smallImageUrl,
+		largeImageUrl,
+	}}
+	jsonResp := utils.ToJSON(queueResponse)
+	mockResponsesQueue.On("PullMessage", mock.Anything, mock.Anything).Return([]byte(jsonResp), nil)
+
+	h := &Handler{
+		ChatGptService: mockChatGptService,
+		ResponsesQueue: mockResponsesQueue,
+		RequestsQueue:  mockRequestsQueue,
+		Logger:         logger,
+		Model:          chatmodels.CHAT_MODEL_GPT,
+	}
+
+	req := alexa.Request{
+		Version: "",
+		Session: alexa.Session{},
+		Body: alexa.ReqBody{
+			Intent: alexa.Intent{
+				Name: "ImageIntent",
+				Slots: map[string]alexa.Slot{
+					"prompt": {
+						Name:        "prompt",
+						Value:       "monkey riding a rocket",
+						Resolutions: alexa.Resolutions{},
+					},
+				},
+			},
+			Type: alexa.IntentRequestType,
+		},
+		Context: alexa.Context{},
+	}
+
+	resp, err := h.Invoke(context.Background(), req)
+	assert.NoError(t, err)
+	assert.EqualValues(t, "your generated image took 1s to fetch", resp.Body.OutputSpeech.Text)
+	assert.EqualValues(t, smallImageUrl, resp.Body.Card.Image.SmallImageURL)
+	assert.EqualValues(t, largeImageUrl, resp.Body.Card.Image.LargeImageURL)
 }
 
 func TestRandomIntent(t *testing.T) {

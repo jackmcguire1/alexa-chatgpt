@@ -2,11 +2,8 @@ package api
 
 import (
 	"context"
-	"encoding/json"
-	"errors"
 	"fmt"
 	"log/slog"
-	"strings"
 	"time"
 
 	"github.com/jackmcguire1/alexa-chatgpt/internal/dom/chatmodels"
@@ -44,44 +41,7 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 		)
 	case alexa.ModelIntent:
 		model := req.Body.Intent.Slots["chatModel"].Value
-		h.Logger.With("model", model).Info("found model to use")
-
-		switch strings.ToLower(model) {
-		case chatmodels.CHAT_MODEL_GEMINI.String():
-			h.Model = chatmodels.CHAT_MODEL_GEMINI
-			res = alexa.NewResponse("Chat Models", "ok", false)
-			return
-		case chatmodels.CHAT_MODEL_GPT.String():
-			h.Model = chatmodels.CHAT_MODEL_GPT
-			res = alexa.NewResponse("Chat Models", "ok", false)
-			return
-		case chatmodels.CHAT_MODEL_META.String():
-			h.Model = chatmodels.CHAT_MODEL_META
-			res = alexa.NewResponse("Chat Models", "ok", false)
-			return
-		case chatmodels.CHAT_MODEL_SQL.String():
-			h.Model = chatmodels.CHAT_MODEL_SQL
-			res = alexa.NewResponse("Chat Models", "ok", false)
-			return
-		case chatmodels.CHAT_MODEL_OPEN.String():
-			h.Model = chatmodels.CHAT_MODEL_OPEN
-			res = alexa.NewResponse("Chat Models", "ok", false)
-			return
-		case chatmodels.CHAT_MODEL_AWQ.String():
-			h.Model = chatmodels.CHAT_MODEL_AWQ
-			res = alexa.NewResponse("Chat Models", "ok", false)
-			return
-		case "which":
-			res = alexa.NewResponse("Chat Models", fmt.Sprintf("I am using the model %s", h.Model.String()), false)
-			return
-		default:
-			res = alexa.NewResponse(
-				"Chat Models",
-				fmt.Sprintf("The avaliable chat models are \n - %s", strings.Join(chatmodels.AvaliableModels, "\n - ")),
-				false,
-			)
-			return
-		}
+		res, err = h.getOrSetModel(model)
 
 	case alexa.ImageIntent:
 		prompt := req.Body.Intent.Slots["prompt"].Value
@@ -91,12 +51,8 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 		if err != nil {
 			break
 		}
-		res = alexa.NewResponse(
-			"Image Models",
-			"requested image generation",
-			false,
-		)
-		return
+
+		res, err = h.GetResponse(ctx, h.PollDelay, false)
 	case alexa.AutoCompleteIntent:
 		prompt := req.Body.Intent.Slots["prompt"].Value
 		h.Logger.With("prompt", prompt).Info("found phrase to autocomplete")
@@ -106,32 +62,7 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 			break
 		}
 
-		var data []byte
-		data, err = h.ResponsesQueue.PullMessage(ctx, h.PollDelay)
-		if err != nil && !errors.Is(err, queue.EmptyMessageErr) {
-			break
-		}
-
-		if len(data) > 0 {
-			var response *chatmodels.LastResponse
-			err = json.Unmarshal(data, &response)
-			if err != nil {
-				h.Logger.
-					With("error", err).
-					With("data", string(data)).
-					Error("failed to unmarshal chat model response")
-				return
-			}
-			res = alexa.NewResponse(
-				"Autocomplete",
-				fmt.Sprintf("%s from the %s model", response.Response, response.Model),
-				false,
-			)
-			h.lastResponse = response
-
-			return
-		}
-		res = alexa.NewResponse("Autocomplete", "your response will be available shortly", false)
+		return h.GetResponse(ctx, h.PollDelay, false)
 	case alexa.RandomFactIntent:
 		h.Logger.Debug("random fact")
 		var randomFact string
@@ -148,80 +79,7 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 	case alexa.LastResponseIntent:
 		h.Logger.Debug("fetching last response")
 
-		var data []byte
-		data, err = h.ResponsesQueue.PullMessage(ctx, h.PollDelay)
-		if err != nil && !errors.Is(err, queue.EmptyMessageErr) {
-			break
-		}
-
-		if len(data) > 0 {
-			var response *chatmodels.LastResponse
-			err = json.Unmarshal(data, &response)
-			if err != nil {
-				h.Logger.With("error", err).Error("failed to unmarshal response")
-				return
-			}
-
-			if response.Model == chatmodels.CHAT_MODEL_STABLE_DIFFUSION {
-				if len(response.ImagesResponse) == 0 {
-					res = alexa.NewResponse("Last Response", response.Response, false)
-					h.lastResponse = response
-					return
-				}
-				res = alexa.NewImageResponse(
-					"Last Response",
-					"here is your generated image",
-					response.ImagesResponse[0],
-					response.ImagesResponse[1],
-					false,
-				)
-				h.lastResponse = response
-				return
-			}
-
-			res = alexa.NewResponse("Last Response",
-				fmt.Sprintf(
-					"%s, from the %s model, this took %s seconds to fetch the answer",
-					response.Response,
-					response.Model,
-					response.TimeDiff,
-				),
-				false,
-			)
-			h.lastResponse = response
-			return
-		}
-
-		if h.lastResponse != nil {
-			if h.lastResponse.Model == chatmodels.CHAT_MODEL_STABLE_DIFFUSION {
-				if len(h.lastResponse.ImagesResponse) == 0 {
-					res = alexa.NewResponse("Last Response", h.lastResponse.Response, false)
-					return
-				}
-				res = alexa.NewImageResponse(
-					"Last Response",
-					"here is your generated image",
-					h.lastResponse.ImagesResponse[0],
-					h.lastResponse.ImagesResponse[1],
-					false,
-				)
-				return
-			}
-
-			res = alexa.NewResponse("Last Response",
-				fmt.Sprintf(
-					"%s, from the %s model, this took %s seconds to fetch the answer",
-					h.lastResponse.Response,
-					h.lastResponse.Model,
-					h.lastResponse.TimeDiff,
-				),
-				false,
-			)
-		}
-
-		h.Logger.Debug("no cached or polled last response")
-		res = alexa.NewResponse("Last Response", "I do not have a answer to your last prompt", false)
-
+		return h.GetResponse(ctx, h.PollDelay, true)
 	case alexa.HelpIntent:
 		res = alexa.NewResponse(
 			"Help",
