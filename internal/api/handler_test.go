@@ -168,6 +168,49 @@ func TestImageIntent(t *testing.T) {
 	assert.EqualValues(t, largeImageUrl, resp.Body.Card.Image.LargeImageURL)
 }
 
+func TestImageIntentFailedToGenerateImagesResponse(t *testing.T) {
+	mockChatGptService := &chatmodels.MockClient{}
+
+	mockRequestsQueue := &queue.MockQueue{}
+	mockRequestsQueue.On("PushMessage", mock.Anything, mock.Anything).Return(nil)
+
+	mockResponsesQueue := &queue.MockQueue{}
+	queueResponse := chatmodels.LastResponse{Error: "image API failed", Model: chatmodels.CHAT_MODEL_STABLE_DIFFUSION, TimeDiff: "1", ImagesResponse: []string{}}
+	jsonResp := utils.ToJSON(queueResponse)
+	mockResponsesQueue.On("PullMessage", mock.Anything, mock.Anything).Return([]byte(jsonResp), nil)
+
+	h := &Handler{
+		ChatGptService: mockChatGptService,
+		ResponsesQueue: mockResponsesQueue,
+		RequestsQueue:  mockRequestsQueue,
+		Logger:         logger,
+		Model:          chatmodels.CHAT_MODEL_GPT,
+	}
+
+	req := alexa.Request{
+		Version: "",
+		Session: alexa.Session{},
+		Body: alexa.ReqBody{
+			Intent: alexa.Intent{
+				Name: "ImageIntent",
+				Slots: map[string]alexa.Slot{
+					"prompt": {
+						Name:        "prompt",
+						Value:       "monkey riding a rocket",
+						Resolutions: alexa.Resolutions{},
+					},
+				},
+			},
+			Type: alexa.IntentRequestType,
+		},
+		Context: alexa.Context{},
+	}
+
+	resp, err := h.Invoke(context.Background(), req)
+	assert.NoError(t, err)
+	assert.EqualValues(t, "I encountered an error processing your prompt, image API failed", resp.Body.OutputSpeech.Text)
+}
+
 func TestRandomIntent(t *testing.T) {
 	mockChatGptService := &chatmodels.MockClient{}
 

@@ -6,6 +6,7 @@ type LastResponse struct {
 	TimeDiff       string    `json:"time_diff"`
 	Model          ChatModel `json:"model"`
 	ImagesResponse []string  `json:"images_responses"`
+	Error          string    `json:"error_message"`
 }
 
 type Request struct {

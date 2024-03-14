@@ -26,9 +26,11 @@ type SqsHandler struct {
 func (handler *SqsHandler) ProcessChatGPTRequest(ctx context.Context, req *chatmodels.Request) error {
 	execTime := time.Now().UTC()
 
+	var errorMsg string
 	var response string
 	var imagesResponse []string
 	var err error
+
 	switch req.Model {
 	case chatmodels.CHAT_MODEL_STABLE_DIFFUSION:
 		imageBody, err := handler.ChatModelSvc.GenerateImage(ctx, req.Prompt, req.Model)
@@ -38,7 +40,7 @@ func (handler *SqsHandler) ProcessChatGPTRequest(ctx context.Context, req *chatm
 				With("error", err).
 				Error("failed to generate image from request")
 
-			response = "I encountered an error when generating your text to image request " + err.Error()
+			errorMsg = err.Error()
 			break
 		}
 
@@ -49,7 +51,7 @@ func (handler *SqsHandler) ProcessChatGPTRequest(ctx context.Context, req *chatm
 				With("error", err).
 				Error("failed to persist image resolutions")
 
-			response = "I encountered an error when saving generated image " + err.Error()
+			errorMsg = err.Error()
 			break
 		}
 	default:
@@ -60,7 +62,7 @@ func (handler *SqsHandler) ProcessChatGPTRequest(ctx context.Context, req *chatm
 				With("error", err).
 				Error("failed to process chat model request")
 
-			response = "I encountered an error processing your request, " + err.Error()
+			errorMsg = err.Error()
 			break
 		}
 	}
@@ -78,7 +80,9 @@ func (handler *SqsHandler) ProcessChatGPTRequest(ctx context.Context, req *chatm
 		TimeDiff:       fmt.Sprintf("%.0f", since.Seconds()),
 		Model:          req.Model,
 		ImagesResponse: imagesResponse,
+		Error:          errorMsg,
 	}
+
 	err = handler.ResponseQueue.PushMessage(ctx, event)
 	if err != nil {
 		handler.Logger.

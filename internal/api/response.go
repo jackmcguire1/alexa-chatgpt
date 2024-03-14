@@ -42,17 +42,18 @@ func (h *Handler) GetResponse(ctx context.Context, delay int, lastResponse bool)
 	}
 
 response:
+	if response.Error != "" {
+		res = alexa.NewResponse(
+			"Response",
+			fmt.Sprintf("I encountered an error processing your prompt, %s", response.Error),
+			false,
+		)
+		h.lastResponse = response
+		return
+	}
+
 	switch response.Model {
 	case chatmodels.CHAT_MODEL_STABLE_DIFFUSION:
-		if len(response.ImagesResponse) == 0 {
-			h.Logger.
-				With("response-error", response.Response).
-				Error("failed to get image response, got text response")
-
-			res = alexa.NewResponse("Response", response.Response, false)
-			h.lastResponse = response
-			return
-		}
 		res = alexa.NewImageResponse(
 			"Response",
 			fmt.Sprintf("your generated image took %s seconds to fetch", response.TimeDiff),
