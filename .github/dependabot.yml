@@ -9,6 +9,10 @@ updates:
     directory: "/"
     schedule:
       interval: "monthly"
+    groups:
+      awssdk:
+        patterns:
+          - "github.com/aws/aws-sdk-go*"
 
   - package-ecosystem: "github-actions"
     directory: "/"
