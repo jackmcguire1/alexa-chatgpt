@@ -4,17 +4,19 @@ on:
       - main
 
 env:
-  HANDLER: bootstrap
   ARCH: GOARCH=arm64
+  LAMBDA_RUNTIME: provided.al2023
+  LAMBDA_HANDLER: bootstrap
+  LAMBDA_ARCH: arm64
 
 jobs:
-  build-deploy:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-go@v4
+      - uses: actions/setup-go@v5
         with:
-          go-version: '1.22.2'
+          go-version: '^1.22.2'
           check-latest: true
       - uses: aws-actions/setup-sam@v2
         with:
