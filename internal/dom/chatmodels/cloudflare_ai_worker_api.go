@@ -13,6 +13,7 @@ import (
 
 const (
 	CF_LLAMA_2_7B_CHAT_INT8_MODEL = "@cf/meta/llama-2-7b-chat-int8"
+	CF_LLAMA_3_8B_INSTRUCT_MODEL  = "@cf/meta/llama-3-8b-instruct"
 	CF_SQL_MODEL                  = "@cf/defog/sqlcoder-7b-2"
 	CF_AWQ_MODEL                  = "@hf/thebloke/llama-2-13b-chat-awq"
 	CF_OPEN_CHAT_MODEL            = "@cf/openchat/openchat-3.5-0106"
@@ -22,7 +23,7 @@ const (
 var CHAT_MODEL_TO_CF_MODEL = map[ChatModel]string{
 	CHAT_MODEL_SQL:              CF_SQL_MODEL,
 	CHAT_MODEL_AWQ:              CF_AWQ_MODEL,
-	CHAT_MODEL_META:             CF_LLAMA_2_7B_CHAT_INT8_MODEL,
+	CHAT_MODEL_META:             CF_LLAMA_3_8B_INSTRUCT_MODEL,
 	CHAT_MODEL_OPEN:             CF_OPEN_CHAT_MODEL,
 	CHAT_MODEL_STABLE_DIFFUSION: CF_STABLE_DIFFUSION,
 }
