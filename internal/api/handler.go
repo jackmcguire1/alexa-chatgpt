@@ -58,7 +58,7 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 		prompt := req.Body.Intent.Slots["prompt"].Value
 		spaces := strings.Split(prompt, " ")
 		sourceLanguage := spaces[0]
-		targetLanguage := spaces[4]
+		targetLanguage := spaces[2]
 		promptToTranslate := strings.Split(prompt, targetLanguage)[1]
 
 		err = h.RequestsQueue.PushMessage(ctx, &chatmodels.Request{
