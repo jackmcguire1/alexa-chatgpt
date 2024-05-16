@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 
 	"github.com/jackmcguire1/alexa-chatgpt/internal/pkg/utils"
@@ -174,6 +175,8 @@ func (api *CloudflareApiClient) GenerateTranslation(ctx context.Context, req *Ge
 	if err != nil {
 		return "", err
 	}
+
+	slog.Info("generated translation response: %s", string(data))
 
 	type Result struct {
 		TranslatedText string `json:"translated_text"`
