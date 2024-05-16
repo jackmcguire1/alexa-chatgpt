@@ -43,6 +43,18 @@ type Response struct {
 	Success  bool     `json:"success"`
 }
 
+type TranslateResponse struct {
+	Result struct {
+		TranslatedText string `json:"translated_text"`
+	} `json:"result"`
+	Errors []struct {
+		Code    int    `json:"code"`
+		Message string `json:"message"`
+	} `json:"errors,omitempty"`
+	Messages []string `json:"messages,omitempty"`
+	Success  bool     `json:"success"`
+}
+
 type CloudflareApiClient struct {
 	AccountID string
 	APIKey    string
@@ -180,15 +192,16 @@ func (api *CloudflareApiClient) GenerateTranslation(ctx context.Context, req *Ge
 		With("response", string(data)).
 		Info("generated translation response")
 
-	type Result struct {
-		TranslatedText string `json:"translated_text"`
-	}
-
-	var result *Result
-	err = json.Unmarshal(data, &result)
+	var response *TranslateResponse
+	err = json.Unmarshal(data, &response)
 	if err != nil {
 		return "", err
 	}
 
-	return result.TranslatedText, nil
+	if !response.Success {
+		err = fmt.Errorf("didn't get success from result %v http-status: %d", utils.ToJSON(response), resp.StatusCode)
+		return "", err
+	}
+
+	return response.Result.TranslatedText, nil
 }
