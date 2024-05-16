@@ -46,3 +46,27 @@ func (client *Client) GenerateImage(ctx context.Context, prompt string, model Ch
 	}
 	return nil, fmt.Errorf("unidentified image generation model")
 }
+
+func (client *Client) Translate(
+	ctx context.Context,
+	prompt string,
+	sourceLang string,
+	targetLang string,
+	model ChatModel,
+) (string, error) {
+	if sourceLang == "" {
+		sourceLang = "en"
+	}
+	if targetLang == "" {
+		targetLang = "jp"
+	}
+	if model == "" {
+		model = CHAT_MODEL_TRANSLATIONS
+	}
+	return client.CloudflareApiClient.GenerateTranslation(ctx, &GenerateTranslationRequest{
+		SourceLanguage: sourceLang,
+		TargetLanguage: targetLang,
+		Prompt:         prompt,
+		Model:          CHAT_MODEL_TO_CF_MODEL[model],
+	})
+}

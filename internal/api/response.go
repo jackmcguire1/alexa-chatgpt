@@ -63,6 +63,19 @@ response:
 		)
 		h.lastResponse = response
 		return
+	case chatmodels.CHAT_MODEL_TRANSLATIONS:
+		res = alexa.NewResponse(
+			"Response",
+			fmt.Sprintf(
+				"your translated prompt is %s, this took %s seconds to fetch the answer",
+				response.Response,
+				response.Model,
+				response.TimeDiff,
+			),
+			false,
+		)
+		h.lastResponse = response
+		return
 	default:
 		res = alexa.NewResponse("Response",
 			fmt.Sprintf(

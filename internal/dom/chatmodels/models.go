@@ -7,6 +7,7 @@ const (
 	CHAT_MODEL_GPT              ChatModel = "gpt"
 	CHAT_MODEL_META             ChatModel = "llama"
 	CHAT_MODEL_AWQ              ChatModel = "awq"
+	CHAT_MODEL_TRANSLATIONS     ChatModel = "translate"
 	CHAT_MODEL_OPEN             ChatModel = "open chat"
 	CHAT_MODEL_SQL              ChatModel = "sql"
 	CHAT_MODEL_STABLE_DIFFUSION ChatModel = "stable diffusion"

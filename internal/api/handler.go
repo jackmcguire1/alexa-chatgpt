@@ -53,6 +53,22 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 		}
 
 		res, err = h.GetResponse(ctx, h.PollDelay, false)
+	case alexa.TranslateIntent:
+		prompt := req.Body.Intent.Slots["prompt"].Value
+		sourceLanguage := req.Body.Intent.Slots["sourcelang"].Value
+		targetLanguage := req.Body.Intent.Slots["targetlang"].Value
+
+		err = h.RequestsQueue.PushMessage(ctx, &chatmodels.Request{
+			Prompt:         prompt,
+			TargetLanguage: targetLanguage,
+			SourceLanguage: sourceLanguage,
+			Model:          chatmodels.CHAT_MODEL_TRANSLATIONS,
+		})
+		if err != nil {
+			break
+		}
+
+		res, err = h.GetResponse(ctx, h.PollDelay, false)
 	case alexa.AutoCompleteIntent:
 		prompt := req.Body.Intent.Slots["prompt"].Value
 		h.Logger.With("prompt", prompt).Info("found phrase to autocomplete")

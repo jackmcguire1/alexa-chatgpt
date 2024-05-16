@@ -10,6 +10,8 @@ type LastResponse struct {
 }
 
 type Request struct {
-	Prompt string    `json:"prompt"`
-	Model  ChatModel `json:"model"`
+	Prompt         string    `json:"prompt"`
+	TargetLanguage string    `json:"target_language,omitempty"`
+	SourceLanguage string    `json:"source_language,omitempty"`
+	Model          ChatModel `json:"model"`
 }

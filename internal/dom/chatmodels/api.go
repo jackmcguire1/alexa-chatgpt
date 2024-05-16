@@ -19,6 +19,7 @@ type GeminiAPI interface {
 type CloudFlareAiWorkerAPI interface {
 	GenerateText(context.Context, string, string) (string, error)
 	GenerateImage(ctx context.Context, prompt string, model string) ([]byte, error)
+	GenerateTranslation(ctx context.Context, req *GenerateTranslationRequest) (string, error)
 }
 
 type mockAPI struct {
@@ -48,4 +49,9 @@ func (api *mockAPI) GenerateImage(ctx context.Context, prompt string, model stri
 		res = args.Get(0).([]byte)
 	}
 	return res, args.Error(1)
+}
+
+func (api *mockAPI) GenerateTranslation(ctx context.Context, req *GenerateTranslationRequest) (string, error) {
+	args := api.Called(ctx, req)
+	return args.String(0), args.Error(1)
 }

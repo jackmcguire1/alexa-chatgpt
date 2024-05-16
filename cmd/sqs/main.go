@@ -54,6 +54,17 @@ func (handler *SqsHandler) ProcessChatGPTRequest(ctx context.Context, req *chatm
 			errorMsg = err.Error()
 			break
 		}
+	case chatmodels.CHAT_MODEL_TRANSLATIONS:
+		response, err = handler.ChatModelSvc.Translate(ctx, req.Prompt, req.SourceLanguage, req.TargetLanguage, req.Model)
+		if err != nil {
+			handler.Logger.
+				With("prompt", req.Prompt).
+				With("error", err).
+				Error("failed to process translation request")
+
+			errorMsg = err.Error()
+			break
+		}
 	default:
 		response, err = handler.ChatModelSvc.AutoComplete(ctx, req.Prompt, req.Model)
 		if err != nil {

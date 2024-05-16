@@ -18,6 +18,7 @@ const (
 	CF_AWQ_MODEL                  = "@hf/thebloke/llama-2-13b-chat-awq"
 	CF_OPEN_CHAT_MODEL            = "@cf/openchat/openchat-3.5-0106"
 	CF_STABLE_DIFFUSION           = "@cf/stabilityai/stable-diffusion-xl-base-1.0"
+	CF_META_TRANSLATION_MODEL     = "@cf/meta/m2m100-1.2b"
 )
 
 var CHAT_MODEL_TO_CF_MODEL = map[ChatModel]string{
@@ -26,6 +27,7 @@ var CHAT_MODEL_TO_CF_MODEL = map[ChatModel]string{
 	CHAT_MODEL_META:             CF_LLAMA_3_8B_INSTRUCT_MODEL,
 	CHAT_MODEL_OPEN:             CF_OPEN_CHAT_MODEL,
 	CHAT_MODEL_STABLE_DIFFUSION: CF_STABLE_DIFFUSION,
+	CHAT_MODEL_TRANSLATIONS:     CF_META_TRANSLATION_MODEL,
 }
 
 type Response struct {
@@ -128,4 +130,60 @@ func (api *CloudflareApiClient) GenerateImage(ctx context.Context, prompt string
 	}
 
 	return data, nil
+}
+
+type GenerateTranslationRequest struct {
+	SourceLanguage string
+	TargetLanguage string
+	Prompt         string
+	Model          string
+}
+
+func (api *CloudflareApiClient) GenerateTranslation(ctx context.Context, req *GenerateTranslationRequest) (string, error) {
+	url := fmt.Sprintf("https://api.cloudflare.com/client/v4/accounts/%s/ai/run/%s", api.AccountID, req.Model)
+
+	if req.SourceLanguage == "" {
+		req.SourceLanguage = "en"
+	}
+	payload := map[string]string{
+		"prompt":          req.Prompt,
+		"source_language": req.SourceLanguage,
+		"target_language": req.TargetLanguage,
+	}
+
+	jsonPayload, err := json.Marshal(payload)
+	if err != nil {
+		return "", err
+	}
+
+	httpReq, err := http.NewRequestWithContext(ctx, "POST", url, bytes.NewBuffer(jsonPayload))
+	if err != nil {
+		return "", err
+	}
+	httpReq.Header.Set("Authorization", "Bearer "+api.APIKey)
+	httpReq.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	resp, err := client.Do(httpReq)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
+
+	type Result struct {
+		TranslatedText string `json:"translated_text"`
+	}
+
+	var result *Result
+	err = json.Unmarshal(data, &result)
+	if err != nil {
+		return "", err
+	}
+
+	return result.TranslatedText, nil
 }
