@@ -69,7 +69,6 @@ response:
 			fmt.Sprintf(
 				"your translated prompt is %s, this took %s seconds to fetch the answer",
 				response.Response,
-				response.Model,
 				response.TimeDiff,
 			),
 			false,
