@@ -176,7 +176,9 @@ func (api *CloudflareApiClient) GenerateTranslation(ctx context.Context, req *Ge
 		return "", err
 	}
 
-	slog.Info("generated translation response: %s", string(data))
+	slog.
+		With("response", string(data)).
+		Info("generated translation response")
 
 	type Result struct {
 		TranslatedText string `json:"translated_text"`
