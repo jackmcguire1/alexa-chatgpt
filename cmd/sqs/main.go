@@ -24,6 +24,7 @@ type SqsHandler struct {
 }
 
 func (handler *SqsHandler) ProcessChatGPTRequest(ctx context.Context, req *chatmodels.Request) error {
+	handler.Logger.With("payload", utils.ToJSON(req)).Info("invoked with payload")
 	execTime := time.Now().UTC()
 
 	var errorMsg string
