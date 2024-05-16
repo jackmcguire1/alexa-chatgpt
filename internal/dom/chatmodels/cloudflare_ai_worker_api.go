@@ -147,9 +147,9 @@ func (api *CloudflareApiClient) GenerateTranslation(ctx context.Context, req *Ge
 		req.SourceLanguage = "en"
 	}
 	payload := map[string]string{
-		"text":            req.Prompt,
-		"source_language": req.SourceLanguage,
-		"target_language": req.TargetLanguage,
+		"text":        req.Prompt,
+		"source_lang": req.SourceLanguage,
+		"target_lang": req.TargetLanguage,
 	}
 
 	jsonPayload, err := json.Marshal(payload)
