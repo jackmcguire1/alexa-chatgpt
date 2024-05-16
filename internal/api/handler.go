@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"strings"
 	"time"
 
 	"github.com/jackmcguire1/alexa-chatgpt/internal/dom/chatmodels"
@@ -55,11 +56,13 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 		res, err = h.GetResponse(ctx, h.PollDelay, false)
 	case alexa.TranslateIntent:
 		prompt := req.Body.Intent.Slots["prompt"].Value
-		sourceLanguage := req.Body.Intent.Slots["sourcelang"].Value
-		targetLanguage := req.Body.Intent.Slots["targetlang"].Value
+		spaces := strings.Split(prompt, " ")
+		sourceLanguage := spaces[0]
+		targetLanguage := spaces[2]
+		promptToTranslate := strings.Split(prompt, targetLanguage)[1]
 
 		err = h.RequestsQueue.PushMessage(ctx, &chatmodels.Request{
-			Prompt:         prompt,
+			Prompt:         promptToTranslate,
 			TargetLanguage: targetLanguage,
 			SourceLanguage: sourceLanguage,
 			Model:          chatmodels.CHAT_MODEL_TRANSLATIONS,
