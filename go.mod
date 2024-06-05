@@ -3,7 +3,7 @@ module github.com/jackmcguire1/alexa-chatgpt
 go 1.22
 
 require (
-	cloud.google.com/go/vertexai v0.9.0
+	cloud.google.com/go/vertexai v0.10.0
 	github.com/aws/aws-lambda-go v1.47.0
 	github.com/aws/aws-sdk-go-v2 v1.26.1
 	github.com/aws/aws-sdk-go-v2/config v1.27.13
