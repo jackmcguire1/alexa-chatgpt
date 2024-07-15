@@ -11,6 +11,7 @@ const (
 	CHAT_MODEL_OPEN             ChatModel = "open chat"
 	CHAT_MODEL_SQL              ChatModel = "sql"
 	CHAT_MODEL_STABLE_DIFFUSION ChatModel = "stable diffusion"
+	CHAT_MODEL_QWEN             ChatModel = "Ali baba"
 )
 
 var AvaliableModels = []string{
@@ -21,6 +22,7 @@ var AvaliableModels = []string{
 	CHAT_MODEL_OPEN.String(),
 	CHAT_MODEL_AWQ.String(),
 	CHAT_MODEL_STABLE_DIFFUSION.String(),
+	CHAT_MODEL_QWEN.String(),
 }
 
 func (c ChatModel) String() string {
