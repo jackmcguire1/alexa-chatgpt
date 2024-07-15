@@ -34,6 +34,10 @@ func (h *Handler) getOrSetModel(model string) (res alexa.Response, err error) {
 		h.Model = chatmodels.CHAT_MODEL_AWQ
 		res = alexa.NewResponse("Chat Models", "ok", false)
 		return
+	case chatmodels.CHAT_MODEL_QWEN.String():
+		h.Model = chatmodels.CHAT_MODEL_QWEN
+		res = alexa.NewResponse("Chat Models", "ok", false)
+		return
 	case "which":
 		res = alexa.NewResponse("Chat Models", fmt.Sprintf("I am using the model %s", h.Model.String()), false)
 		return
