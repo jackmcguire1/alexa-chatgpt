@@ -10,8 +10,8 @@ const (
 	CHAT_MODEL_TRANSLATIONS     ChatModel = "translate"
 	CHAT_MODEL_OPEN             ChatModel = "open chat"
 	CHAT_MODEL_SQL              ChatModel = "sql"
-	CHAT_MODEL_STABLE_DIFFUSION ChatModel = "stable diffusion"
-	CHAT_MODEL_QWEN             ChatModel = "Ali baba"
+	CHAT_MODEL_STABLE_DIFFUSION ChatModel = "stable"
+	CHAT_MODEL_QWEN             ChatModel = "qwen"
 )
 
 var AvaliableModels = []string{
