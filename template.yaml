@@ -4,6 +4,8 @@ Description: AlexaSkill with ChatGPT
 
 Globals:
   Function:
+    Tags:
+      Project: Alexa-ChatGPT
     Timeout: 300
     Environment:
       Variables:
