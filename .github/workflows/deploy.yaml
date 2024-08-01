@@ -8,6 +8,9 @@ env:
   LAMBDA_RUNTIME: provided.al2023
   LAMBDA_HANDLER: bootstrap
   LAMBDA_ARCH: arm64
+
+concurrency: deploy
+
 jobs:
   build-deploy:
     runs-on: ubuntu-latest
