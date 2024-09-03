@@ -11,7 +11,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/sqs v1.34.6
 	github.com/disintegration/imaging v1.6.2
 	github.com/google/uuid v1.6.0
-	github.com/sashabaranov/go-openai v1.27.1
+	github.com/sashabaranov/go-openai v1.29.1
 	github.com/stretchr/testify v1.9.0
 	golang.org/x/oauth2 v0.21.0
 	google.golang.org/api v0.189.0
