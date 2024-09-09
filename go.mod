@@ -1,6 +1,6 @@
 module github.com/jackmcguire1/alexa-chatgpt
 
-go 1.22
+go 1.23
 
 require (
 	cloud.google.com/go/vertexai v0.13.0
