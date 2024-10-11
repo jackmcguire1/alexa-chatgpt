@@ -10,6 +10,8 @@ import (
 	"google.golang.org/api/option"
 )
 
+const MODEL string = "gemini-1.5-pro-latest"
+
 type GeminiApiClient struct {
 	credentials *google.Credentials
 }
@@ -32,6 +34,6 @@ func (api *GeminiApiClient) GeminiChat(ctx context.Context, prompt string) (*gen
 	}
 	defer client.Close()
 
-	model := client.GenerativeModel("gemini-1.0-pro")
+	model := client.GenerativeModel(MODEL)
 	return model.GenerateContent(ctx, genai.Text(prompt))
 }
