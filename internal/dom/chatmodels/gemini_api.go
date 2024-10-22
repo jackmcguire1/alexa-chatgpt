@@ -10,7 +10,7 @@ import (
 	"google.golang.org/api/option"
 )
 
-const MODEL string = "gemini-1.5-pro-latest"
+const MODEL string = "gemini-1.0-pro"
 
 type GeminiApiClient struct {
 	credentials *google.Credentials
