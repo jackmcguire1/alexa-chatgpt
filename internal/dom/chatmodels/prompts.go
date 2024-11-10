@@ -41,7 +41,7 @@ func (client *Client) GenerateImage(ctx context.Context, prompt string, model Im
 	switch model {
 	case IMAGE_MODEL_STABLE_DIFFUSION:
 		return client.CloudflareApiClient.GenerateImage(ctx, prompt, IMAGE_MODEL_TO_CF_MODEL[model])
-	case IMAGE_MODEL_DALL_E_2:
+	case IMAGE_MODEL_DALL_E_2, IMAGE_MODEL_DALL_E_3:
 		return client.GPTApi.GenerateImage(ctx, prompt, IMAGE_MODEL_TO_OPENAI_MODEL[model])
 	default:
 		return client.CloudflareApiClient.GenerateImage(ctx, prompt, IMAGE_MODEL_TO_CF_MODEL[model])
