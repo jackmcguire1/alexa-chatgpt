@@ -101,6 +101,11 @@ respond:
 		Error:          errorMsg,
 	}
 
+	// override the model if image model was set
+	if req.ImageModel != nil {
+		event.Model = req.ImageModel.String()
+	}
+
 	err = handler.ResponseQueue.PushMessage(ctx, event)
 	if err != nil {
 		handler.Logger.
