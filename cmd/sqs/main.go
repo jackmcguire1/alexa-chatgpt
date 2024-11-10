@@ -32,29 +32,35 @@ func (handler *SqsHandler) ProcessChatGPTRequest(ctx context.Context, req *chatm
 	var imagesResponse []string
 	var err error
 
+	if req.ImageModel != nil {
+		switch *req.ImageModel {
+		case chatmodels.IMAGE_MODEL_STABLE_DIFFUSION, chatmodels.IMAGE_MODEL_DALL_E_2:
+			imageBody, err := handler.ChatModelSvc.GenerateImage(ctx, req.Prompt, *req.ImageModel)
+			if err != nil {
+				handler.Logger.
+					With("image-model", *req.ImageModel).
+					With("prompt", req.Prompt).
+					With("error", err).
+					Error("failed to generate image from request")
+
+				errorMsg = err.Error()
+				goto respond
+			}
+
+			imagesResponse, err = handler.processImage(ctx, imageBody)
+			if err != nil {
+				handler.Logger.
+					With("prompt", req.Prompt).
+					With("error", err).
+					Error("failed to persist image resolutions")
+
+				errorMsg = err.Error()
+			}
+			goto respond
+		}
+	}
+
 	switch req.Model {
-	case chatmodels.CHAT_MODEL_STABLE_DIFFUSION:
-		imageBody, err := handler.ChatModelSvc.GenerateImage(ctx, req.Prompt, req.Model)
-		if err != nil {
-			handler.Logger.
-				With("prompt", req.Prompt).
-				With("error", err).
-				Error("failed to generate image from request")
-
-			errorMsg = err.Error()
-			break
-		}
-
-		imagesResponse, err = handler.processImage(ctx, imageBody)
-		if err != nil {
-			handler.Logger.
-				With("prompt", req.Prompt).
-				With("error", err).
-				Error("failed to persist image resolutions")
-
-			errorMsg = err.Error()
-			break
-		}
 	case chatmodels.CHAT_MODEL_TRANSLATIONS:
 		response, err = handler.ChatModelSvc.Translate(ctx, req.Prompt, req.SourceLanguage, req.TargetLanguage, req.Model)
 		if err != nil {
@@ -78,7 +84,7 @@ func (handler *SqsHandler) ProcessChatGPTRequest(ctx context.Context, req *chatm
 			break
 		}
 	}
-
+respond:
 	since := time.Since(execTime)
 
 	handler.Logger.
@@ -90,7 +96,7 @@ func (handler *SqsHandler) ProcessChatGPTRequest(ctx context.Context, req *chatm
 		Prompt:         req.Prompt,
 		Response:       response,
 		TimeDiff:       fmt.Sprintf("%.0f", since.Seconds()),
-		Model:          req.Model,
+		Model:          req.Model.String(),
 		ImagesResponse: imagesResponse,
 		Error:          errorMsg,
 	}

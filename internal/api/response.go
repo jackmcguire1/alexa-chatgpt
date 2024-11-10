@@ -53,7 +53,7 @@ response:
 	}
 
 	switch response.Model {
-	case chatmodels.CHAT_MODEL_STABLE_DIFFUSION:
+	case chatmodels.IMAGE_MODEL_STABLE_DIFFUSION.String():
 		res = alexa.NewImageResponse(
 			"Response",
 			fmt.Sprintf("your generated image took %s seconds to fetch", response.TimeDiff),
@@ -63,7 +63,7 @@ response:
 		)
 		h.lastResponse = response
 		return
-	case chatmodels.CHAT_MODEL_TRANSLATIONS:
+	case chatmodels.CHAT_MODEL_TRANSLATIONS.String():
 		res = alexa.NewResponse(
 			"Response",
 			fmt.Sprintf(

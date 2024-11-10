@@ -2,6 +2,7 @@ package chatmodels
 
 import (
 	"context"
+	"encoding/base64"
 
 	"github.com/sashabaranov/go-openai"
 )
@@ -30,4 +31,25 @@ func (api *OpenAIApiClient) AutoComplete(ctx context.Context, prompt string) (op
 		},
 	}
 	return api.OpenAIClient.CreateChatCompletion(ctx, req)
+}
+
+func (api *OpenAIApiClient) GenerateImage(ctx context.Context, prompt string, model string) ([]byte, error) {
+	req := openai.ImageRequest{
+		Prompt:         prompt,
+		Size:           openai.CreateImageSize256x256,
+		ResponseFormat: openai.CreateImageResponseFormatB64JSON,
+		N:              1,
+	}
+
+	respBase64, err := api.OpenAIClient.CreateImage(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	imgBytes, err := base64.StdEncoding.DecodeString(respBase64.Data[0].B64JSON)
+	if err != nil {
+		return nil, err
+	}
+
+	return imgBytes, nil
 }

@@ -21,6 +21,7 @@ type Handler struct {
 	RequestsQueue  queue.PullPoll
 	PollDelay      int
 	Model          chatmodels.ChatModel
+	ImageModel     chatmodels.ImageModel
 }
 
 func (h *Handler) randomFact(ctx context.Context) (string, error) {
@@ -48,7 +49,7 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 		prompt := req.Body.Intent.Slots["prompt"].Value
 		h.Logger.With("prompt", prompt).Info("found phrase to autocomplete")
 
-		err = h.RequestsQueue.PushMessage(ctx, &chatmodels.Request{Prompt: prompt, Model: chatmodels.CHAT_MODEL_STABLE_DIFFUSION})
+		err = h.RequestsQueue.PushMessage(ctx, &chatmodels.Request{Prompt: prompt, ImageModel: &h.ImageModel})
 		if err != nil {
 			break
 		}
@@ -94,7 +95,7 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 			return
 		}
 		res = alexa.NewResponse("Random Fact", randomFact, false)
-		h.lastResponse = &chatmodels.LastResponse{Response: randomFact, TimeDiff: fmt.Sprintf("%.0f", time.Since(execTime).Seconds()), Model: h.Model}
+		h.lastResponse = &chatmodels.LastResponse{Response: randomFact, TimeDiff: fmt.Sprintf("%.0f", time.Since(execTime).Seconds()), Model: h.Model.String()}
 
 	case alexa.LastResponseIntent:
 		h.Logger.Debug("fetching last response")

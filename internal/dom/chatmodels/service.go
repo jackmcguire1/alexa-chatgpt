@@ -10,7 +10,7 @@ type Resources struct {
 
 type Service interface {
 	AutoComplete(context.Context, string, ChatModel) (string, error)
-	GenerateImage(context.Context, string, ChatModel) ([]byte, error)
+	GenerateImage(context.Context, string, ImageModel) ([]byte, error)
 	Translate(
 		ctx context.Context,
 		prompt string,
