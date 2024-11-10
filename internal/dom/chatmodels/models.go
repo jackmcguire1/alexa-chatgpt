@@ -17,7 +17,8 @@ const (
 
 const (
 	IMAGE_MODEL_STABLE_DIFFUSION ImageModel = "stable"
-	IMAGE_MODEL_DALL_E_2         ImageModel = "dallas"
+	IMAGE_MODEL_DALL_E_2         ImageModel = "dallas v2"
+	IMAGE_MODEL_DALL_E_3         ImageModel = "dallas"
 )
 
 var AvaliableModels = []string{
@@ -37,7 +38,7 @@ var ImageModels = []string{
 
 var StrToImageModel = map[string]ImageModel{
 	IMAGE_MODEL_STABLE_DIFFUSION.String(): IMAGE_MODEL_STABLE_DIFFUSION,
-	IMAGE_MODEL_DALL_E_2.String(): IMAGE_MODEL_DALL_E_2,
+	IMAGE_MODEL_DALL_E_2.String():         IMAGE_MODEL_DALL_E_2,
 }
 
 func (c ChatModel) String() string {

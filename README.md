@@ -26,7 +26,7 @@
 
 - If the Alexa skill does not poll a message from the queue within ~7 seconds, users will be given a direct response of 'your response will be available shortly!', this is too avoid the Alexa skill session from expiring.
 
-- Querying the Alexa skill with 'Last Response', the lambda will immediately poll the response SQS to retrieve the delayed response and output the prompt with the timestamp of response time
+- Querying the Alexa skill with 'Last Response', the lambda will immediately poll the response SQS to retrieve the delayed response and output the prompt with the timestamp of response time, if there is no item on the queue, but a prior answer was last cached, this will be displayed.
 
 ## Supported Models
 > Find available models by asking 'model available'
@@ -55,7 +55,16 @@ Use the 'alias' to select one of the models below:
 - llama-2-13b-chat-awq
   - alias "awq"
 - openchat-3.5-0106 
-  - alis "open chat"
+  - alias "open chat"
+
+### Image models
+> Image generation available from Cloudflare & OpenAI
+> Images are generated from prompts via models, b64 decoded into PNG, compressed into supported images sizes and finally uploaded to S3
+- stable diffusion
+  - alias "stable"
+
+- DALL_E_3
+  - alias "dallas
 
 ## Alexa Intents
 
@@ -64,6 +73,10 @@ Use the 'alias' to select one of the models below:
 - AutoComplete
 
   > the intent used to prompt the LLM models
+
+- Image
+
+  > the intent to generate images
 
 - Model
 
