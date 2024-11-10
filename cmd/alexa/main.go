@@ -27,6 +27,7 @@ func main() {
 		PollDelay:      pollDelay,
 		Logger:         logger,
 		Model:          chatmodels.CHAT_MODEL_GPT,
+		ImageModel:     chatmodels.IMAGE_MODEL_STABLE_DIFFUSION,
 	}
 	lambda.Start(h.Invoke)
 }
