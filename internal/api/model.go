@@ -40,20 +40,23 @@ func (h *Handler) getOrSetModel(model string) (res alexa.Response, err error) {
 		return
 	case chatmodels.IMAGE_MODEL_STABLE_DIFFUSION.String():
 		h.ImageModel = chatmodels.IMAGE_MODEL_STABLE_DIFFUSION
-		res = alexa.NewResponse("Chat Models", "ok", false)
+		res = alexa.NewResponse("Image Models", "ok", false)
+		return
 	case chatmodels.IMAGE_MODEL_DALL_E_3.String():
 		h.ImageModel = chatmodels.IMAGE_MODEL_DALL_E_3
-		res = alexa.NewResponse("Chat Models", "ok", false)
+		res = alexa.NewResponse("Image Models", "ok", false)
+		return
 	case chatmodels.IMAGE_MODEL_DALL_E_2.String():
 		h.ImageModel = chatmodels.IMAGE_MODEL_DALL_E_2
-		res = alexa.NewResponse("Chat Models", "ok", false)
+		res = alexa.NewResponse("Image Models", "ok", false)
+		return
 	case "which":
-		res = alexa.NewResponse("Chat Models", fmt.Sprintf("I am using the model %s", h.Model.String()), false)
+		res = alexa.NewResponse("Chat Models", fmt.Sprintf("I am using the text-model %s and image-model %s", h.Model.String(), h.ImageModel.String()), false)
 		return
 	default:
 		res = alexa.NewResponse(
-			"Chat Models",
-			fmt.Sprintf("The avaliable chat models are \n - %s", strings.Join(chatmodels.AvaliableModels, "\n - ")),
+			"Models",
+			fmt.Sprintf("The avaliable chat models are \n - %s and image models %s", strings.Join(chatmodels.AvaliableModels, "\n - "), strings.Join(chatmodels.ImageModels, "\n - ")),
 			false,
 		)
 		return
