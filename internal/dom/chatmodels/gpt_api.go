@@ -47,8 +47,9 @@ func (api *OpenAIApiClient) GenerateImage(ctx context.Context, prompt string, mo
 	req := openai.ImageRequest{
 		Model:          model,
 		Prompt:         prompt,
-		Size:           openai.CreateImageSize256x256,
+		Size:           openai.CreateImageSize1024x1024,
 		ResponseFormat: openai.CreateImageResponseFormatB64JSON,
+		Quality:        "standard",
 		N:              1,
 	}
 
