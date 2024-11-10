@@ -10,6 +10,7 @@ import (
 
 type GptAPI interface {
 	AutoComplete(context.Context, string) (openai.ChatCompletionResponse, error)
+	GenerateImage(ctx context.Context, prompt string, model string) ([]byte, error)
 }
 
 type GeminiAPI interface {

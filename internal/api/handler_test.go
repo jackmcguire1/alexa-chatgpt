@@ -81,7 +81,7 @@ func TestAutoCompleteIntent(t *testing.T) {
 	mockRequestsQueue.On("PushMessage", mock.Anything, mock.Anything).Return(nil)
 
 	mockResponsesQueue := &queue.MockQueue{}
-	queueResponse := chatmodels.LastResponse{Response: "chimney", Model: chatmodels.CHAT_MODEL_GPT, TimeDiff: "1s"}
+	queueResponse := chatmodels.LastResponse{Response: "chimney", Model: chatmodels.CHAT_MODEL_GPT.String(), TimeDiff: "1s"}
 	jsonResp := utils.ToJSON(queueResponse)
 	mockResponsesQueue.On("PullMessage", mock.Anything, mock.Anything).Return([]byte(jsonResp), nil)
 
@@ -127,7 +127,7 @@ func TestImageIntent(t *testing.T) {
 	mockRequestsQueue.On("PushMessage", mock.Anything, mock.Anything).Return(nil)
 
 	mockResponsesQueue := &queue.MockQueue{}
-	queueResponse := chatmodels.LastResponse{Response: "", Model: chatmodels.CHAT_MODEL_STABLE_DIFFUSION, TimeDiff: "1", ImagesResponse: []string{
+	queueResponse := chatmodels.LastResponse{Response: "", Model: chatmodels.IMAGE_MODEL_STABLE_DIFFUSION.String(), TimeDiff: "1", ImagesResponse: []string{
 		smallImageUrl,
 		largeImageUrl,
 	}}
@@ -175,7 +175,7 @@ func TestImageIntentFailedToGenerateImagesResponse(t *testing.T) {
 	mockRequestsQueue.On("PushMessage", mock.Anything, mock.Anything).Return(nil)
 
 	mockResponsesQueue := &queue.MockQueue{}
-	queueResponse := chatmodels.LastResponse{Error: "image API failed", Model: chatmodels.CHAT_MODEL_STABLE_DIFFUSION, TimeDiff: "1", ImagesResponse: []string{}}
+	queueResponse := chatmodels.LastResponse{Error: "image API failed", Model: chatmodels.IMAGE_MODEL_STABLE_DIFFUSION.String(), TimeDiff: "1", ImagesResponse: []string{}}
 	jsonResp := utils.ToJSON(queueResponse)
 	mockResponsesQueue.On("PullMessage", mock.Anything, mock.Anything).Return([]byte(jsonResp), nil)
 
@@ -250,7 +250,7 @@ func TestLastResponseIntent(t *testing.T) {
 
 	mockResponsesQueue := &queue.MockQueue{}
 	queueResponse := chatmodels.LastResponse{
-		Model:    chatmodels.CHAT_MODEL_GPT,
+		Model:    chatmodels.CHAT_MODEL_GPT.String(),
 		Response: "chimney",
 		TimeDiff: time.Since(time.Now().Add(-time.Second)).String(),
 	}
