@@ -34,7 +34,7 @@ func (handler *SqsHandler) ProcessChatGPTRequest(ctx context.Context, req *chatm
 
 	if req.ImageModel != nil {
 		switch *req.ImageModel {
-		case chatmodels.IMAGE_MODEL_STABLE_DIFFUSION, chatmodels.IMAGE_MODEL_DALL_E_2:
+		case chatmodels.IMAGE_MODEL_STABLE_DIFFUSION, chatmodels.IMAGE_MODEL_DALL_E_2, chatmodels.IMAGE_MODEL_DALL_E_3:
 			imageBody, err := handler.ChatModelSvc.GenerateImage(ctx, req.Prompt, *req.ImageModel)
 			if err != nil {
 				handler.Logger.
