@@ -11,6 +11,8 @@ func (client *Client) TextGeneration(ctx context.Context, prompt string, model C
 		return client.GeminiAPI.GenerateText(ctx, prompt)
 	case CHAT_MODEL_META, CHAT_MODEL_SQL, CHAT_MODEL_OPEN, CHAT_MODEL_AWQ, CHAT_MODEL_QWEN:
 		return client.CloudflareApiClient.GenerateTextWithModel(ctx, prompt, CHAT_MODEL_TO_CF_MODEL[model])
+	case CHAT_MODEL_GPT:
+		fallthrough
 	default:
 		return client.GPTApi.GenerateText(ctx, prompt)
 	}

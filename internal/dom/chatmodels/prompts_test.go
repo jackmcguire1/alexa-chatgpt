@@ -2,73 +2,48 @@ package chatmodels
 
 import (
 	"context"
+	"fmt"
 	"testing"
 
-	"cloud.google.com/go/vertexai/genai"
-	"github.com/sashabaranov/go-openai"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
-func TestAutoComplete(t *testing.T) {
+func TestTextGenerationWithGPT(t *testing.T) {
 	api := &mockAPI{}
-	mockResponse := openai.ChatCompletionResponse{
-		ID:      "",
-		Object:  "",
-		Created: 0,
-		Model:   "",
-		Choices: []openai.ChatCompletionChoice{
-			openai.ChatCompletionChoice{
-				Message: openai.ChatCompletionMessage{Content: "is the best"},
-			},
-		},
-	}
-	api.On("TextGeneration", mock.Anything, "steve").Return(mockResponse, nil)
+	mockResponse := "hello world"
+	api.On("GenerateText", mock.Anything, "steve").Return(mockResponse, nil)
 	c := Client{&Resources{GPTApi: api}}
 	resp, err := c.TextGeneration(context.Background(), "steve", CHAT_MODEL_GPT)
 	assert.NoError(t, err)
-	assert.EqualValues(t, "is the best", resp)
+	assert.EqualValues(t, mockResponse, resp)
 }
 
-func TestAutoCompleteMissingChoices(t *testing.T) {
+func TestTestTextGenerationWithGemini(t *testing.T) {
 	api := &mockAPI{}
-	mockResponse := openai.ChatCompletionResponse{
-		ID:      "",
-		Object:  "",
-		Created: 0,
-		Model:   "",
-		Choices: []openai.ChatCompletionChoice{},
-	}
-	api.On("TextGeneration", mock.Anything, "steve").Return(mockResponse, nil)
-	c := Client{&Resources{GPTApi: api}}
-	_, err := c.TextGeneration(context.Background(), "steve", CHAT_MODEL_GPT)
-	assert.Error(t, err)
-	assert.Equal(t, "missing choices", err.Error())
-}
-
-func TestGeminiChat(t *testing.T) {
-	api := &mockAPI{}
-	part := genai.Text("is the best")
-	mockResponse := &genai.GenerateContentResponse{
-		Candidates: []*genai.Candidate{
-			&genai.Candidate{
-				Index: 0,
-				Content: &genai.Content{
-					Parts: []genai.Part{
-						part,
-					},
-					Role: "",
-				},
-				FinishReason:     0,
-				SafetyRatings:    nil,
-				CitationMetadata: nil,
-			},
-		},
-		PromptFeedback: nil,
-	}
-	api.On("GeminiChat", mock.Anything, "steve").Return(mockResponse, nil)
+	mockResponse := "hello world"
+	api.On("GenerateText", mock.Anything, "steve").Return(mockResponse, nil)
 	c := Client{&Resources{GeminiAPI: api}}
 	resp, err := c.TextGeneration(context.Background(), "steve", CHAT_MODEL_GEMINI)
 	assert.NoError(t, err)
-	assert.EqualValues(t, "is the best", resp)
+	assert.EqualValues(t, mockResponse, resp)
+}
+
+func TestTextGenerationWithMetaModel(t *testing.T) {
+	api := &mockAPI{}
+	mockResponse := "hello world"
+	api.On("GenerateTextWithModel", mock.Anything, "steve", mock.Anything).Return(mockResponse, nil)
+	c := Client{&Resources{CloudflareApiClient: api}}
+	resp, err := c.TextGeneration(context.Background(), "steve", CHAT_MODEL_META)
+	assert.NoError(t, err)
+	assert.EqualValues(t, mockResponse, resp)
+}
+
+func TestTextGenerationWithMissingContent(t *testing.T) {
+	api := &mockAPI{}
+	mockError := fmt.Errorf("missing choice %w", MissingContentError)
+	api.On("GenerateText", mock.Anything, "steve").Return("", mockError)
+	c := Client{&Resources{GPTApi: api}}
+	_, err := c.TextGeneration(context.Background(), "steve", CHAT_MODEL_GPT)
+	assert.Error(t, err)
 }
