@@ -74,7 +74,7 @@ func NewCloudflareApiClient(accountID, apiKey string) *CloudflareApiClient {
 	}
 }
 
-func (api *CloudflareApiClient) GenerateText(ctx context.Context, prompt string, model string) (string, error) {
+func (api *CloudflareApiClient) GenerateTextWithModel(ctx context.Context, prompt string, model string) (string, error) {
 	url := fmt.Sprintf("https://api.cloudflare.com/client/v4/accounts/%s/ai/run/%s", api.AccountID, model)
 
 	payload := map[string]string{
@@ -107,13 +107,15 @@ func (api *CloudflareApiClient) GenerateText(ctx context.Context, prompt string,
 	var result *Response
 	err = json.Unmarshal(data, &result)
 	if err != nil {
-		err = fmt.Errorf("failed to unmarshal cloudflare response body %s", string(data))
-		return "", err
+		return "", fmt.Errorf("failed to unmarshal cloudflare response body %s", string(data))
 	}
 
 	if !result.Success {
-		err = fmt.Errorf("didn't get success from result %v http-status: %d", utils.ToJSON(result), resp.StatusCode)
-		return "", err
+		return "", fmt.Errorf("didn't get success from result %v http-status: %d", utils.ToJSON(result), resp.StatusCode)
+	}
+
+	if result.Result.Response == "" {
+		return "", fmt.Errorf("cloudflare ai worker model failed to generate text %w", MissingContentError)
 	}
 
 	return result.Result.Response, nil

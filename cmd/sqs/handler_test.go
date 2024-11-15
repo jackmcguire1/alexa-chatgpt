@@ -18,7 +18,7 @@ import (
 
 func TestHandler(t *testing.T) {
 	mockChatGptSvc := &chatmodels.MockClient{}
-	mockChatGptSvc.On("AutoComplete", mock.Anything, "tell me a random fact", chatmodels.CHAT_MODEL_GPT).Return("The battle of zanzibar lasted 30 minutes.", nil)
+	mockChatGptSvc.On("TextGeneration", mock.Anything, "tell me a random fact", chatmodels.CHAT_MODEL_GPT).Return("The battle of zanzibar lasted 30 minutes.", nil)
 
 	mockQueue := &queue.MockQueue{}
 	mockQueue.On("PushMessage", mock.Anything, mock.Anything).Return(nil)
@@ -27,9 +27,9 @@ func TestHandler(t *testing.T) {
 	logger := slog.New(jsonH)
 
 	h := &SqsHandler{
-		ChatModelSvc:  mockChatGptSvc,
-		ResponseQueue: mockQueue,
-		Logger:        logger,
+		GenerationModelSvc: mockChatGptSvc,
+		ResponseQueue:      mockQueue,
+		Logger:             logger,
 	}
 
 	request := &chatmodels.Request{
@@ -49,7 +49,7 @@ func TestHandler(t *testing.T) {
 
 func TestModelErrorResponse(t *testing.T) {
 	mockChatGptSvc := &chatmodels.MockClient{}
-	mockChatGptSvc.On("AutoComplete", mock.Anything, "tell me a random fact", chatmodels.CHAT_MODEL_GPT).Return("", fmt.Errorf("there was an issue with your API KEY"))
+	mockChatGptSvc.On("TextGeneration", mock.Anything, "tell me a random fact", chatmodels.CHAT_MODEL_GPT).Return("", fmt.Errorf("there was an issue with your API KEY"))
 
 	mockQueue := &queue.MockQueue{}
 	mockQueue.On("PushMessage", mock.Anything, mock.Anything).Return(nil)
@@ -58,9 +58,9 @@ func TestModelErrorResponse(t *testing.T) {
 	logger := slog.New(jsonH)
 
 	h := &SqsHandler{
-		ChatModelSvc:  mockChatGptSvc,
-		ResponseQueue: mockQueue,
-		Logger:        logger,
+		GenerationModelSvc: mockChatGptSvc,
+		ResponseQueue:      mockQueue,
+		Logger:             logger,
 	}
 
 	request := &chatmodels.Request{
@@ -81,7 +81,7 @@ func TestModelErrorResponse(t *testing.T) {
 
 func TestSqsError(t *testing.T) {
 	mockChatGptSvc := &chatmodels.MockClient{}
-	mockChatGptSvc.On("AutoComplete", mock.Anything, "tell me a random fact", chatmodels.CHAT_MODEL_GPT).Return("", fmt.Errorf("there was an issue with your API KEY"))
+	mockChatGptSvc.On("TextGeneration", mock.Anything, "tell me a random fact", chatmodels.CHAT_MODEL_GPT).Return("", fmt.Errorf("there was an issue with your API KEY"))
 
 	mockQueue := &queue.MockQueue{}
 	mockQueue.On("PushMessage", mock.Anything, mock.Anything).Return(fmt.Errorf("500 internal server error"))
@@ -90,9 +90,9 @@ func TestSqsError(t *testing.T) {
 	logger := slog.New(jsonH)
 
 	h := &SqsHandler{
-		ChatModelSvc:  mockChatGptSvc,
-		ResponseQueue: mockQueue,
-		Logger:        logger,
+		GenerationModelSvc: mockChatGptSvc,
+		ResponseQueue:      mockQueue,
+		Logger:             logger,
 	}
 
 	request := &chatmodels.Request{

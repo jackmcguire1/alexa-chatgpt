@@ -25,7 +25,7 @@ type Handler struct {
 }
 
 func (h *Handler) randomFact(ctx context.Context) (string, error) {
-	return h.ChatGptService.AutoComplete(ctx, "tell me a random fact", h.Model)
+	return h.ChatGptService.TextGeneration(ctx, "tell me a random fact", h.Model)
 }
 
 func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res alexa.Response, err error) {

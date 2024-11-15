@@ -3,6 +3,7 @@ package chatmodels
 import (
 	"context"
 	"encoding/base64"
+	"fmt"
 	"log/slog"
 
 	"cloud.google.com/go/vertexai/genai"
@@ -27,13 +28,22 @@ func NewGeminiApiClient(token string) *GeminiApiClient {
 	return &GeminiApiClient{credentials: creds}
 }
 
-func (api *GeminiApiClient) GeminiChat(ctx context.Context, prompt string) (*genai.GenerateContentResponse, error) {
+func (api *GeminiApiClient) GenerateText(ctx context.Context, prompt string) (string, error) {
 	client, err := genai.NewClient(ctx, api.credentials.ProjectID, "us-central1", option.WithCredentialsJSON(api.credentials.JSON))
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	defer client.Close()
 
 	model := client.GenerativeModel(MODEL)
-	return model.GenerateContent(ctx, genai.Text(prompt))
+	res, err := model.GenerateContent(ctx, genai.Text(prompt))
+	if err != nil {
+		return "", err
+	}
+
+	// extract and return response
+	if len(res.Candidates) > 0 && len(res.Candidates[0].Content.Parts) > 0 {
+		return fmt.Sprint(res.Candidates[0].Content.Parts[0]), nil
+	}
+	return "", fmt.Errorf("gemini missing content in response %w", MissingContentError)
 }

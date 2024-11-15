@@ -23,9 +23,9 @@ func TestAutoComplete(t *testing.T) {
 			},
 		},
 	}
-	api.On("AutoComplete", mock.Anything, "steve").Return(mockResponse, nil)
+	api.On("TextGeneration", mock.Anything, "steve").Return(mockResponse, nil)
 	c := Client{&Resources{GPTApi: api}}
-	resp, err := c.AutoComplete(context.Background(), "steve", CHAT_MODEL_GPT)
+	resp, err := c.TextGeneration(context.Background(), "steve", CHAT_MODEL_GPT)
 	assert.NoError(t, err)
 	assert.EqualValues(t, "is the best", resp)
 }
@@ -39,9 +39,9 @@ func TestAutoCompleteMissingChoices(t *testing.T) {
 		Model:   "",
 		Choices: []openai.ChatCompletionChoice{},
 	}
-	api.On("AutoComplete", mock.Anything, "steve").Return(mockResponse, nil)
+	api.On("TextGeneration", mock.Anything, "steve").Return(mockResponse, nil)
 	c := Client{&Resources{GPTApi: api}}
-	_, err := c.AutoComplete(context.Background(), "steve", CHAT_MODEL_GPT)
+	_, err := c.TextGeneration(context.Background(), "steve", CHAT_MODEL_GPT)
 	assert.Error(t, err)
 	assert.Equal(t, "missing choices", err.Error())
 }
@@ -68,7 +68,7 @@ func TestGeminiChat(t *testing.T) {
 	}
 	api.On("GeminiChat", mock.Anything, "steve").Return(mockResponse, nil)
 	c := Client{&Resources{GeminiAPI: api}}
-	resp, err := c.AutoComplete(context.Background(), "steve", CHAT_MODEL_GEMINI)
+	resp, err := c.TextGeneration(context.Background(), "steve", CHAT_MODEL_GEMINI)
 	assert.NoError(t, err)
 	assert.EqualValues(t, "is the best", resp)
 }

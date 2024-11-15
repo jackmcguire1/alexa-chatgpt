@@ -17,13 +17,13 @@ import (
 )
 
 type SqsHandler struct {
-	ChatModelSvc  chatmodels.Service
-	ResponseQueue queue.PullPoll
-	Logger        *slog.Logger
-	Bucket        bucket.FilePersistance
+	GenerationModelSvc chatmodels.Service
+	ResponseQueue      queue.PullPoll
+	Logger             *slog.Logger
+	Bucket             bucket.FilePersistance
 }
 
-func (handler *SqsHandler) ProcessChatGPTRequest(ctx context.Context, req *chatmodels.Request) error {
+func (handler *SqsHandler) ProcessGenerationRequest(ctx context.Context, req *chatmodels.Request) error {
 	handler.Logger.With("payload", utils.ToJSON(req)).Info("invoked with payload")
 	execTime := time.Now().UTC()
 
@@ -35,7 +35,7 @@ func (handler *SqsHandler) ProcessChatGPTRequest(ctx context.Context, req *chatm
 	if req.ImageModel != nil {
 		switch *req.ImageModel {
 		case chatmodels.IMAGE_MODEL_STABLE_DIFFUSION, chatmodels.IMAGE_MODEL_DALL_E_2, chatmodels.IMAGE_MODEL_DALL_E_3:
-			imageBody, err := handler.ChatModelSvc.GenerateImage(ctx, req.Prompt, *req.ImageModel)
+			imageBody, err := handler.GenerationModelSvc.GenerateImage(ctx, req.Prompt, *req.ImageModel)
 			if err != nil {
 				handler.Logger.
 					With("image-model", *req.ImageModel).
@@ -62,7 +62,7 @@ func (handler *SqsHandler) ProcessChatGPTRequest(ctx context.Context, req *chatm
 
 	switch req.Model {
 	case chatmodels.CHAT_MODEL_TRANSLATIONS:
-		response, err = handler.ChatModelSvc.Translate(ctx, req.Prompt, req.SourceLanguage, req.TargetLanguage, req.Model)
+		response, err = handler.GenerationModelSvc.Translate(ctx, req.Prompt, req.SourceLanguage, req.TargetLanguage, req.Model)
 		if err != nil {
 			handler.Logger.
 				With("prompt", req.Prompt).
@@ -73,7 +73,7 @@ func (handler *SqsHandler) ProcessChatGPTRequest(ctx context.Context, req *chatm
 			break
 		}
 	default:
-		response, err = handler.ChatModelSvc.AutoComplete(ctx, req.Prompt, req.Model)
+		response, err = handler.GenerationModelSvc.TextGeneration(ctx, req.Prompt, req.Model)
 		if err != nil {
 			handler.Logger.
 				With("prompt", req.Prompt).
@@ -132,7 +132,7 @@ func (handler *SqsHandler) ProcessSQS(ctx context.Context, event events.SQSEvent
 		return err
 	}
 
-	return handler.ProcessChatGPTRequest(ctx, request)
+	return handler.ProcessGenerationRequest(ctx, request)
 }
 
 func main() {
@@ -140,7 +140,7 @@ func main() {
 	logger := slog.New(jsonH)
 
 	h := &SqsHandler{
-		ChatModelSvc: chatmodels.NewClient(&chatmodels.Resources{
+		GenerationModelSvc: chatmodels.NewClient(&chatmodels.Resources{
 			GPTApi:              chatmodels.NewOpenAiApiClient(os.Getenv("OPENAI_API_KEY")),
 			GeminiAPI:           chatmodels.NewGeminiApiClient(os.Getenv("GEMINI_API_KEY")),
 			CloudflareApiClient: chatmodels.NewCloudflareApiClient(os.Getenv("CLOUDFLARE_ACCOUNT_ID"), os.Getenv("CLOUDFLARE_API_KEY")),

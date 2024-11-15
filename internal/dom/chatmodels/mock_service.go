@@ -11,7 +11,7 @@ type MockClient struct {
 	mock.Mock
 }
 
-func (client *MockClient) AutoComplete(ctx context.Context, prompt string, model ChatModel) (string, error) {
+func (client *MockClient) TextGeneration(ctx context.Context, prompt string, model ChatModel) (string, error) {
 	args := client.Called(ctx, prompt, model)
 	return args.String(0), args.Error(1)
 }

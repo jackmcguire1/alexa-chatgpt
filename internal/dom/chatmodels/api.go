@@ -9,16 +9,16 @@ import (
 )
 
 type GptAPI interface {
-	AutoComplete(context.Context, string) (openai.ChatCompletionResponse, error)
+	GenerateText(context.Context, string) (string, error)
 	GenerateImage(ctx context.Context, prompt string, model string) ([]byte, error)
 }
 
 type GeminiAPI interface {
-	GeminiChat(context.Context, string) (*genai.GenerateContentResponse, error)
+	GenerateText(context.Context, string) (string, error)
 }
 
 type CloudFlareAiWorkerAPI interface {
-	GenerateText(context.Context, string, string) (string, error)
+	GenerateTextWithModel(context.Context, string, string) (string, error)
 	GenerateImage(ctx context.Context, prompt string, model string) ([]byte, error)
 	GenerateTranslation(ctx context.Context, req *GenerateTranslationRequest) (string, error)
 }
@@ -39,7 +39,12 @@ func (api *mockAPI) GeminiChat(ctx context.Context, prompt string) (res *genai.G
 	return res, args.Error(1)
 }
 
-func (api *mockAPI) GenerateText(ctx context.Context, prompt string, model string) (string, error) {
+func (api *mockAPI) GenerateText(ctx context.Context, prompt string) (string, error) {
+	args := api.Called(ctx, prompt)
+	return args.String(0), args.Error(1)
+}
+
+func (api *mockAPI) GenerateTextWithModel(ctx context.Context, prompt string, model string) (string, error) {
 	args := api.Called(ctx, prompt, model)
 	return args.String(0), args.Error(1)
 }

@@ -3,6 +3,7 @@ package chatmodels
 import (
 	"context"
 	"encoding/base64"
+	"fmt"
 
 	"github.com/sashabaranov/go-openai"
 )
@@ -30,7 +31,7 @@ func NewOpenAiApiClient(token string) *OpenAIApiClient {
 	}
 }
 
-func (api *OpenAIApiClient) AutoComplete(ctx context.Context, prompt string) (openai.ChatCompletionResponse, error) {
+func (api *OpenAIApiClient) GenerateText(ctx context.Context, prompt string) (string, error) {
 	req := openai.ChatCompletionRequest{
 		Model: openai.GPT4o,
 		Messages: []openai.ChatCompletionMessage{
@@ -40,7 +41,16 @@ func (api *OpenAIApiClient) AutoComplete(ctx context.Context, prompt string) (op
 			},
 		},
 	}
-	return api.OpenAIClient.CreateChatCompletion(ctx, req)
+	resp, err := api.OpenAIClient.CreateChatCompletion(ctx, req)
+	if err != nil {
+		return "", err
+	}
+
+	if len(resp.Choices) == 0 || resp.Choices[0].Message.Content == "" {
+		return "", fmt.Errorf("missing choices %w", MissingContentError)
+	}
+
+	return resp.Choices[0].Message.Content, nil
 }
 
 func (api *OpenAIApiClient) GenerateImage(ctx context.Context, prompt string, model string) ([]byte, error) {

@@ -2,20 +2,22 @@ package main
 
 import (
 	"context"
-	"log"
+	"log/slog"
 	"os"
 
 	"github.com/jackmcguire1/alexa-chatgpt/internal/dom/chatmodels"
 )
 
 func main() {
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}))
 	svc := chatmodels.NewClient(&chatmodels.Resources{
 		GPTApi:              chatmodels.NewOpenAiApiClient(os.Getenv("OPENAI_API_KEY")),
-		CloudflareApiClient: chatmodels.NewCloudflareApiClient("1c5e8bd244a9566794bcffc3cafe27fc", "Von5nrK3hhWQ-iarP1fQoi4_5624oIMR_Q7rfznP"),
+		CloudflareApiClient: chatmodels.NewCloudflareApiClient(os.Getenv("CLOUDFLARE_ACCOUNT_ID"), os.Getenv("CLOUDFLARE_API_KEY")),
 	})
-	resp, err := svc.AutoComplete(context.Background(), "monkey riding a unicorn", chatmodels.CHAT_MODEL_GPT)
+	resp, err := svc.TextGeneration(context.Background(), "monkey riding a unicorn", chatmodels.CHAT_MODEL_META)
 	if err != nil {
-		log.Fatal(err)
+		logger.With("error", err).Error("failed to generate text")
+		panic(err)
 	}
-	log.Println(resp)
+	logger.With("text-response", resp).Info("got response from text generation model")
 }

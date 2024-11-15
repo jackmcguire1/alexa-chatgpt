@@ -1,5 +1,11 @@
 package chatmodels
 
+import (
+	"errors"
+)
+
+var MissingContentError = errors.New("Missing content")
+
 type ChatModel string
 
 type ImageModel string

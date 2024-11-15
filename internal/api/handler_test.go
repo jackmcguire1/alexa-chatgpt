@@ -75,7 +75,7 @@ func TestFallbackIntent(t *testing.T) {
 
 func TestAutoCompleteIntent(t *testing.T) {
 	mockChatGptService := &chatmodels.MockClient{}
-	mockChatGptService.On("AutoComplete", mock.Anything, mock.Anything, mock.Anything).Return("chimney", nil)
+	mockChatGptService.On("TextGeneration", mock.Anything, mock.Anything, mock.Anything).Return("chimney", nil)
 
 	mockRequestsQueue := &queue.MockQueue{}
 	mockRequestsQueue.On("PushMessage", mock.Anything, mock.Anything).Return(nil)
@@ -214,7 +214,7 @@ func TestImageIntentFailedToGenerateImagesResponse(t *testing.T) {
 func TestRandomIntent(t *testing.T) {
 	mockChatGptService := &chatmodels.MockClient{}
 
-	mockChatGptService.On("AutoComplete", mock.Anything, mock.Anything, mock.Anything).Return("santa fell down the chimney", nil)
+	mockChatGptService.On("TextGeneration", mock.Anything, mock.Anything, mock.Anything).Return("santa fell down the chimney", nil)
 
 	h := &Handler{
 		ChatGptService: mockChatGptService,
