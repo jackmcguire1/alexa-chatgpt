@@ -9,7 +9,7 @@ import (
 )
 
 type GptAPI interface {
-	GenerateText(context.Context, string) (string, error)
+	GenerateTextWithModel(ctx context.Context, prompt string, model string) (string, error)
 	GenerateImage(ctx context.Context, prompt string, model string) ([]byte, error)
 }
 

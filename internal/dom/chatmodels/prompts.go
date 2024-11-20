@@ -14,7 +14,7 @@ func (client *Client) TextGeneration(ctx context.Context, prompt string, model C
 	case CHAT_MODEL_GPT:
 		fallthrough
 	default:
-		return client.GPTApi.GenerateText(ctx, prompt)
+		return client.GPTApi.GenerateTextWithModel(ctx, prompt, CHAT_MODEL_TO_OPENAI_MODEL[model])
 	}
 }
 

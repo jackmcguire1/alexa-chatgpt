@@ -12,7 +12,7 @@ import (
 func TestTextGenerationWithGPT(t *testing.T) {
 	api := &mockAPI{}
 	mockResponse := "hello world"
-	api.On("GenerateText", mock.Anything, "steve").Return(mockResponse, nil)
+	api.On("GenerateTextWithModel", mock.Anything, "steve", mock.Anything).Return(mockResponse, nil)
 	c := Client{&Resources{GPTApi: api}}
 	resp, err := c.TextGeneration(context.Background(), "steve", CHAT_MODEL_GPT)
 	assert.NoError(t, err)
@@ -42,7 +42,7 @@ func TestTextGenerationWithMetaModel(t *testing.T) {
 func TestTextGenerationWithMissingContent(t *testing.T) {
 	api := &mockAPI{}
 	mockError := fmt.Errorf("missing choice %w", MissingContentError)
-	api.On("GenerateText", mock.Anything, "steve").Return("", mockError)
+	api.On("GenerateTextWithModel", mock.Anything, "steve", mock.Anything).Return("", mockError)
 	c := Client{&Resources{GPTApi: api}}
 	_, err := c.TextGeneration(context.Background(), "steve", CHAT_MODEL_GPT)
 	assert.Error(t, err)

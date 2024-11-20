@@ -8,14 +8,13 @@ import (
 	"github.com/sashabaranov/go-openai"
 )
 
-const (
-	OPENAI_IMAGE_MODEL_DALL_E_3 string = "dall-e-3"
-	OPENAI_IMAGE_MODEL_DALL_E_2 string = "dall-e-2"
-)
-
 var IMAGE_MODEL_TO_OPENAI_MODEL = map[ImageModel]string{
-	IMAGE_MODEL_DALL_E_3: OPENAI_IMAGE_MODEL_DALL_E_3,
-	IMAGE_MODEL_DALL_E_2: OPENAI_IMAGE_MODEL_DALL_E_2,
+	IMAGE_MODEL_DALL_E_3: openai.CreateImageModelDallE3,
+	IMAGE_MODEL_DALL_E_2: openai.CreateImageModelDallE2,
+}
+
+var CHAT_MODEL_TO_OPENAI_MODEL = map[ChatModel]string{
+	CHAT_MODEL_GPT: openai.O1Mini,
 }
 
 type OpenAIApiClient struct {
@@ -31,7 +30,7 @@ func NewOpenAiApiClient(token string) *OpenAIApiClient {
 	}
 }
 
-func (api *OpenAIApiClient) GenerateText(ctx context.Context, prompt string) (string, error) {
+func (api *OpenAIApiClient) GenerateTextWithModel(ctx context.Context, prompt string, model string) (string, error) {
 	req := openai.ChatCompletionRequest{
 		Model: openai.O1Mini,
 		Messages: []openai.ChatCompletionMessage{
