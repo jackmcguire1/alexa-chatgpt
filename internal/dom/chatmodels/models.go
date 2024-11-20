@@ -19,7 +19,7 @@ const (
 	CHAT_MODEL_OPEN         ChatModel = "open chat"
 	CHAT_MODEL_SQL          ChatModel = "sql"
 	CHAT_MODEL_QWEN         ChatModel = "qwen"
-	CHAT_MODEL_GPT_V4       ChatModel = "gpt version number four"
+	CHAT_MODEL_GPT_V4       ChatModel = "g. p. t. version number four"
 )
 
 const (
