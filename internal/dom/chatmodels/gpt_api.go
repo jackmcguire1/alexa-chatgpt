@@ -14,7 +14,8 @@ var IMAGE_MODEL_TO_OPENAI_MODEL = map[ImageModel]string{
 }
 
 var CHAT_MODEL_TO_OPENAI_MODEL = map[ChatModel]string{
-	CHAT_MODEL_GPT: openai.O1Mini,
+	CHAT_MODEL_GPT:    openai.O1Mini,
+	CHAT_MODEL_GPT_V4: openai.GPT4o,
 }
 
 type OpenAIApiClient struct {

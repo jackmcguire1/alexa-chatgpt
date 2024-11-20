@@ -18,6 +18,10 @@ func (h *Handler) getOrSetModel(model string) (res alexa.Response, err error) {
 		h.Model = chatmodels.CHAT_MODEL_GPT
 		res = alexa.NewResponse("Chat Models", "ok", false)
 		return
+	case chatmodels.CHAT_MODEL_GPT_V4.String():
+		h.Model = chatmodels.CHAT_MODEL_GPT_V4
+		res = alexa.NewResponse("Image Models", "ok", false)
+		return
 	case chatmodels.CHAT_MODEL_META.String():
 		h.Model = chatmodels.CHAT_MODEL_META
 		res = alexa.NewResponse("Chat Models", "ok", false)

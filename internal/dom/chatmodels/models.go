@@ -19,6 +19,7 @@ const (
 	CHAT_MODEL_OPEN         ChatModel = "open chat"
 	CHAT_MODEL_SQL          ChatModel = "sql"
 	CHAT_MODEL_QWEN         ChatModel = "qwen"
+	CHAT_MODEL_GPT_V4       ChatModel = "gpt version number four"
 )
 
 const (
@@ -35,6 +36,7 @@ var AvaliableModels = []string{
 	CHAT_MODEL_OPEN.String(),
 	CHAT_MODEL_AWQ.String(),
 	CHAT_MODEL_QWEN.String(),
+	CHAT_MODEL_GPT_V4.String(),
 }
 
 var ImageModels = []string{
