@@ -33,7 +33,7 @@ func NewOpenAiApiClient(token string) *OpenAIApiClient {
 
 func (api *OpenAIApiClient) GenerateText(ctx context.Context, prompt string) (string, error) {
 	req := openai.ChatCompletionRequest{
-		Model: openai.GPT4o,
+		Model: openai.O1Mini,
 		Messages: []openai.ChatCompletionMessage{
 			{
 				Role:    openai.ChatMessageRoleUser,
