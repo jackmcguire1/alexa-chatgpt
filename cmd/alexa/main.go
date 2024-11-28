@@ -21,13 +21,14 @@ func main() {
 	pollDelay, _ := strconv.Atoi(os.Getenv("POLL_DELAY"))
 
 	h := api.Handler{
-		ChatGptService: svc,
-		RequestsQueue:  queue.NewQueue(os.Getenv("REQUESTS_QUEUE_URI")),
-		ResponsesQueue: queue.NewQueue(os.Getenv("RESPONSES_QUEUE_URI")),
-		PollDelay:      pollDelay,
-		Logger:         logger,
-		Model:          chatmodels.CHAT_MODEL_GPT,
-		ImageModel:     chatmodels.IMAGE_MODEL_STABLE_DIFFUSION,
+		ChatGptService:  svc,
+		RequestsQueue:   queue.NewQueue(os.Getenv("REQUESTS_QUEUE_URI")),
+		ResponsesQueue:  queue.NewQueue(os.Getenv("RESPONSES_QUEUE_URI")),
+		PollDelay:       pollDelay,
+		Logger:          logger,
+		Model:           chatmodels.CHAT_MODEL_GPT,
+		ImageModel:      chatmodels.IMAGE_MODEL_STABLE_DIFFUSION,
+		RandomNumberSvc: api.NewRandomNumberGame(100),
 	}
 	lambda.Start(h.Invoke)
 }

@@ -11,6 +11,7 @@ const (
 	TranslateIntent    = "TranslateIntent"
 	RandomFactIntent   = "RandomFactIntent"
 	ModelIntent        = "Model"
+	RandomNumberIntent = "Guess"
 	PurgeIntent        = "Purge"
 	LastResponseIntent = "LastResponseIntent"
 )

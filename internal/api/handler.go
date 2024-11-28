@@ -14,14 +14,15 @@ import (
 )
 
 type Handler struct {
-	Logger         *slog.Logger
-	ChatGptService chatmodels.Service
-	lastResponse   *chatmodels.LastResponse
-	ResponsesQueue queue.PullPoll
-	RequestsQueue  queue.PullPoll
-	PollDelay      int
-	Model          chatmodels.ChatModel
-	ImageModel     chatmodels.ImageModel
+	Logger          *slog.Logger
+	ChatGptService  chatmodels.Service
+	lastResponse    *chatmodels.LastResponse
+	ResponsesQueue  queue.PullPoll
+	RequestsQueue   queue.PullPoll
+	PollDelay       int
+	Model           chatmodels.ChatModel
+	ImageModel      chatmodels.ImageModel
+	RandomNumberSvc RandomNumberGame
 }
 
 func (h *Handler) randomFact(ctx context.Context) (string, error) {
@@ -96,7 +97,8 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 		}
 		res = alexa.NewResponse("Random Fact", randomFact, false)
 		h.lastResponse = &chatmodels.LastResponse{Response: randomFact, TimeDiff: fmt.Sprintf("%.0f", time.Since(execTime).Seconds()), Model: h.Model.String()}
-
+	case alexa.RandomNumberIntent:
+		return h.RandomNumberGame(ctx, req)
 	case alexa.LastResponseIntent:
 		h.Logger.Debug("fetching last response")
 
