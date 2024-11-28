@@ -37,8 +37,6 @@ func (h *Handler) RandomNumberGame(ctx context.Context, req alexa.Request) (res 
 	guess := req.Body.Intent.Slots["number"].Value
 	guessInt, _ := strconv.Atoi(guess)
 	number := h.RandomNumberSvc.Number
-	prompt := fmt.Sprintf(prompt, 0, h.RandomNumberSvc.MaxLimit, guessInt)
-
 	if guessInt < number || guessInt > number {
 		statement, _ := h.ChatGptService.TextGeneration(ctx, fmt.Sprintf(prompt, h.RandomNumberSvc.MaxLimit, guess), h.Model)
 		res = alexa.NewResponse("Random Number Game", statement, false)
