@@ -30,7 +30,8 @@ func (h *Handler) randomFact(ctx context.Context) (string, error) {
 }
 
 func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res alexa.Response, err error) {
-	h.Logger.With("intent", req.Body.Intent.Name).Debug("got intent")
+	h.Logger.With("intent", utils.ToJSON(req)).Info("got intent")
+
 	switch req.Body.Intent.Name {
 	case alexa.PurgeIntent:
 		err = h.ResponsesQueue.Purge(ctx)
@@ -98,6 +99,11 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 		res = alexa.NewResponse("Random Fact", randomFact, false)
 		h.lastResponse = &chatmodels.LastResponse{Response: randomFact, TimeDiff: fmt.Sprintf("%.0f", time.Since(execTime).Seconds()), Model: h.Model.String()}
 	case alexa.RandomNumberIntent:
+		if req.Body.Intent.Slots["number"].Value == "cheat" {
+			res = alexa.NewResponse("Random Fact", fmt.Sprintf("You gave up so easily, your number is %d", h.RandomNumberSvc.Number), false)
+			h.RandomNumberSvc.ShuffleRandomNumber()
+			return
+		}
 		return h.RandomNumberGame(ctx, req)
 	case alexa.LastResponseIntent:
 		h.Logger.Debug("fetching last response")

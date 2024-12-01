@@ -16,7 +16,7 @@ type RandomNumberGame struct {
 
 func NewRandomNumberGame(maxLimit int) RandomNumberGame {
 	r := RandomNumberGame{
-		Number:   0,
+		Number:   rand.Intn(maxLimit),
 		MaxLimit: maxLimit,
 	}
 	r.ShuffleRandomNumber()
@@ -37,6 +37,9 @@ func (h *Handler) RandomNumberGame(ctx context.Context, req alexa.Request) (res 
 	guess := req.Body.Intent.Slots["number"].Value
 	guessInt, _ := strconv.Atoi(guess)
 	number := h.RandomNumberSvc.Number
+
+	h.Logger.With("guess", guess).With("current number number", number).Info("got guess")
+
 	if guessInt < number || guessInt > number {
 		statement, _ := h.ChatGptService.TextGeneration(ctx, fmt.Sprintf(prompt, h.RandomNumberSvc.MaxLimit, guess), h.Model)
 		res = alexa.NewResponse("Random Number Game", statement, false)
