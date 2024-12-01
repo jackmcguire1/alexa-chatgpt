@@ -25,9 +25,9 @@ func NewRandomNumberGame(maxLimit int) *RandomNumberGame {
 }
 
 const (
-	winningprompt    = "a person guessed a number between 0 and 100. they got the number correct, tell them a congratulatory statement. the winning number was %d. please also mention the target number will be changed for the next round"
-	higherThanprompt = "a person guessed a number between 0 and 100. the number was higher than target value, tell them advice to guess lower"
-	lessThanprompt   = "a person guessed a number between 0 and 100. the number was lower than the target value, tell them advice to guess higher"
+	winningprompt    = "please respond as if you were the person controlling the game, a person guessed a number between 0 and 100. they got the number correct, tell them a congratulatory statement. the winning number was %d. please also mention the target number will be changed for the next round"
+	higherThanprompt = "please respond as if you were the person controlling the game, a person guessed a number between 0 and 100. the number was higher than target value, tell them advice to guess lower"
+	lessThanprompt   = "please respond as if you were the person controlling the game, a person guessed a number between 0 and 100. the number was lower than the target value, tell them advice to guess higher"
 )
 
 func (svc *RandomNumberGame) ShuffleRandomNumber() {
