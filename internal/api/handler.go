@@ -126,6 +126,7 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 		case GameOver:
 			statement, _ = h.ChatGptService.TextGeneration(ctx, "playing battleships, tell the user they won the game", h.Model)
 			res = alexa.NewResponse("BattleShips", statement, false)
+			h.BattleShips = NewBattleShipSetup()
 		case Invalid:
 			statement, _ = h.ChatGptService.TextGeneration(ctx, "playing battleships, tell the user they made an invalid move", h.Model)
 			res = alexa.NewResponse("BattleShips", statement, false)
