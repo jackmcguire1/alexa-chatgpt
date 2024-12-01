@@ -15,7 +15,9 @@ func main() {
 	jsonLogH := slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo})
 	logger := slog.New(jsonLogH)
 	svc := chatmodels.NewClient(&chatmodels.Resources{
-		GPTApi: chatmodels.NewOpenAiApiClient(os.Getenv("OPENAI_API_KEY")),
+		GPTApi:              chatmodels.NewOpenAiApiClient(os.Getenv("OPENAI_API_KEY")),
+		GeminiAPI:           chatmodels.NewGeminiApiClient(os.Getenv("GEMINI_API_KEY")),
+		CloudflareApiClient: chatmodels.NewCloudflareApiClient(os.Getenv("CLOUDFLARE_ACCOUNT_ID"), os.Getenv("CLOUDFLARE_API_KEY")),
 	})
 
 	pollDelay, _ := strconv.Atoi(os.Getenv("POLL_DELAY"))
