@@ -22,7 +22,7 @@ type Handler struct {
 	PollDelay       int
 	Model           chatmodels.ChatModel
 	ImageModel      chatmodels.ImageModel
-	RandomNumberSvc RandomNumberGame
+	RandomNumberSvc *RandomNumberGame
 }
 
 func (h *Handler) randomFact(ctx context.Context) (string, error) {

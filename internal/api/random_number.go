@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/rand"
 	"strconv"
+	"time"
 
 	"github.com/jackmcguire1/alexa-chatgpt/internal/pkg/alexa"
 )
@@ -14,8 +15,8 @@ type RandomNumberGame struct {
 	MaxLimit int
 }
 
-func NewRandomNumberGame(maxLimit int) RandomNumberGame {
-	r := RandomNumberGame{
+func NewRandomNumberGame(maxLimit int) *RandomNumberGame {
+	r := &RandomNumberGame{
 		Number:   rand.Intn(maxLimit),
 		MaxLimit: maxLimit,
 	}
@@ -23,13 +24,21 @@ func NewRandomNumberGame(maxLimit int) RandomNumberGame {
 	return r
 }
 
-const prompt = "You are a person helping someone guess a number between 0 and %d. offer help if they're closer to the target, with an abrupt higher or lower, or maybe a short witty phrase to help them figure out how close they're, if they get it correct, do a congratulatory statement. their guess was %s"
 const (
-	CORRECT = "CORRECT"
+	winningprompt    = "a person guessed a number between 0 and 100. they got the number correct, tell them a congratulatory statement. the winning number was %d. please also mention the target number will be changed for the next round"
+	higherThanprompt = "a person guessed a number between 0 and 100. the number was higher than target value, tell them advice to guess lower"
+	lessThanprompt   = "a person guessed a number between 0 and 100. the number was lower than the target value, tell them advice to guess higher"
 )
 
-func (svc RandomNumberGame) ShuffleRandomNumber() {
-	svc.Number = rand.Intn(svc.MaxLimit)
+func (svc *RandomNumberGame) ShuffleRandomNumber() {
+	rand.Seed(time.Now().Unix())
+	for {
+		newNumber := rand.Intn(svc.MaxLimit)
+		if newNumber != svc.Number {
+			svc.Number = newNumber
+			break
+		}
+	}
 }
 
 func (h *Handler) RandomNumberGame(ctx context.Context, req alexa.Request) (res alexa.Response, err error) {
@@ -40,12 +49,16 @@ func (h *Handler) RandomNumberGame(ctx context.Context, req alexa.Request) (res 
 
 	h.Logger.With("guess", guess).With("current number number", number).Info("got guess")
 
-	if guessInt < number || guessInt > number {
-		statement, _ := h.ChatGptService.TextGeneration(ctx, fmt.Sprintf(prompt, h.RandomNumberSvc.MaxLimit, guess), h.Model)
+	if guessInt > number {
+		statement, _ := h.ChatGptService.TextGeneration(ctx, higherThanprompt, h.Model)
+		res = alexa.NewResponse("Random Number Game", statement, false)
+	}
+	if guessInt < number {
+		statement, _ := h.ChatGptService.TextGeneration(ctx, lessThanprompt, h.Model)
 		res = alexa.NewResponse("Random Number Game", statement, false)
 	}
 	if guessInt == number {
-		winningStatement := fmt.Sprintf(prompt, h.RandomNumberSvc.Number, (CORRECT + " " + guess + ". please also mention the number will be changed for the users to guess again."))
+		winningStatement := fmt.Sprintf(winningprompt, h.RandomNumberSvc.Number)
 		statement, _ := h.ChatGptService.TextGeneration(
 			ctx,
 			winningStatement,
