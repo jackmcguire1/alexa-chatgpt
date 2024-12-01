@@ -102,6 +102,13 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 		h.lastResponse = &chatmodels.LastResponse{Response: randomFact, TimeDiff: fmt.Sprintf("%.0f", time.Since(execTime).Seconds()), Model: h.Model.String()}
 	case alexa.BattleShipsIntent:
 		execTime := time.Now().UTC()
+
+		if v, ok := req.Body.Intent.Slots["x"]; !ok || v.Value == "" {
+			alive, dead := h.BattleShips.ShipsTotals()
+			res = alexa.NewResponse("BattleShips", fmt.Sprintf("Ships Status Update: Alive: %d Sunk: %d", alive, dead), false)
+			return
+		}
+
 		x_cord, _ := strconv.Atoi(req.Body.Intent.Slots["x"].Value)
 		y_cord, _ := strconv.Atoi(req.Body.Intent.Slots["y"].Value)
 
