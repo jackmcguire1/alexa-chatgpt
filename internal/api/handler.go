@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"strconv"
 	"strings"
 	"time"
 
@@ -23,6 +24,7 @@ type Handler struct {
 	Model           chatmodels.ChatModel
 	ImageModel      chatmodels.ImageModel
 	RandomNumberSvc *RandomNumberGame
+	BattleShips     *Battleships
 }
 
 func (h *Handler) randomFact(ctx context.Context) (string, error) {
@@ -98,6 +100,30 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 		}
 		res = alexa.NewResponse("Random Fact", randomFact, false)
 		h.lastResponse = &chatmodels.LastResponse{Response: randomFact, TimeDiff: fmt.Sprintf("%.0f", time.Since(execTime).Seconds()), Model: h.Model.String()}
+	case alexa.BattleShipsIntent:
+		execTime := time.Now().UTC()
+		x_cord, _ := strconv.Atoi(req.Body.Intent.Slots["x"].Value)
+		y_cord, _ := strconv.Atoi(req.Body.Intent.Slots["y"].Value)
+
+		var statement string
+		switch h.BattleShips.Attack(x_cord, y_cord) {
+		case Hit:
+			statement, _ = h.ChatGptService.TextGeneration(ctx, "playing battleships, tell the user they hit a ship", h.Model)
+			res = alexa.NewResponse("BattleShips", statement, false)
+		case Miss:
+			statement, _ = h.ChatGptService.TextGeneration(ctx, "playing battleships, tell the user they missed a ship", h.Model)
+			res = alexa.NewResponse("BattleShips", statement, false)
+		case Sink:
+			statement, _ = h.ChatGptService.TextGeneration(ctx, "playing battleships, tell the user they sunk a ship", h.Model)
+			res = alexa.NewResponse("BattleShips", statement, false)
+		case GameOver:
+			statement, _ = h.ChatGptService.TextGeneration(ctx, "playing battleships, tell the user they won the game", h.Model)
+			res = alexa.NewResponse("BattleShips", statement, false)
+		case Invalid:
+			statement, _ = h.ChatGptService.TextGeneration(ctx, "playing battleships, tell the user they made an invalid move", h.Model)
+			res = alexa.NewResponse("BattleShips", statement, false)
+		}
+		h.lastResponse = &chatmodels.LastResponse{Response: statement, TimeDiff: fmt.Sprintf("%.0f", time.Since(execTime).Seconds()), Model: h.Model.String()}
 	case alexa.RandomNumberIntent:
 		if req.Body.Intent.Slots["number"].Value == "cheat" {
 			res = alexa.NewResponse("Random Fact", fmt.Sprintf("You gave up so easily, your number is %d", h.RandomNumberSvc.Number), false)

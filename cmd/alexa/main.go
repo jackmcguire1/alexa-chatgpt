@@ -31,6 +31,7 @@ func main() {
 		Model:           chatmodels.CHAT_MODEL_GPT,
 		ImageModel:      chatmodels.IMAGE_MODEL_STABLE_DIFFUSION,
 		RandomNumberSvc: api.NewRandomNumberGame(100),
+		BattleShips:     api.NewBattleShipSetup(),
 	}
 	lambda.Start(h.Invoke)
 }

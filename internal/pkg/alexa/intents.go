@@ -10,6 +10,7 @@ const (
 	ImageIntent        = "ImageIntent"
 	TranslateIntent    = "TranslateIntent"
 	RandomFactIntent   = "RandomFactIntent"
+	BattleShipsIntent  = "Battleship"
 	ModelIntent        = "Model"
 	RandomNumberIntent = "Guess"
 	PurgeIntent        = "Purge"
