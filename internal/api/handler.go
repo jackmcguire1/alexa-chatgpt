@@ -103,7 +103,7 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 	case alexa.BattleShipsIntent:
 		execTime := time.Now().UTC()
 
-		if v, ok := req.Body.Intent.Slots["x"]; !ok || v.Value == "" {
+		if v, ok := req.Body.Intent.Slots["x"]; !ok || v.Value == "" || v.Value == "?" {
 			alive, dead := h.BattleShips.ShipsTotals()
 			res = alexa.NewResponse("BattleShips", fmt.Sprintf("Ships Status Update: Alive: %d Sunk: %d", alive, dead), false)
 			return
