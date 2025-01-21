@@ -45,6 +45,11 @@ func (h *Handler) GetResponse(ctx context.Context, userID string, delay int, las
 	}
 
 	if response.UserID != userID {
+
+		// set the actual users last response
+		h.UserCache.Data[response.UserID] = response
+
+		// override error message to cause failure
 		response.Error = "I got a message intended for a different user."
 	}
 
