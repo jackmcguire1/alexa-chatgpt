@@ -65,7 +65,7 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 		prompt := req.Body.Intent.Slots["prompt"].Value
 		h.Logger.With("prompt", prompt).Info("found phrase to autocomplete")
 
-		err = h.RequestsQueue.PushMessage(ctx, &chatmodels.Request{Prompt: prompt, ImageModel: &h.ImageModel})
+		err = h.RequestsQueue.PushMessage(ctx, &chatmodels.Request{Prompt: prompt, ImageModel: &h.ImageModel, UserID: userID})
 		if err != nil {
 			break
 		}
@@ -84,6 +84,7 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 			TargetLanguage: targetLanguage,
 			SourceLanguage: sourceLanguage,
 			Model:          chatmodels.CHAT_MODEL_TRANSLATIONS,
+			UserID:         userID,
 		})
 		if err != nil {
 			break
@@ -94,7 +95,7 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 		prompt := req.Body.Intent.Slots["prompt"].Value
 		h.Logger.With("prompt", prompt).Info("found phrase to autocomplete")
 
-		err = h.RequestsQueue.PushMessage(ctx, &chatmodels.Request{Prompt: prompt, Model: h.Model})
+		err = h.RequestsQueue.PushMessage(ctx, &chatmodels.Request{Prompt: prompt, Model: h.Model, UserID: userID})
 		if err != nil {
 			break
 		}

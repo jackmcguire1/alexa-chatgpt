@@ -35,6 +35,7 @@ func TestHandler(t *testing.T) {
 	request := &chatmodels.Request{
 		Prompt: "tell me a random fact",
 		Model:  chatmodels.CHAT_MODEL_GPT,
+		UserID: "123",
 	}
 
 	err := h.ProcessSQS(context.Background(), events.SQSEvent{
@@ -66,6 +67,7 @@ func TestModelErrorResponse(t *testing.T) {
 	request := &chatmodels.Request{
 		Prompt: "tell me a random fact",
 		Model:  chatmodels.CHAT_MODEL_GPT,
+		UserID: "123",
 	}
 
 	err := h.ProcessSQS(context.Background(), events.SQSEvent{
@@ -98,6 +100,7 @@ func TestSqsError(t *testing.T) {
 	request := &chatmodels.Request{
 		Prompt: "tell me a random fact",
 		Model:  chatmodels.CHAT_MODEL_GPT,
+		UserID: "123",
 	}
 
 	err := h.ProcessSQS(context.Background(), events.SQSEvent{
