@@ -1,0 +1,169 @@
+{
+    "interactionModel": {
+        "languageModel": {
+            "invocationName": "jack question",
+            "intents": [
+                {
+                    "name": "AMAZON.CancelIntent",
+                    "samples": [
+                        "menu",
+                        "cancel"
+                    ]
+                },
+                {
+                    "name": "AMAZON.HelpIntent",
+                    "samples": [
+                        "help"
+                    ]
+                },
+                {
+                    "name": "AMAZON.StopIntent",
+                    "samples": [
+                        "exit",
+                        "stop"
+                    ]
+                },
+                {
+                    "name": "AMAZON.NavigateHomeIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AutoCompleteIntent",
+                    "slots": [
+                        {
+                            "name": "prompt",
+                            "type": "AMAZON.SearchQuery",
+                            "multipleValues": {
+                                "enabled": false
+                            }
+                        }
+                    ],
+                    "samples": [
+                        "what is {prompt}",
+                        "computer {prompt}",
+                        "question {prompt}"
+                    ]
+                },
+                {
+                    "name": "RandomFactIntent",
+                    "slots": [],
+                    "samples": [
+                        "surprise me",
+                        "random fact"
+                    ]
+                },
+                {
+                    "name": "LastResponseIntent",
+                    "slots": [],
+                    "samples": [
+                        "last response"
+                    ]
+                },
+                {
+                    "name": "AMAZON.FallbackIntent",
+                    "samples": []
+                },
+                {
+                    "name": "Model",
+                    "slots": [
+                        {
+                            "name": "chatModel",
+                            "type": "AMAZON.SearchQuery"
+                        }
+                    ],
+                    "samples": [
+                        "model {chatModel}"
+                    ]
+                },
+                {
+                    "name": "Purge",
+                    "slots": [],
+                    "samples": [
+                        "Purge"
+                    ]
+                },
+                {
+                    "name": "ImageIntent",
+                    "slots": [
+                        {
+                            "name": "prompt",
+                            "type": "AMAZON.SearchQuery"
+                        }
+                    ],
+                    "samples": [
+                        "image {prompt}"
+                    ]
+                },
+                {
+                    "name": "TranslateIntent",
+                    "slots": [
+                        {
+                            "name": "prompt",
+                            "type": "AMAZON.SearchQuery"
+                        }
+                    ],
+                    "samples": [
+                        "translate {prompt}"
+                    ]
+                },
+                {
+                    "name": "Guess",
+                    "slots": [
+                        {
+                            "name": "number",
+                            "type": "AMAZON.SearchQuery"
+                        }
+                    ],
+                    "samples": [
+                        "Guess {number}"
+                    ]
+                },
+                {
+                    "name": "Battleship",
+                    "slots": [
+                        {
+                            "name": "x",
+                            "type": "AMAZON.NUMBER"
+                        },
+                        {
+                            "name": "y",
+                            "type": "AMAZON.NUMBER"
+                        }
+                    ],
+                    "samples": [
+                        "Battleship {x} {y}"
+                    ]
+                },
+                {
+                    "name": "BattleshipStatus",
+                    "slots": [],
+                    "samples": [
+                        "Battleship status"
+                    ]
+                }
+            ],
+            "types": [
+                {
+                    "name": "prompt",
+                    "values": [
+                        {
+                            "name": {
+                                "value": "prompt"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "test"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "chatgpt prompt"
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+}

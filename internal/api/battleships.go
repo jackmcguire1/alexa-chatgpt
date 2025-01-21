@@ -155,6 +155,21 @@ func (b *Battleships) ShipsTotals() (int, int) {
 	return alive, killed
 }
 
+func (b *Battleships) TotalHitsAndMisses() (int, int) {
+	hits, misses := 0, 0
+	for i := 0; i < len(b.board); i++ {
+		for j := 0; j < len(b.board[i]); j++ {
+			if b.board[i][j] == Miss {
+				misses++
+			}
+			if b.board[i][j] == Hit {
+				hits++
+			}
+		}
+	}
+	return hits, misses
+}
+
 func (b *Battleships) PrintBoard() {
 	for _, row := range b.board {
 		for _, cell := range row {
@@ -175,7 +190,7 @@ func (b *Battleships) PrintBoard() {
 
 /*
 BOARD SETUP
-0 1 2 3 4 5 6 7 8 9
+x 0 1 2 3 4 5 6 7 8 9
 0 S S S S S . . . . .
 1 . . . . . . . . . .
 2 . . S . . . . . . .
