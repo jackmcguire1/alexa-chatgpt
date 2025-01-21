@@ -55,8 +55,9 @@ type ReqBody struct {
 
 // Intent is the Alexa skill intent.
 type Intent struct {
-	Name  string          `json:"name"`
-	Slots map[string]Slot `json:"slots"`
+	Name               string          `json:"name"`
+	Slots              map[string]Slot `json:"slots"`
+	ConfirmationStatus string          `json:"confirmationStatus"`
 }
 
 // Slot is an Alexa skill slot.

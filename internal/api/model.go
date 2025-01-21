@@ -65,5 +65,4 @@ func (h *Handler) getOrSetModel(model string) (res alexa.Response, err error) {
 		)
 		return
 	}
-	return
 }

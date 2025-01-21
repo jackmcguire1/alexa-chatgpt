@@ -1,0 +1,112 @@
+{
+    "version": "1.0",
+    "session": {
+        "new": false,
+        "sessionId": "amzn1.echo-api.session.xxx",
+        "application": {
+            "applicationId": "amzn1.ask.skill.xxx"
+        },
+        "attributes": {},
+        "user": {
+            "userId": "amzn1.ask.account.xxx"
+        },
+        "affiliatedResources": []
+    },
+    "context": {
+        "Viewports": [
+            {
+                "type": "APL",
+                "id": "medHub",
+                "shape": "RECTANGLE",
+                "dpi": 160,
+                "presentationType": "OVERLAY",
+                "canRotate": false,
+                "configuration": {
+                    "current": {
+                        "mode": "HUB",
+                        "video": {
+                            "codecs": [
+                                "H_264_42",
+                                "H_264_41"
+                            ]
+                        },
+                        "size": {
+                            "type": "DISCRETE",
+                            "pixelWidth": 1280,
+                            "pixelHeight": 800
+                        }
+                    }
+                }
+            }
+        ],
+        "Viewport": {
+            "experiences": [
+                {
+                    "arcMinuteWidth": 221,
+                    "arcMinuteHeight": 162,
+                    "canRotate": false,
+                    "canResize": false
+                }
+            ],
+            "mode": "HUB",
+            "shape": "RECTANGLE",
+            "pixelWidth": 1280,
+            "pixelHeight": 800,
+            "dpi": 160,
+            "currentPixelWidth": 1280,
+            "currentPixelHeight": 800,
+            "touch": [
+                "SINGLE"
+            ],
+            "keyboard": [
+                "DIRECTION"
+            ],
+            "video": {
+                "codecs": [
+                    "H_264_42",
+                    "H_264_41"
+                ]
+            }
+        },
+        "Extensions": {
+            "available": {
+                "aplext:backstack:10": {}
+            }
+        },
+        "System": {
+            "application": {
+                "applicationId": "amzn1.ask.skill.24aec4e9-4179-4eea-a6cf-a82a70d22008"
+            },
+            "user": {
+                "userId": "amzn1.ask.account.xxx"
+            },
+            "device": {
+                "deviceId": "amzn1.ask.device.xxx"
+            },
+            "apiEndpoint": "https://api.eu.amazonalexa.com",
+            "apiAccessToken": "xxx"
+        }
+    },
+    "request": {
+        "type": "IntentRequest",
+        "requestId": "amzn1.echo-api.request.bb77e5fd-88fc-419f-9d05-a7bbaecf9717",
+        "locale": "en-GB",
+        "timestamp": "2025-01-20T23:51:52Z",
+        "intent": {
+            "name": "Model",
+            "confirmationStatus": "NONE",
+            "slots": {
+                "chatModel": {
+                    "name": "chatModel",
+                    "value": "which",
+                    "confirmationStatus": "NONE",
+                    "source": "USER",
+                    "slotValue": {
+                        "type": "Simple",
+                        "value": "which"
+                    }
+                }
+            }
+        }
+    }
+}

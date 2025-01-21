@@ -25,6 +25,7 @@ type Handler struct {
 	ImageModel      chatmodels.ImageModel
 	RandomNumberSvc *RandomNumberGame
 	BattleShips     *Battleships
+	LastIntent      alexa.Request
 }
 
 func (h *Handler) randomFact(ctx context.Context) (string, error) {
@@ -100,17 +101,39 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 		}
 		res = alexa.NewResponse("Random Fact", randomFact, false)
 		h.lastResponse = &chatmodels.LastResponse{Response: randomFact, TimeDiff: fmt.Sprintf("%.0f", time.Since(execTime).Seconds()), Model: h.Model.String()}
+	case alexa.BattleshipStatusIntent:
+		alive, killed := h.BattleShips.ShipsTotals()
+		hits, misses := h.BattleShips.TotalHitsAndMisses()
+
+		statusStr := "the user is playing a game of battleships, tell the status update of their game, ther are %d boats still alive, %d boats have been killed. Their total hits are %d, their total misses are %d."
+		statement, _ := h.ChatGptService.TextGeneration(ctx, fmt.Sprintf(statusStr, alive, killed, hits, misses), h.Model)
+		res = alexa.NewResponse("BattleShips", statement, false)
+
 	case alexa.BattleShipsIntent:
 		execTime := time.Now().UTC()
 
-		if v, ok := req.Body.Intent.Slots["x"]; !ok || v.Value == "" || v.Value == "?" {
-			alive, dead := h.BattleShips.ShipsTotals()
-			res = alexa.NewResponse("BattleShips", fmt.Sprintf("Ships Status Update: Alive: %d Sunk: %d", alive, dead), false)
+		x, ok := req.Body.Intent.Slots["x"]
+		if !ok || x.Value == "" || x.Value == "?" {
+			res = alexa.NewResponse(
+				"Try again!",
+				"Try again!",
+				false,
+			)
 			return
 		}
 
-		x_cord, _ := strconv.Atoi(req.Body.Intent.Slots["x"].Value)
-		y_cord, _ := strconv.Atoi(req.Body.Intent.Slots["y"].Value)
+		y, ok := req.Body.Intent.Slots["y"]
+		if !ok || y.Value == "" || y.Value == "?" {
+			res = alexa.NewResponse(
+				"Try again!",
+				"Try again!",
+				false,
+			)
+			return
+		}
+
+		x_cord, _ := strconv.Atoi(x.Value)
+		y_cord, _ := strconv.Atoi(y.Value)
 
 		var statement string
 		switch h.BattleShips.Attack(x_cord, y_cord) {
@@ -197,6 +220,7 @@ func (h *Handler) Invoke(ctx context.Context, req alexa.Request) (resp alexa.Res
 	default:
 		resp, err = h.DispatchIntents(ctx, req)
 	}
+	h.LastIntent = req
 
 	if err != nil {
 		h.Logger.

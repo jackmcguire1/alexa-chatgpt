@@ -2,7 +2,6 @@ package chatmodels
 
 import (
 	"context"
-	"fmt"
 )
 
 func (client *Client) TextGeneration(ctx context.Context, prompt string, model ChatModel) (string, error) {
@@ -27,7 +26,6 @@ func (client *Client) GenerateImage(ctx context.Context, prompt string, model Im
 	default:
 		return client.CloudflareApiClient.GenerateImage(ctx, prompt, IMAGE_MODEL_TO_CF_MODEL[model])
 	}
-	return nil, fmt.Errorf("unidentified image generation model")
 }
 
 func (client *Client) Translate(
