@@ -38,7 +38,6 @@ func TestLaunchIntent(t *testing.T) {
 	req := alexa.Request{
 		Version: "",
 		Session: session,
-
 		Body: alexa.ReqBody{
 			Type: alexa.LaunchRequestType,
 		},
@@ -62,7 +61,6 @@ func TestFallbackIntent(t *testing.T) {
 	req := alexa.Request{
 		Version: "",
 		Session: session,
-
 		Body: alexa.ReqBody{
 			Intent: alexa.Intent{
 				Name: alexa.FallbackIntent,
@@ -107,7 +105,6 @@ func TestAutoCompleteIntent(t *testing.T) {
 	req := alexa.Request{
 		Version: "",
 		Session: session,
-
 		Body: alexa.ReqBody{
 			Intent: alexa.Intent{
 				Name: "AutoCompleteIntent",
@@ -161,7 +158,6 @@ func TestImageIntent(t *testing.T) {
 	req := alexa.Request{
 		Version: "",
 		Session: session,
-
 		Body: alexa.ReqBody{
 			Intent: alexa.Intent{
 				Name: "ImageIntent",
@@ -208,7 +204,6 @@ func TestImageIntentFailedToGenerateImagesResponse(t *testing.T) {
 	req := alexa.Request{
 		Version: "",
 		Session: session,
-
 		Body: alexa.ReqBody{
 			Intent: alexa.Intent{
 				Name: "ImageIntent",
@@ -245,7 +240,6 @@ func TestRandomIntent(t *testing.T) {
 	req := alexa.Request{
 		Version: "",
 		Session: session,
-
 		Body: alexa.ReqBody{
 			Intent: alexa.Intent{
 				Name: alexa.RandomFactIntent,
@@ -291,7 +285,6 @@ func TestLastResponseIntent(t *testing.T) {
 	req := alexa.Request{
 		Version: "",
 		Session: session,
-
 		Body: alexa.ReqBody{
 			Intent: alexa.Intent{
 				Name: alexa.LastResponseIntent,
@@ -325,7 +318,6 @@ func TestStopIntent(t *testing.T) {
 	req := alexa.Request{
 		Version: "",
 		Session: session,
-
 		Body: alexa.ReqBody{
 			Intent: alexa.Intent{
 				Name: alexa.StopIntent,
@@ -353,7 +345,6 @@ func TestCancelIntent(t *testing.T) {
 	req := alexa.Request{
 		Version: "",
 		Session: session,
-
 		Body: alexa.ReqBody{
 			Intent: alexa.Intent{
 				Name: alexa.CancelIntent,
@@ -381,7 +372,6 @@ func TestHelpIntent(t *testing.T) {
 	req := alexa.Request{
 		Version: "",
 		Session: session,
-
 		Body: alexa.ReqBody{
 			Intent: alexa.Intent{
 				Name: alexa.HelpIntent,
@@ -413,7 +403,6 @@ func TestModelIntentGPT(t *testing.T) {
 	req := alexa.Request{
 		Version: "",
 		Session: session,
-
 		Body: alexa.ReqBody{
 			Intent: alexa.Intent{
 				Name: alexa.ModelIntent,
@@ -452,7 +441,6 @@ func TestModelIntentGemini(t *testing.T) {
 	req := alexa.Request{
 		Version: "",
 		Session: session,
-
 		Body: alexa.ReqBody{
 			Intent: alexa.Intent{
 				Name: alexa.ModelIntent,
@@ -491,7 +479,6 @@ func TestUnsupportedIntent(t *testing.T) {
 	req := alexa.Request{
 		Version: "",
 		Session: session,
-
 		Body: alexa.ReqBody{
 			Intent: alexa.Intent{
 				Name: "AMAZON.random",
@@ -524,7 +511,6 @@ func TestPurgeIntent(t *testing.T) {
 	req := alexa.Request{
 		Version: "",
 		Session: session,
-
 		Body: alexa.ReqBody{
 			Intent: alexa.Intent{
 				Name: alexa.PurgeIntent,
