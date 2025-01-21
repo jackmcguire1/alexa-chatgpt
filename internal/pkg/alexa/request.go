@@ -15,6 +15,11 @@ type Request struct {
 	Context Context `json:"context"`
 }
 
+type User struct {
+	UserID      string `json:"userId"`
+	AccessToken string `json:"accessToken,omitempty"`
+}
+
 // Session represents the Alexa skill session.
 type Session struct {
 	New         bool   `json:"new"`
@@ -23,10 +28,7 @@ type Session struct {
 		ApplicationID string `json:"applicationId"`
 	} `json:"application"`
 	Attributes map[string]interface{} `json:"attributes"`
-	User       struct {
-		UserID      string `json:"userId"`
-		AccessToken string `json:"accessToken,omitempty"`
-	} `json:"user"`
+	User       User                   `json:"user"`
 }
 
 // Context represents the Alexa skill request context.

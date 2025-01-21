@@ -24,13 +24,18 @@ var (
 func TestLaunchIntent(t *testing.T) {
 	mockChatGptService := &chatmodels.MockClient{}
 	h := &Handler{
+		UserCache:      &UserCache{Data: make(map[string]*chatmodels.LastResponse)},
 		ChatGptService: mockChatGptService,
 		Logger:         logger,
 	}
 
 	req := alexa.Request{
 		Version: "",
-		Session: alexa.Session{},
+		Session: alexa.Session{
+			User: alexa.User{
+				UserID: "123",
+			},
+		},
 		Body: alexa.ReqBody{
 			Type: alexa.LaunchRequestType,
 		},
@@ -45,6 +50,7 @@ func TestLaunchIntent(t *testing.T) {
 func TestFallbackIntent(t *testing.T) {
 	mockChatGptService := &chatmodels.MockClient{}
 	h := &Handler{
+		UserCache:      &UserCache{Data: make(map[string]*chatmodels.LastResponse)},
 		ChatGptService: mockChatGptService,
 		Logger:         logger,
 		Model:          chatmodels.CHAT_MODEL_GPT,
@@ -52,7 +58,11 @@ func TestFallbackIntent(t *testing.T) {
 
 	req := alexa.Request{
 		Version: "",
-		Session: alexa.Session{},
+		Session: alexa.Session{
+			User: alexa.User{
+				UserID: "123",
+			},
+		},
 		Body: alexa.ReqBody{
 			Intent: alexa.Intent{
 				Name: alexa.FallbackIntent,
@@ -81,11 +91,12 @@ func TestAutoCompleteIntent(t *testing.T) {
 	mockRequestsQueue.On("PushMessage", mock.Anything, mock.Anything).Return(nil)
 
 	mockResponsesQueue := &queue.MockQueue{}
-	queueResponse := chatmodels.LastResponse{Response: "chimney", Model: chatmodels.CHAT_MODEL_GPT.String(), TimeDiff: "1s"}
+	queueResponse := chatmodels.LastResponse{Response: "chimney", Model: chatmodels.CHAT_MODEL_GPT.String(), TimeDiff: "1s", UserID: "123"}
 	jsonResp := utils.ToJSON(queueResponse)
 	mockResponsesQueue.On("PullMessage", mock.Anything, mock.Anything).Return([]byte(jsonResp), nil)
 
 	h := &Handler{
+		UserCache:      &UserCache{Data: make(map[string]*chatmodels.LastResponse)},
 		ChatGptService: mockChatGptService,
 		ResponsesQueue: mockResponsesQueue,
 		RequestsQueue:  mockRequestsQueue,
@@ -95,7 +106,11 @@ func TestAutoCompleteIntent(t *testing.T) {
 
 	req := alexa.Request{
 		Version: "",
-		Session: alexa.Session{},
+		Session: alexa.Session{
+			User: alexa.User{
+				UserID: "123",
+			},
+		},
 		Body: alexa.ReqBody{
 			Intent: alexa.Intent{
 				Name: "AutoCompleteIntent",
@@ -127,14 +142,18 @@ func TestImageIntent(t *testing.T) {
 	mockRequestsQueue.On("PushMessage", mock.Anything, mock.Anything).Return(nil)
 
 	mockResponsesQueue := &queue.MockQueue{}
-	queueResponse := chatmodels.LastResponse{Response: "", Model: chatmodels.IMAGE_MODEL_STABLE_DIFFUSION.String(), TimeDiff: "1", ImagesResponse: []string{
-		smallImageUrl,
-		largeImageUrl,
-	}}
+	queueResponse := chatmodels.LastResponse{
+		Response:       "",
+		Model:          chatmodels.IMAGE_MODEL_STABLE_DIFFUSION.String(),
+		TimeDiff:       "1",
+		ImagesResponse: []string{smallImageUrl, largeImageUrl},
+		UserID:         "123",
+	}
 	jsonResp := utils.ToJSON(queueResponse)
 	mockResponsesQueue.On("PullMessage", mock.Anything, mock.Anything).Return([]byte(jsonResp), nil)
 
 	h := &Handler{
+		UserCache:      &UserCache{Data: make(map[string]*chatmodels.LastResponse)},
 		ChatGptService: mockChatGptService,
 		ResponsesQueue: mockResponsesQueue,
 		RequestsQueue:  mockRequestsQueue,
@@ -144,7 +163,11 @@ func TestImageIntent(t *testing.T) {
 
 	req := alexa.Request{
 		Version: "",
-		Session: alexa.Session{},
+		Session: alexa.Session{
+			User: alexa.User{
+				UserID: "123",
+			},
+		},
 		Body: alexa.ReqBody{
 			Intent: alexa.Intent{
 				Name: "ImageIntent",
@@ -175,11 +198,12 @@ func TestImageIntentFailedToGenerateImagesResponse(t *testing.T) {
 	mockRequestsQueue.On("PushMessage", mock.Anything, mock.Anything).Return(nil)
 
 	mockResponsesQueue := &queue.MockQueue{}
-	queueResponse := chatmodels.LastResponse{Error: "image API failed", Model: chatmodels.IMAGE_MODEL_STABLE_DIFFUSION.String(), TimeDiff: "1", ImagesResponse: []string{}}
+	queueResponse := chatmodels.LastResponse{Error: "image API failed", Model: chatmodels.IMAGE_MODEL_STABLE_DIFFUSION.String(), TimeDiff: "1", ImagesResponse: []string{}, UserID: "123"}
 	jsonResp := utils.ToJSON(queueResponse)
 	mockResponsesQueue.On("PullMessage", mock.Anything, mock.Anything).Return([]byte(jsonResp), nil)
 
 	h := &Handler{
+		UserCache:      &UserCache{Data: make(map[string]*chatmodels.LastResponse)},
 		ChatGptService: mockChatGptService,
 		ResponsesQueue: mockResponsesQueue,
 		RequestsQueue:  mockRequestsQueue,
@@ -189,7 +213,11 @@ func TestImageIntentFailedToGenerateImagesResponse(t *testing.T) {
 
 	req := alexa.Request{
 		Version: "",
-		Session: alexa.Session{},
+		Session: alexa.Session{
+			User: alexa.User{
+				UserID: "123",
+			},
+		},
 		Body: alexa.ReqBody{
 			Intent: alexa.Intent{
 				Name: "ImageIntent",
@@ -217,6 +245,7 @@ func TestRandomIntent(t *testing.T) {
 	mockChatGptService.On("TextGeneration", mock.Anything, mock.Anything, mock.Anything).Return("santa fell down the chimney", nil)
 
 	h := &Handler{
+		UserCache:      &UserCache{Data: make(map[string]*chatmodels.LastResponse)},
 		ChatGptService: mockChatGptService,
 		Logger:         logger,
 		Model:          chatmodels.CHAT_MODEL_GPT,
@@ -224,7 +253,11 @@ func TestRandomIntent(t *testing.T) {
 
 	req := alexa.Request{
 		Version: "",
-		Session: alexa.Session{},
+		Session: alexa.Session{
+			User: alexa.User{
+				UserID: "123",
+			},
+		},
 		Body: alexa.ReqBody{
 			Intent: alexa.Intent{
 				Name: alexa.RandomFactIntent,
@@ -253,6 +286,7 @@ func TestLastResponseIntent(t *testing.T) {
 		Model:    chatmodels.CHAT_MODEL_GPT.String(),
 		Response: "chimney",
 		TimeDiff: time.Since(time.Now().Add(-time.Second)).String(),
+		UserID:   "123",
 	}
 
 	jsonResp := utils.ToJSON(queueResponse)
@@ -260,7 +294,7 @@ func TestLastResponseIntent(t *testing.T) {
 
 	mockChatGptService := &chatmodels.MockClient{}
 	h := &Handler{
-		lastResponse:   &queueResponse,
+		UserCache:      &UserCache{Data: make(map[string]*chatmodels.LastResponse)},
 		ChatGptService: mockChatGptService,
 		ResponsesQueue: mockResponsesQueue,
 		Logger:         logger,
@@ -268,7 +302,11 @@ func TestLastResponseIntent(t *testing.T) {
 
 	req := alexa.Request{
 		Version: "",
-		Session: alexa.Session{},
+		Session: alexa.Session{
+			User: alexa.User{
+				UserID: "123",
+			},
+		},
 		Body: alexa.ReqBody{
 			Intent: alexa.Intent{
 				Name: alexa.LastResponseIntent,
@@ -293,6 +331,7 @@ func TestLastResponseIntent(t *testing.T) {
 func TestStopIntent(t *testing.T) {
 	mockChatGptService := &chatmodels.MockClient{}
 	h := &Handler{
+		UserCache:      &UserCache{Data: make(map[string]*chatmodels.LastResponse)},
 		ChatGptService: mockChatGptService,
 		Logger:         logger,
 		Model:          chatmodels.CHAT_MODEL_GPT,
@@ -300,7 +339,11 @@ func TestStopIntent(t *testing.T) {
 
 	req := alexa.Request{
 		Version: "",
-		Session: alexa.Session{},
+		Session: alexa.Session{
+			User: alexa.User{
+				UserID: "123",
+			},
+		},
 		Body: alexa.ReqBody{
 			Intent: alexa.Intent{
 				Name: alexa.StopIntent,
@@ -319,6 +362,7 @@ func TestStopIntent(t *testing.T) {
 func TestCancelIntent(t *testing.T) {
 	mockChatGptService := &chatmodels.MockClient{}
 	h := &Handler{
+		UserCache:      &UserCache{Data: make(map[string]*chatmodels.LastResponse)},
 		ChatGptService: mockChatGptService,
 		Logger:         logger,
 		Model:          chatmodels.CHAT_MODEL_GPT,
@@ -326,7 +370,11 @@ func TestCancelIntent(t *testing.T) {
 
 	req := alexa.Request{
 		Version: "",
-		Session: alexa.Session{},
+		Session: alexa.Session{
+			User: alexa.User{
+				UserID: "123",
+			},
+		},
 		Body: alexa.ReqBody{
 			Intent: alexa.Intent{
 				Name: alexa.CancelIntent,
@@ -345,6 +393,7 @@ func TestCancelIntent(t *testing.T) {
 func TestHelpIntent(t *testing.T) {
 	mockChatGptService := &chatmodels.MockClient{}
 	h := &Handler{
+		UserCache:      &UserCache{Data: make(map[string]*chatmodels.LastResponse)},
 		ChatGptService: mockChatGptService,
 		Logger:         logger,
 		Model:          chatmodels.CHAT_MODEL_GPT,
@@ -352,7 +401,11 @@ func TestHelpIntent(t *testing.T) {
 
 	req := alexa.Request{
 		Version: "",
-		Session: alexa.Session{},
+		Session: alexa.Session{
+			User: alexa.User{
+				UserID: "123",
+			},
+		},
 		Body: alexa.ReqBody{
 			Intent: alexa.Intent{
 				Name: alexa.HelpIntent,
@@ -375,6 +428,7 @@ func TestHelpIntent(t *testing.T) {
 func TestModelIntentGPT(t *testing.T) {
 	mockChatGptService := &chatmodels.MockClient{}
 	h := &Handler{
+		UserCache:      &UserCache{Data: make(map[string]*chatmodels.LastResponse)},
 		ChatGptService: mockChatGptService,
 		Logger:         logger,
 		Model:          chatmodels.CHAT_MODEL_GPT,
@@ -382,7 +436,11 @@ func TestModelIntentGPT(t *testing.T) {
 
 	req := alexa.Request{
 		Version: "",
-		Session: alexa.Session{},
+		Session: alexa.Session{
+			User: alexa.User{
+				UserID: "123",
+			},
+		},
 		Body: alexa.ReqBody{
 			Intent: alexa.Intent{
 				Name: alexa.ModelIntent,
@@ -412,6 +470,7 @@ func TestModelIntentGPT(t *testing.T) {
 func TestModelIntentGemini(t *testing.T) {
 	mockChatGptService := &chatmodels.MockClient{}
 	h := &Handler{
+		UserCache:      &UserCache{Data: make(map[string]*chatmodels.LastResponse)},
 		ChatGptService: mockChatGptService,
 		Logger:         logger,
 		Model:          chatmodels.CHAT_MODEL_GEMINI,
@@ -419,7 +478,11 @@ func TestModelIntentGemini(t *testing.T) {
 
 	req := alexa.Request{
 		Version: "",
-		Session: alexa.Session{},
+		Session: alexa.Session{
+			User: alexa.User{
+				UserID: "123",
+			},
+		},
 		Body: alexa.ReqBody{
 			Intent: alexa.Intent{
 				Name: alexa.ModelIntent,
@@ -449,6 +512,7 @@ func TestModelIntentGemini(t *testing.T) {
 func TestUnsupportedIntent(t *testing.T) {
 	mockChatGptService := &chatmodels.MockClient{}
 	h := &Handler{
+		UserCache:      &UserCache{Data: make(map[string]*chatmodels.LastResponse)},
 		ChatGptService: mockChatGptService,
 		Logger:         logger,
 		Model:          chatmodels.CHAT_MODEL_GPT,
@@ -456,7 +520,11 @@ func TestUnsupportedIntent(t *testing.T) {
 
 	req := alexa.Request{
 		Version: "",
-		Session: alexa.Session{},
+		Session: alexa.Session{
+			User: alexa.User{
+				UserID: "123",
+			},
+		},
 		Body: alexa.ReqBody{
 			Intent: alexa.Intent{
 				Name: "AMAZON.random",
@@ -479,6 +547,7 @@ func TestPurgeIntent(t *testing.T) {
 
 	mockChatGptService := &chatmodels.MockClient{}
 	h := &Handler{
+		UserCache:      &UserCache{Data: make(map[string]*chatmodels.LastResponse)},
 		ChatGptService: mockChatGptService,
 		Logger:         logger,
 		Model:          chatmodels.CHAT_MODEL_GEMINI,
@@ -487,7 +556,11 @@ func TestPurgeIntent(t *testing.T) {
 
 	req := alexa.Request{
 		Version: "",
-		Session: alexa.Session{},
+		Session: alexa.Session{
+			User: alexa.User{
+				UserID: "123",
+			},
+		},
 		Body: alexa.ReqBody{
 			Intent: alexa.Intent{
 				Name: alexa.PurgeIntent,

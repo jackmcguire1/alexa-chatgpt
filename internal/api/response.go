@@ -11,12 +11,13 @@ import (
 	"github.com/jackmcguire1/alexa-chatgpt/internal/pkg/queue"
 )
 
-func (h *Handler) GetResponse(ctx context.Context, delay int, lastResponse bool) (res alexa.Response, err error) {
+func (h *Handler) GetResponse(ctx context.Context, userID string, delay int, lastResponse bool) (res alexa.Response, err error) {
 	var data []byte
 	data, err = h.ResponsesQueue.PullMessage(ctx, delay)
 	if err != nil && !errors.Is(err, queue.EmptyMessageErr) {
 		return
 	}
+
 	var response *chatmodels.LastResponse
 	if len(data) == 0 && !lastResponse {
 		res = alexa.NewResponse("Response", "your response will be available shortly", false)
@@ -24,11 +25,13 @@ func (h *Handler) GetResponse(ctx context.Context, delay int, lastResponse bool)
 	}
 
 	if len(data) == 0 && lastResponse {
-		if h.lastResponse == nil {
+		var ok bool
+		response, ok = h.UserCache.Data[userID]
+		if !ok {
 			res = alexa.NewResponse("Response", "I do not have a answer to your last prompt", false)
 			return
 		}
-		response = h.lastResponse
+
 		goto response
 	}
 
@@ -41,6 +44,10 @@ func (h *Handler) GetResponse(ctx context.Context, delay int, lastResponse bool)
 		return
 	}
 
+	if response.UserID != userID {
+		response.Error = "I got a message intended for a different user."
+	}
+
 response:
 	if response.Error != "" {
 		res = alexa.NewResponse(
@@ -48,7 +55,7 @@ response:
 			fmt.Sprintf("I encountered an error processing your prompt, %s", response.Error),
 			false,
 		)
-		h.lastResponse = response
+		h.UserCache.Data[userID] = response
 		return
 	}
 
@@ -61,7 +68,7 @@ response:
 			response.ImagesResponse[1],
 			false,
 		)
-		h.lastResponse = response
+		h.UserCache.Data[userID] = response
 		return
 	case chatmodels.CHAT_MODEL_TRANSLATIONS.String():
 		res = alexa.NewResponse(
@@ -73,7 +80,7 @@ response:
 			),
 			false,
 		)
-		h.lastResponse = response
+		h.UserCache.Data[userID] = response
 		return
 	default:
 		res = alexa.NewResponse("Response",
@@ -85,7 +92,7 @@ response:
 			),
 			false,
 		)
-		h.lastResponse = response
+		h.UserCache.Data[userID] = response
 	}
 
 	return
