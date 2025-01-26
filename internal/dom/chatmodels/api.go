@@ -3,9 +3,9 @@ package chatmodels
 import (
 	"context"
 
-	"cloud.google.com/go/vertexai/genai"
 	"github.com/sashabaranov/go-openai"
 	"github.com/stretchr/testify/mock"
+	"google.golang.org/genai"
 )
 
 type GptAPI interface {
