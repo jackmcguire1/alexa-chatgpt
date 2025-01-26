@@ -17,7 +17,7 @@ const (
 	CF_LLAMA_3_8B_INSTRUCT_MODEL    = "@cf/meta/llama-3-8b-instruct"
 	CF_LLAMA_3_1_INSTRUCT_MODEL     = "@cf/meta/llama-3.1-8b-instruct"
 	CF_LLAMA_3_2_3B_INSTRUCT_MODEL  = "@cf/meta/llama-3.2-3b-instruct"
-	CF_LLAMA_3_3_70B_INSTRUCT_MODEL = "@cf/meta/llama-3.3-70b-instruct"
+	CF_LLAMA_3_3_70B_INSTRUCT_MODEL = "@cf/meta/llama-3.3-70b-instruct-fp8-fas"
 	CF_SQL_MODEL                    = "@cf/defog/sqlcoder-7b-2"
 	CF_AWQ_MODEL                    = "@hf/thebloke/llama-2-13b-chat-awq"
 	CF_OPEN_CHAT_MODEL              = "@cf/openchat/openchat-3.5-0106"
