@@ -32,6 +32,7 @@ func (api *GeminiApiClient) GenerateText(ctx context.Context, prompt string) (st
 		Location:    "us-central1",
 		Credentials: api.credentials,
 		Backend:     genai.BackendVertexAI,
+		Project:     api.credentials.ProjectID,
 	})
 	if err != nil {
 		return "", err
