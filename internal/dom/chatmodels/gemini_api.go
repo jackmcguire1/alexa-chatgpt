@@ -6,9 +6,8 @@ import (
 	"fmt"
 	"log/slog"
 
-	"cloud.google.com/go/vertexai/genai"
 	"golang.org/x/oauth2/google"
-	"google.golang.org/api/option"
+	"google.golang.org/genai"
 )
 
 const MODEL string = "gemini-1.0-pro"
@@ -29,14 +28,16 @@ func NewGeminiApiClient(token string) *GeminiApiClient {
 }
 
 func (api *GeminiApiClient) GenerateText(ctx context.Context, prompt string) (string, error) {
-	client, err := genai.NewClient(ctx, api.credentials.ProjectID, "us-central1", option.WithCredentialsJSON(api.credentials.JSON))
+	client, err := genai.NewClient(ctx, &genai.ClientConfig{
+		Location:    "us-central1",
+		Credentials: api.credentials,
+		Backend:     genai.BackendVertexAI,
+	})
 	if err != nil {
 		return "", err
 	}
-	defer client.Close()
 
-	model := client.GenerativeModel(MODEL)
-	res, err := model.GenerateContent(ctx, genai.Text(prompt))
+	res, err := client.Models.GenerateContent(ctx, MODEL, genai.Text(prompt), nil)
 	if err != nil {
 		return "", err
 	}
