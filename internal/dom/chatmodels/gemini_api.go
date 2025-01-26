@@ -10,7 +10,7 @@ import (
 	"google.golang.org/genai"
 )
 
-const MODEL string = "gemini-1.0-pro"
+const VERTEX_MODEL string = "gemini-2.0-flash-exp"
 
 type GeminiApiClient struct {
 	credentials *google.Credentials
@@ -38,7 +38,7 @@ func (api *GeminiApiClient) GenerateText(ctx context.Context, prompt string) (st
 		return "", err
 	}
 
-	res, err := client.Models.GenerateContent(ctx, MODEL, genai.Text(prompt), nil)
+	res, err := client.Models.GenerateContent(ctx, VERTEX_MODEL, genai.Text(prompt), nil)
 	if err != nil {
 		return "", err
 	}
