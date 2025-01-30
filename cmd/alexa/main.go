@@ -23,6 +23,7 @@ func main() {
 	pollDelay, _ := strconv.Atoi(os.Getenv("POLL_DELAY"))
 
 	h := api.Handler{
+		UserCache:       &api.UserCache{Data: make(map[string]*chatmodels.LastResponse)},
 		ChatGptService:  svc,
 		RequestsQueue:   queue.NewQueue(os.Getenv("REQUESTS_QUEUE_URI")),
 		ResponsesQueue:  queue.NewQueue(os.Getenv("RESPONSES_QUEUE_URI")),

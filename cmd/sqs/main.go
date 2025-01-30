@@ -99,6 +99,7 @@ respond:
 		Model:          req.Model.String(),
 		ImagesResponse: imagesResponse,
 		Error:          errorMsg,
+		UserID:         req.UserID,
 	}
 
 	// override the model if image model was set
