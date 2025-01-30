@@ -23,7 +23,7 @@ const (
 	CF_OPEN_CHAT_MODEL              = "@cf/openchat/openchat-3.5-0106"
 	CF_STABLE_DIFFUSION             = "@cf/stabilityai/stable-diffusion-xl-base-1.0"
 	CF_META_TRANSLATION_MODEL       = "@cf/meta/m2m100-1.2b"
-	CF_QWEN_MODEL                   = "@cf/qwen/qwen1.5-1.8b-chat"
+	CF_QWEN_MODEL                   = "@cf/deepseek-ai/deepseek-r1-distill-qwen-32b"
 )
 
 var CHAT_MODEL_TO_CF_MODEL = map[ChatModel]string{
