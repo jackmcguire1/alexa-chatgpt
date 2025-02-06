@@ -4,8 +4,12 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
+	"log"
 
 	"github.com/sashabaranov/go-openai"
+	"github.com/tmc/langchaingo/llms"
+	langchain "github.com/tmc/langchaingo/llms"
+	langchain_openai "github.com/tmc/langchaingo/llms/openai"
 )
 
 var IMAGE_MODEL_TO_OPENAI_MODEL = map[ImageModel]string{
@@ -20,55 +24,57 @@ var CHAT_MODEL_TO_OPENAI_MODEL = map[ChatModel]string{
 
 type OpenAIApiClient struct {
 	Token        string
-	OpenAIClient *openai.Client
+	OpenAIClient *langchain_openai.LLM
 }
 
 func NewOpenAiApiClient(token string) *OpenAIApiClient {
-	openAIClient := openai.NewClient(token)
+
+	llm, err := langchain_openai.New(
+		langchain_openai.WithToken(token),
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	return &OpenAIApiClient{
 		Token:        token,
-		OpenAIClient: openAIClient,
+		OpenAIClient: llm,
 	}
 }
 
 func (api *OpenAIApiClient) GenerateTextWithModel(ctx context.Context, prompt string, model string) (string, error) {
-	req := openai.ChatCompletionRequest{
-		Model: openai.O1Mini,
-		Messages: []openai.ChatCompletionMessage{
-			{
-				Role:    openai.ChatMessageRoleUser,
-				Content: prompt,
-			},
-		},
+
+	content := []llms.MessageContent{
+		llms.TextParts(llms.ChatMessageTypeSystem, "Answer as if the user is asking a question"),
+		llms.TextParts(llms.ChatMessageTypeHuman, prompt),
 	}
-	resp, err := api.OpenAIClient.CreateChatCompletion(ctx, req)
+
+	completion, err := api.OpenAIClient.GenerateContent(ctx, content, langchain.WithModel(model))
 	if err != nil {
-		return "", err
+		return "", nil
+	}
+	if len(completion.Choices) == 0 {
+		return "", fmt.Errorf("no choices in response from openai")
 	}
 
-	if len(resp.Choices) == 0 || resp.Choices[0].Message.Content == "" {
-		return "", fmt.Errorf("missing choices %w", MissingContentError)
-	}
-
-	return resp.Choices[0].Message.Content, nil
+	return completion.Choices[0].Content, nil
 }
 
 func (api *OpenAIApiClient) GenerateImage(ctx context.Context, prompt string, model string) ([]byte, error) {
-	req := openai.ImageRequest{
-		Model:          model,
-		Prompt:         prompt,
-		Size:           openai.CreateImageSize1024x1024,
-		ResponseFormat: openai.CreateImageResponseFormatB64JSON,
-		Quality:        "standard",
-		N:              1,
+	content := []llms.MessageContent{
+		llms.TextParts(llms.ChatMessageTypeSystem, "Answer as if the user is asking a question"),
+		llms.TextParts(llms.ChatMessageTypeHuman, prompt),
 	}
 
-	respBase64, err := api.OpenAIClient.CreateImage(ctx, req)
+	completion, err := api.OpenAIClient.GenerateContent(ctx, content, langchain.WithModel(model))
 	if err != nil {
 		return nil, err
 	}
+	if len(completion.Choices) == 0 {
+		return nil, fmt.Errorf("no choices in response from openai")
+	}
 
-	imgBytes, err := base64.StdEncoding.DecodeString(respBase64.Data[0].B64JSON)
+	imgBytes, err := base64.StdEncoding.DecodeString(completion.Choices[0].Content)
 	if err != nil {
 		return nil, err
 	}

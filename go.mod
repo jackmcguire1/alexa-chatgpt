@@ -12,6 +12,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/sashabaranov/go-openai v1.36.1
 	github.com/stretchr/testify v1.10.0
+	github.com/tmc/langchaingo v0.1.12
 	golang.org/x/oauth2 v0.25.0
 	google.golang.org/genai v0.0.1
 )
@@ -35,9 +36,10 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/sts v1.33.10 // indirect
 	github.com/aws/smithy-go v1.22.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/dlclark/regexp2 v1.10.0 // indirect
 	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/gorilla/websocket v1.5.3 // indirect
-	github.com/kr/pretty v0.3.1 // indirect
+	github.com/pkoukk/tiktoken-go v0.1.6 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rogpeppe/go-internal v1.13.1 // indirect
 	github.com/stretchr/objx v0.5.2 // indirect
