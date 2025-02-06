@@ -3,7 +3,6 @@ package chatmodels
 import (
 	"context"
 	"encoding/base64"
-	"fmt"
 	"log"
 
 	"github.com/sashabaranov/go-openai"
@@ -23,10 +22,12 @@ var CHAT_MODEL_TO_OPENAI_MODEL = map[ChatModel]string{
 
 type OpenAIApiClient struct {
 	Token        string
-	OpenAIClient *langchain_openai.LLM
+	OpenAIClient *openai.Client
+	LlmClient    *langchain_openai.LLM
 }
 
 func NewOpenAiApiClient(token string) *OpenAIApiClient {
+	openAIClient := openai.NewClient(token)
 
 	llm, err := langchain_openai.New(
 		langchain_openai.WithToken(token),
@@ -37,43 +38,35 @@ func NewOpenAiApiClient(token string) *OpenAIApiClient {
 
 	return &OpenAIApiClient{
 		Token:        token,
-		OpenAIClient: llm,
+		LlmClient:    llm,
+		OpenAIClient: openAIClient,
 	}
 }
 
 func (api *OpenAIApiClient) GenerateTextWithModel(ctx context.Context, prompt string, model string) (string, error) {
+	return llms.GenerateFromSinglePrompt(ctx, api.LlmClient, prompt, llms.WithModel(model))
+}
 
-	content := []llms.MessageContent{
-		llms.TextParts(llms.ChatMessageTypeSystem, "Answer as if the user is asking a question"),
-		llms.TextParts(llms.ChatMessageTypeHuman, prompt),
-	}
-
-	completion, err := api.OpenAIClient.GenerateContent(ctx, content, llms.WithModel(model))
-	if err != nil {
-		return "", err
-	}
-	if len(completion.Choices) == 0 {
-		return "", fmt.Errorf("no choices in response from openai")
-	}
-
-	return completion.Choices[0].Content, nil
+func (api *OpenAIApiClient) GetModel() llms.Model {
+	return api.LlmClient
 }
 
 func (api *OpenAIApiClient) GenerateImage(ctx context.Context, prompt string, model string) ([]byte, error) {
-	content := []llms.MessageContent{
-		llms.TextParts(llms.ChatMessageTypeSystem, "Answer as if the user is asking a question"),
-		llms.TextParts(llms.ChatMessageTypeHuman, prompt),
+	req := openai.ImageRequest{
+		Model:          model,
+		Prompt:         prompt,
+		Size:           openai.CreateImageSize1024x1024,
+		ResponseFormat: openai.CreateImageResponseFormatB64JSON,
+		Quality:        "standard",
+		N:              1,
 	}
 
-	completion, err := api.OpenAIClient.GenerateContent(ctx, content, llms.WithModel(model))
+	respBase64, err := api.OpenAIClient.CreateImage(ctx, req)
 	if err != nil {
 		return nil, err
 	}
-	if len(completion.Choices) == 0 {
-		return nil, fmt.Errorf("no choices in response from openai")
-	}
 
-	imgBytes, err := base64.StdEncoding.DecodeString(completion.Choices[0].Content)
+	imgBytes, err := base64.StdEncoding.DecodeString(respBase64.Data[0].B64JSON)
 	if err != nil {
 		return nil, err
 	}

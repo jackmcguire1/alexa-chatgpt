@@ -5,12 +5,22 @@ import (
 
 	"github.com/sashabaranov/go-openai"
 	"github.com/stretchr/testify/mock"
+	"github.com/tmc/langchaingo/llms"
 	"google.golang.org/genai"
 )
 
 type GptAPI interface {
+	LlmModel
 	GenerateTextWithModel(ctx context.Context, prompt string, model string) (string, error)
 	GenerateImage(ctx context.Context, prompt string, model string) ([]byte, error)
+}
+
+type ContentGenerator interface {
+	GenerateText(context.Context, string) (string, error)
+}
+
+type LlmModel interface {
+	GetModel() llms.Model
 }
 
 type GeminiAPI interface {
@@ -60,4 +70,9 @@ func (api *mockAPI) GenerateImage(ctx context.Context, prompt string, model stri
 func (api *mockAPI) GenerateTranslation(ctx context.Context, req *GenerateTranslationRequest) (string, error) {
 	args := api.Called(ctx, req)
 	return args.String(0), args.Error(1)
+}
+
+func (api *mockAPI) GetModel() llms.Model {
+	args := api.Called()
+	return args.Get(0).(llms.Model)
 }

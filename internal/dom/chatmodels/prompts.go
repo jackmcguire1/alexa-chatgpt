@@ -2,6 +2,8 @@ package chatmodels
 
 import (
 	"context"
+
+	"github.com/tmc/langchaingo/llms"
 )
 
 func (client *Client) TextGeneration(ctx context.Context, prompt string, model ChatModel) (string, error) {
@@ -13,7 +15,18 @@ func (client *Client) TextGeneration(ctx context.Context, prompt string, model C
 	case CHAT_MODEL_GPT, CHAT_MODEL_GPT_V4:
 		fallthrough
 	default:
-		return client.GPTApi.GenerateTextWithModel(ctx, prompt, CHAT_MODEL_TO_OPENAI_MODEL[model])
+		return llms.GenerateFromSinglePrompt(ctx, client.GetLLmModel(model), prompt, llms.WithModel(CHAT_MODEL_TO_OPENAI_MODEL[model]))
+	}
+}
+
+func (client *Client) GetLLmModel(model ChatModel) llms.Model {
+	switch model {
+	case CHAT_MODEL_GEMINI:
+		fallthrough
+	case CHAT_MODEL_META, CHAT_MODEL_SQL, CHAT_MODEL_OPEN, CHAT_MODEL_AWQ, CHAT_MODEL_QWEN:
+		fallthrough
+	default:
+		return client.GPTApi.GetModel()
 	}
 }
 
