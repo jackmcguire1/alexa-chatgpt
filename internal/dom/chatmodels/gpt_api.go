@@ -8,7 +8,6 @@ import (
 
 	"github.com/sashabaranov/go-openai"
 	"github.com/tmc/langchaingo/llms"
-	langchain "github.com/tmc/langchaingo/llms"
 	langchain_openai "github.com/tmc/langchaingo/llms/openai"
 )
 
@@ -49,7 +48,7 @@ func (api *OpenAIApiClient) GenerateTextWithModel(ctx context.Context, prompt st
 		llms.TextParts(llms.ChatMessageTypeHuman, prompt),
 	}
 
-	completion, err := api.OpenAIClient.GenerateContent(ctx, content, langchain.WithModel(model))
+	completion, err := api.OpenAIClient.GenerateContent(ctx, content, llms.WithModel(model))
 	if err != nil {
 		return "", nil
 	}
@@ -66,7 +65,7 @@ func (api *OpenAIApiClient) GenerateImage(ctx context.Context, prompt string, mo
 		llms.TextParts(llms.ChatMessageTypeHuman, prompt),
 	}
 
-	completion, err := api.OpenAIClient.GenerateContent(ctx, content, langchain.WithModel(model))
+	completion, err := api.OpenAIClient.GenerateContent(ctx, content, llms.WithModel(model))
 	if err != nil {
 		return nil, err
 	}
