@@ -50,7 +50,7 @@ func (api *OpenAIApiClient) GenerateTextWithModel(ctx context.Context, prompt st
 
 	completion, err := api.OpenAIClient.GenerateContent(ctx, content, llms.WithModel(model))
 	if err != nil {
-		return "", nil
+		return "", err
 	}
 	if len(completion.Choices) == 0 {
 		return "", fmt.Errorf("no choices in response from openai")
