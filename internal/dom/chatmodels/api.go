@@ -15,10 +15,6 @@ type GptAPI interface {
 	GenerateImage(ctx context.Context, prompt string, model string) ([]byte, error)
 }
 
-type ContentGenerator interface {
-	GenerateText(context.Context, string) (string, error)
-}
-
 type LlmModel interface {
 	GetModel() llms.Model
 }
