@@ -80,24 +80,6 @@ func (api *GeminiApiClient) GenerateText(ctx context.Context, prompt string) (st
 	return "", fmt.Errorf("gemini missing content in response %w", MissingContentError)
 }
 
-func (api *GeminiApiClient) GenerateTextWithSystemCommand(ctx context.Context, system string, prompt string) (string, error) {
-	content := []llms.MessageContent{
-		llms.TextParts(llms.ChatMessageTypeSystem, system),
-		llms.TextParts(llms.ChatMessageTypeHuman, prompt),
-	}
-
-	resp, err := api.GenerateContent(ctx, content, llms.WithModel(VERTEX_MODEL))
-	if err != nil {
-		return "", err
-	}
-
-	if len(resp.Choices) == 0 {
-		return "", fmt.Errorf("no choices in response from vertex")
-	}
-
-	return resp.Choices[0].Content, nil
-}
-
 func (api *GeminiApiClient) GenerateContent(
 	ctx context.Context,
 	messages []llms.MessageContent,

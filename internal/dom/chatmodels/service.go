@@ -10,6 +10,7 @@ type Resources struct {
 
 type Service interface {
 	TextGeneration(context.Context, string, ChatModel) (string, error)
+	TextGenerationWithSystem(context.Context, string, string, ChatModel) (string, error)
 	GenerateImage(context.Context, string, ImageModel) ([]byte, error)
 	Translate(
 		ctx context.Context,
