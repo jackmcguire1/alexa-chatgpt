@@ -26,6 +26,7 @@ type Handler struct {
 	RandomNumberSvc *RandomNumberGame
 	BattleShips     *Battleships
 	LastIntent      alexa.Request
+	SystemMessage   string
 }
 
 func (h *Handler) randomFact(ctx context.Context) (string, error) {
@@ -60,6 +61,24 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 		}
 
 		res, err = h.GetResponse(ctx, h.PollDelay, false)
+	case alexa.SystemMessageIntent:
+		prompt := req.Body.Intent.Slots["prompt"].Value
+		h.Logger.With("prompt", prompt).Info("settings system message")
+		h.SystemMessage = prompt
+		res = alexa.NewResponse(
+			"System Message Set",
+			"Ok",
+			false,
+		)
+	case alexa.SystemAutoCompleteIntent:
+		prompt := req.Body.Intent.Slots["prompt"].Value
+		h.Logger.With("prompt", prompt).Info("found phrase to autocomplete")
+
+		err = h.RequestsQueue.PushMessage(ctx, &chatmodels.Request{Prompt: prompt, Model: h.Model, SystemPrompt: h.SystemMessage})
+		if err != nil {
+			break
+		}
+		return h.GetResponse(ctx, h.PollDelay, false)
 	case alexa.TranslateIntent:
 		prompt := req.Body.Intent.Slots["prompt"].Value
 		spaces := strings.Split(prompt, " ")
@@ -89,6 +108,7 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 		}
 
 		return h.GetResponse(ctx, h.PollDelay, false)
+
 	case alexa.RandomFactIntent:
 		h.Logger.Debug("random fact")
 		var randomFact string

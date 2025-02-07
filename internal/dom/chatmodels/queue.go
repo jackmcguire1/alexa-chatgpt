@@ -7,9 +7,11 @@ type LastResponse struct {
 	Model          string   `json:"model"`
 	ImagesResponse []string `json:"images_responses"`
 	Error          string   `json:"error_message"`
+	SystemPrompt   string   `json:"system_prompt"`
 }
 
 type Request struct {
+	SystemPrompt   string      `json:"system_prompt"`
 	Prompt         string      `json:"prompt"`
 	TargetLanguage string      `json:"target_language,omitempty"`
 	SourceLanguage string      `json:"source_language,omitempty"`

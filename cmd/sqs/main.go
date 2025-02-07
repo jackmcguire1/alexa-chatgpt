@@ -73,9 +73,14 @@ func (handler *SqsHandler) ProcessGenerationRequest(ctx context.Context, req *ch
 			break
 		}
 	default:
-		response, err = handler.GenerationModelSvc.TextGeneration(ctx, req.Prompt, req.Model)
+		if req.SystemPrompt != "" {
+			response, err = handler.GenerationModelSvc.TextGenerationWithSystem(ctx, req.SystemPrompt, req.Prompt, req.Model)
+		} else {
+			response, err = handler.GenerationModelSvc.TextGeneration(ctx, req.Prompt, req.Model)
+		}
 		if err != nil {
 			handler.Logger.
+				With("system-prompt", req.SystemPrompt).
 				With("prompt", req.Prompt).
 				With("error", err).
 				Error("failed to process chat model request")
@@ -99,6 +104,7 @@ respond:
 		Model:          req.Model.String(),
 		ImagesResponse: imagesResponse,
 		Error:          errorMsg,
+		SystemPrompt:   req.SystemPrompt,
 	}
 
 	// override the model if image model was set
