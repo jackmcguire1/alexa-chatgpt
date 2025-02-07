@@ -44,13 +44,13 @@ func NewGeminiApiClient(credsToken string) *GeminiApiClient {
 		panic(err)
 	}
 
-	token, err := creds.TokenSource.Token()
-	if err != nil {
-		slog.With("error", err).Error("failed to get a google token from credentials")
-		panic(err)
-	}
-
-	vertexClient, err := vertex.New(context.Background(), googleai.WithCloudProject(creds.ProjectID), googleai.WithAPIKey(token.AccessToken), googleai.WithCloudLocation(VERTEX_API_LOCATION))
+	vertexClient, err := vertex.New(
+		context.Background(),
+		googleai.WithCloudProject(creds.ProjectID),
+		googleai.WithCloudLocation(VERTEX_API_LOCATION),
+		googleai.WithRest(),
+		googleai.WithCredentialsJSON(tkn),
+	)
 	if err != nil {
 		slog.With("error", err).Error("failed to init vertex client")
 		panic(err)
