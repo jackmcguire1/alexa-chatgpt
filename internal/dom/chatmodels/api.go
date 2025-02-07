@@ -24,24 +24,42 @@ type GeminiAPI interface {
 }
 
 type CloudFlareAiWorkerAPI interface {
+	LlmModel
 	GenerateTextWithModel(context.Context, string, string) (string, error)
 	GenerateImage(ctx context.Context, prompt string, model string) ([]byte, error)
 	GenerateTranslation(ctx context.Context, req *GenerateTranslationRequest) (string, error)
+}
+
+
+
+
+type mockLlmModel struct {
+	llms.Model
+ 	mock.Mock
+}
+
+func (api *mockLlmModel) GenerateContent(ctx context.Context, messages []llms.MessageContent, options ...llms.CallOption) (content *llms.ContentResponse, err error) {
+	args := api.Called(ctx, messages, options)
+	if args.Get(0) != nil {
+		content = args.Get(0).(*llms.ContentResponse)
+	}
+	return content, args.Error(1)
 }
 
 type mockAPI struct {
 	mock.Mock
 }
 
-func (api *mockAPI) AutoComplete(ctx context.Context, prompt string) (res openai.ChatCompletionResponse, err error) {
-	args := api.Called(ctx, prompt)
-	res = args.Get(0).(openai.ChatCompletionResponse)
-	return res, args.Error(1)
-}
-
 func (api *mockAPI) GeminiChat(ctx context.Context, prompt string) (res *genai.GenerateContentResponse, err error) {
 	args := api.Called(ctx, prompt)
 	res = args.Get(0).(*genai.GenerateContentResponse)
+	return res, args.Error(1)
+}
+
+
+func (api *mockAPI) AutoComplete(ctx context.Context, prompt string) (res openai.ChatCompletionResponse, err error) {
+	args := api.Called(ctx, prompt)
+	res = args.Get(0).(openai.ChatCompletionResponse)
 	return res, args.Error(1)
 }
 
