@@ -51,6 +51,7 @@ func TestTextGenerationWithMetaModel(t *testing.T) {
 
 	api := &mockAPI{}
 	api.On("GetModel").Return(mockLlm, nil)
+	api.On("SetModel", mock.Anything).Return()
 
 	c := Client{&Resources{CloudflareApiClient: api}}
 	resp, err := c.TextGeneration(context.Background(), "steve", CHAT_MODEL_META)

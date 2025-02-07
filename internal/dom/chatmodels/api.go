@@ -64,6 +64,11 @@ func (api *mockAPI) GenerateContent(ctx context.Context, messages []llms.Message
 	return content, args.Error(1)
 }
 
+func (api *mockAPI) SetModel(model string) {
+	_ = api.Called(model)
+	return
+}
+
 func (api *mockAPI) GenerateText(ctx context.Context, prompt string) (string, error) {
 	args := api.Called(ctx, prompt)
 	return args.String(0), args.Error(1)
