@@ -3,9 +3,11 @@ package chatmodels
 import (
 	"context"
 	"encoding/base64"
-	"fmt"
+	"log"
 
 	"github.com/sashabaranov/go-openai"
+	"github.com/tmc/langchaingo/llms"
+	langchain_openai "github.com/tmc/langchaingo/llms/openai"
 )
 
 var IMAGE_MODEL_TO_OPENAI_MODEL = map[ImageModel]string{
@@ -21,36 +23,36 @@ var CHAT_MODEL_TO_OPENAI_MODEL = map[ChatModel]string{
 type OpenAIApiClient struct {
 	Token        string
 	OpenAIClient *openai.Client
+	LlmClient    *langchain_openai.LLM
 }
 
 func NewOpenAiApiClient(token string) *OpenAIApiClient {
 	openAIClient := openai.NewClient(token)
+
+	llm, err := langchain_openai.New(
+		langchain_openai.WithToken(token),
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	return &OpenAIApiClient{
 		Token:        token,
+		LlmClient:    llm,
 		OpenAIClient: openAIClient,
 	}
 }
 
-func (api *OpenAIApiClient) GenerateTextWithModel(ctx context.Context, prompt string, model string) (string, error) {
-	req := openai.ChatCompletionRequest{
-		Model: openai.O1Mini,
-		Messages: []openai.ChatCompletionMessage{
-			{
-				Role:    openai.ChatMessageRoleUser,
-				Content: prompt,
-			},
-		},
-	}
-	resp, err := api.OpenAIClient.CreateChatCompletion(ctx, req)
-	if err != nil {
-		return "", err
-	}
+func (api *OpenAIApiClient) GenerateContent(
+	ctx context.Context,
+	messages []llms.MessageContent,
+	options ...llms.CallOption,
+) (*llms.ContentResponse, error) {
+	return api.LlmClient.GenerateContent(ctx, messages, options...)
+}
 
-	if len(resp.Choices) == 0 || resp.Choices[0].Message.Content == "" {
-		return "", fmt.Errorf("missing choices %w", MissingContentError)
-	}
-
-	return resp.Choices[0].Message.Content, nil
+func (api *OpenAIApiClient) GetModel() llms.Model {
+	return api.LlmClient
 }
 
 func (api *OpenAIApiClient) GenerateImage(ctx context.Context, prompt string, model string) ([]byte, error) {

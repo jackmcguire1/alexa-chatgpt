@@ -6,10 +6,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"log/slog"
 	"net/http"
 
 	"github.com/jackmcguire1/alexa-chatgpt/internal/pkg/utils"
+	"github.com/tmc/langchaingo/llms"
+	"github.com/tmc/langchaingo/llms/cloudflare"
 )
 
 const (
@@ -66,60 +69,36 @@ type TranslateResponse struct {
 type CloudflareApiClient struct {
 	AccountID string
 	APIKey    string
+	LlmClient *cloudflare.LLM
 }
 
 func NewCloudflareApiClient(accountID, apiKey string) *CloudflareApiClient {
+
+	llm, err := cloudflare.New(
+		cloudflare.WithToken(apiKey),
+		cloudflare.WithAccountID(accountID),
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	return &CloudflareApiClient{
 		AccountID: accountID,
 		APIKey:    apiKey,
+		LlmClient: llm,
 	}
 }
 
-func (api *CloudflareApiClient) GenerateTextWithModel(ctx context.Context, prompt string, model string) (string, error) {
-	url := fmt.Sprintf("https://api.cloudflare.com/client/v4/accounts/%s/ai/run/%s", api.AccountID, model)
+func (api *CloudflareApiClient) GenerateContent(
+	ctx context.Context,
+	messages []llms.MessageContent,
+	options ...llms.CallOption,
+) (*llms.ContentResponse, error) {
+	return api.LlmClient.GenerateContent(ctx, messages, options...)
+}
 
-	payload := map[string]string{
-		"prompt": prompt,
-	}
-	jsonPayload, err := json.Marshal(payload)
-	if err != nil {
-		return "", err
-	}
-
-	req, err := http.NewRequestWithContext(ctx, "POST", url, bytes.NewBuffer(jsonPayload))
-	if err != nil {
-		return "", err
-	}
-	req.Header.Set("Authorization", "Bearer "+api.APIKey)
-	req.Header.Set("Content-Type", "application/json")
-
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return "", err
-	}
-	defer resp.Body.Close()
-
-	data, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return "", err
-	}
-
-	var result *Response
-	err = json.Unmarshal(data, &result)
-	if err != nil {
-		return "", fmt.Errorf("failed to unmarshal cloudflare response body %s", string(data))
-	}
-
-	if !result.Success {
-		return "", fmt.Errorf("didn't get success from result %v http-status: %d", utils.ToJSON(result), resp.StatusCode)
-	}
-
-	if result.Result.Response == "" {
-		return "", fmt.Errorf("cloudflare ai worker model failed to generate text %w", MissingContentError)
-	}
-
-	return result.Result.Response, nil
+func (api *CloudflareApiClient) GetModel() llms.Model {
+	return api.LlmClient
 }
 
 func (api *CloudflareApiClient) GenerateImage(ctx context.Context, prompt string, model string) ([]byte, error) {

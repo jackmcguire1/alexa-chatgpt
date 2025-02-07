@@ -7,12 +7,19 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"github.com/tmc/langchaingo/llms"
 )
 
 func TestTextGenerationWithGPT(t *testing.T) {
-	api := &mockAPI{}
 	mockResponse := "hello world"
-	api.On("GenerateTextWithModel", mock.Anything, "steve", mock.Anything).Return(mockResponse, nil)
+	mockLlm := &mockLlmModel{}
+	mockLlm.On("GenerateContent", mock.Anything, mock.Anything, mock.Anything).Return(&llms.ContentResponse{
+		Choices: []*llms.ContentChoice{{Content: mockResponse}},
+	}, nil)
+
+	api := &mockAPI{}
+	api.On("GetModel").Return(mockLlm, nil)
+
 	c := Client{&Resources{GPTApi: api}}
 	resp, err := c.TextGeneration(context.Background(), "steve", CHAT_MODEL_GPT)
 	assert.NoError(t, err)
@@ -20,9 +27,15 @@ func TestTextGenerationWithGPT(t *testing.T) {
 }
 
 func TestTestTextGenerationWithGemini(t *testing.T) {
-	api := &mockAPI{}
 	mockResponse := "hello world"
-	api.On("GenerateText", mock.Anything, "steve").Return(mockResponse, nil)
+	mockLlm := &mockLlmModel{}
+	mockLlm.On("GenerateContent", mock.Anything, mock.Anything, mock.Anything).Return(&llms.ContentResponse{
+		Choices: []*llms.ContentChoice{{Content: mockResponse}},
+	}, nil)
+
+	api := &mockAPI{}
+	api.On("GetModel").Return(mockLlm, nil)
+
 	c := Client{&Resources{GeminiAPI: api}}
 	resp, err := c.TextGeneration(context.Background(), "steve", CHAT_MODEL_GEMINI)
 	assert.NoError(t, err)
@@ -30,9 +43,15 @@ func TestTestTextGenerationWithGemini(t *testing.T) {
 }
 
 func TestTextGenerationWithMetaModel(t *testing.T) {
-	api := &mockAPI{}
 	mockResponse := "hello world"
-	api.On("GenerateTextWithModel", mock.Anything, "steve", mock.Anything).Return(mockResponse, nil)
+	mockLlm := &mockLlmModel{}
+	mockLlm.On("GenerateContent", mock.Anything, mock.Anything, mock.Anything).Return(&llms.ContentResponse{
+		Choices: []*llms.ContentChoice{{Content: mockResponse}},
+	}, nil)
+
+	api := &mockAPI{}
+	api.On("GetModel").Return(mockLlm, nil)
+
 	c := Client{&Resources{CloudflareApiClient: api}}
 	resp, err := c.TextGeneration(context.Background(), "steve", CHAT_MODEL_META)
 	assert.NoError(t, err)
@@ -41,8 +60,15 @@ func TestTextGenerationWithMetaModel(t *testing.T) {
 
 func TestTextGenerationWithMissingContent(t *testing.T) {
 	api := &mockAPI{}
+	mockLlm := &mockLlmModel{}
+
 	mockError := fmt.Errorf("missing choice %w", MissingContentError)
-	api.On("GenerateTextWithModel", mock.Anything, "steve", mock.Anything).Return("", mockError)
+	mockLlm.On("GenerateContent", mock.Anything, mock.Anything, mock.Anything).Return(&llms.ContentResponse{
+		Choices: nil,
+	}, mockError)
+
+	api.On("GetModel").Return(mockLlm, nil)
+
 	c := Client{&Resources{GPTApi: api}}
 	_, err := c.TextGeneration(context.Background(), "steve", CHAT_MODEL_GPT)
 	assert.Error(t, err)
