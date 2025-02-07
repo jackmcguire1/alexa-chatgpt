@@ -28,9 +28,16 @@ func TestTextGenerationWithGPT(t *testing.T) {
 }
 
 func TestTestTextGenerationWithGemini(t *testing.T) {
-	api := &mockAPI{}
 	mockResponse := "hello world"
-	api.On("GenerateText", mock.Anything, "steve").Return(mockResponse, nil)
+	mockLlm := &mockLlmModel{}
+	mockLlm.On("GenerateContent", mock.Anything, mock.Anything, mock.Anything).Return(&llms.ContentResponse{
+		Choices: []*llms.ContentChoice{{Content: mockResponse}},
+	}, nil)
+
+	api := &mockAPI{}
+	api.On("GenerateTextWithModel", mock.Anything, "steve", mock.Anything).Return(mockResponse, nil)
+	api.On("GetModel").Return(mockLlm, nil)
+
 	c := Client{&Resources{GeminiAPI: api}}
 	resp, err := c.TextGeneration(context.Background(), "steve", CHAT_MODEL_GEMINI)
 	assert.NoError(t, err)
@@ -43,7 +50,6 @@ func TestTextGenerationWithMetaModel(t *testing.T) {
 	mockLlm.On("GenerateContent", mock.Anything, mock.Anything, mock.Anything).Return(&llms.ContentResponse{
 		Choices: []*llms.ContentChoice{{Content: mockResponse}},
 	}, nil)
-
 
 	api := &mockAPI{}
 	api.On("GetModel").Return(mockLlm, nil)

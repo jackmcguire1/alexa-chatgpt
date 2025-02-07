@@ -43,8 +43,12 @@ func NewOpenAiApiClient(token string) *OpenAIApiClient {
 	}
 }
 
-func (api *OpenAIApiClient) GenerateTextWithModel(ctx context.Context, prompt string, model string) (string, error) {
-	return llms.GenerateFromSinglePrompt(ctx, api.LlmClient, prompt, llms.WithModel(model))
+func (api *OpenAIApiClient) GenerateContent(
+	ctx context.Context,
+	messages []llms.MessageContent,
+	options ...llms.CallOption,
+) (*llms.ContentResponse, error) {
+	return api.LlmClient.GenerateContent(ctx, messages, options...)
 }
 
 func (api *OpenAIApiClient) GetModel() llms.Model {

@@ -7,21 +7,16 @@ import (
 )
 
 func (client *Client) TextGeneration(ctx context.Context, prompt string, model ChatModel) (string, error) {
-	switch model {
-	case CHAT_MODEL_GEMINI:
-		return client.GeminiAPI.GenerateText(ctx, prompt)
-	default:
-		model, opts := client.GetLLmModel(model)
-		return llms.GenerateFromSinglePrompt(ctx, model, prompt, opts...)
-	}
+	modelSvc, opts := client.GetLLmModel(model)
+	return llms.GenerateFromSinglePrompt(ctx, modelSvc, prompt, opts...)
 }
 
-func (client *Client) GetLLmModel(model ChatModel) (llms.Model, []llms.CallOption){
+func (client *Client) GetLLmModel(model ChatModel) (llms.Model, []llms.CallOption) {
 	switch model {
 	case CHAT_MODEL_META, CHAT_MODEL_SQL, CHAT_MODEL_OPEN, CHAT_MODEL_AWQ, CHAT_MODEL_QWEN:
 		return client.CloudflareApiClient.GetModel(), []llms.CallOption{llms.WithModel(CHAT_MODEL_TO_CF_MODEL[model])}
 	case CHAT_MODEL_GEMINI:
-		fallthrough
+		return client.GeminiAPI.GetModel(), []llms.CallOption{llms.WithModel(VERTEX_MODEL)}
 	default:
 		return client.GPTApi.GetModel(), []llms.CallOption{llms.WithModel(CHAT_MODEL_TO_OPENAI_MODEL[model])}
 	}

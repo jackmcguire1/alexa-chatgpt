@@ -5,7 +5,6 @@ import (
 	"encoding/base64"
 	"fmt"
 	"log/slog"
-	"os"
 
 	"golang.org/x/oauth2/google"
 	"google.golang.org/genai"
@@ -21,9 +20,9 @@ const (
 )
 
 type GeminiApiClient struct {
-	credentials  *google.Credentials
-	GenAIClient  *genai.Client
-	VertexClient *vertex.Vertex
+	credentials *google.Credentials
+	GenAIClient *genai.Client
+	LlmClient   *vertex.Vertex
 }
 
 func NewGeminiApiClient(credsToken string) *GeminiApiClient {
@@ -58,32 +57,36 @@ func NewGeminiApiClient(credsToken string) *GeminiApiClient {
 	}
 
 	return &GeminiApiClient{
-		credentials:  creds,
-		GenAIClient:  genAiClient,
-		VertexClient: vertexClient,
+		credentials: creds,
+		GenAIClient: genAiClient,
+		LlmClient:   vertexClient,
 	}
 }
 
-func (api *GeminiApiClient) GenerateText(ctx context.Context, prompt string) (string, error) {
-	if os.Getenv("USE_GOOGLE_GENAI") == "true" {
-		res, err := api.GenAIClient.Models.GenerateContent(ctx, VERTEX_MODEL, genai.Text(prompt), nil)
-		if err != nil {
-			return "", err
-		}
+func (api *GeminiApiClient) GetModel() llms.Model {
+	return api.LlmClient
+}
 
-		// extract and return response
-		if len(res.Candidates) > 0 && len(res.Candidates[0].Content.Parts) > 0 {
-			return fmt.Sprint(res.Candidates[0].Content.Parts[0]), nil
-		}
-		return "", fmt.Errorf("gemini missing content in response %w", MissingContentError)
+func (api *GeminiApiClient) GenerateText(ctx context.Context, prompt string) (string, error) {
+	res, err := api.GenAIClient.Models.GenerateContent(ctx, VERTEX_MODEL, genai.Text(prompt), nil)
+	if err != nil {
+		return "", err
 	}
 
+	// extract and return response
+	if len(res.Candidates) > 0 && len(res.Candidates[0].Content.Parts) > 0 {
+		return fmt.Sprint(res.Candidates[0].Content.Parts[0]), nil
+	}
+	return "", fmt.Errorf("gemini missing content in response %w", MissingContentError)
+}
+
+func (api *GeminiApiClient) GenerateTextWithSystemCommand(ctx context.Context, system string, prompt string) (string, error) {
 	content := []llms.MessageContent{
-		llms.TextParts(llms.ChatMessageTypeSystem, "Answer as if the user is asking a question"),
+		llms.TextParts(llms.ChatMessageTypeSystem, system),
 		llms.TextParts(llms.ChatMessageTypeHuman, prompt),
 	}
 
-	resp, err := api.VertexClient.GenerateContent(ctx, content, llms.WithModel(VERTEX_MODEL))
+	resp, err := api.GenerateContent(ctx, content, llms.WithModel(VERTEX_MODEL))
 	if err != nil {
 		return "", err
 	}
@@ -93,4 +96,12 @@ func (api *GeminiApiClient) GenerateText(ctx context.Context, prompt string) (st
 	}
 
 	return resp.Choices[0].Content, nil
+}
+
+func (api *GeminiApiClient) GenerateContent(
+	ctx context.Context,
+	messages []llms.MessageContent,
+	options ...llms.CallOption,
+) (*llms.ContentResponse, error) {
+	return api.LlmClient.GenerateContent(ctx, messages, options...)
 }
