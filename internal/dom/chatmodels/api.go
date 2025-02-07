@@ -36,6 +36,7 @@ type CloudFlareAiWorkerAPI interface {
 	LlmContentGenerator
 	GenerateImage(ctx context.Context, prompt string, model string) ([]byte, error)
 	GenerateTranslation(ctx context.Context, req *GenerateTranslationRequest) (string, error)
+	SetModel(model string)
 }
 
 type mockLlmModel struct {

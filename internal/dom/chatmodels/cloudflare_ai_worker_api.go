@@ -102,6 +102,19 @@ func (api *CloudflareApiClient) GetModel() llms.Model {
 	return api.LlmClient
 }
 
+func (api *CloudflareApiClient) SetModel(model string) {
+	llm, err := cloudflare.New(
+		cloudflare.WithToken(api.APIKey),
+		cloudflare.WithAccountID(api.AccountID),
+		cloudflare.WithServerURL("https://api.cloudflare.com/client/v4/accounts"),
+		cloudflare.WithModel(model),
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+	api.LlmClient = llm
+}
+
 func (api *CloudflareApiClient) GenerateImage(ctx context.Context, prompt string, model string) ([]byte, error) {
 	url := fmt.Sprintf("https://api.cloudflare.com/client/v4/accounts/%s/ai/run/%s", api.AccountID, model)
 
