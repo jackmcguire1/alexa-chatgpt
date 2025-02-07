@@ -17,6 +17,7 @@ func (client *Client) TextGenerationWithSystem(ctx context.Context, system strin
 		llms.TextParts(llms.ChatMessageTypeSystem, system),
 		llms.TextParts(llms.ChatMessageTypeHuman, prompt),
 	}
+
 	var res *llms.ContentResponse
 	switch model {
 	case CHAT_MODEL_META, CHAT_MODEL_SQL, CHAT_MODEL_OPEN, CHAT_MODEL_AWQ, CHAT_MODEL_QWEN:

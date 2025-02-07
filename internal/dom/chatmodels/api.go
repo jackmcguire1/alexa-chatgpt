@@ -3,10 +3,8 @@ package chatmodels
 import (
 	"context"
 
-	"github.com/sashabaranov/go-openai"
 	"github.com/stretchr/testify/mock"
 	"github.com/tmc/langchaingo/llms"
-	"google.golang.org/genai"
 )
 
 type LlmModel interface {
@@ -42,7 +40,6 @@ type CloudFlareAiWorkerAPI interface {
 
 type mockLlmModel struct {
 	llms.Model
-
 	mock.Mock
 }
 
@@ -66,25 +63,8 @@ func (api *mockAPI) GenerateContent(ctx context.Context, messages []llms.Message
 	return content, args.Error(1)
 }
 
-func (api *mockAPI) GeminiChat(ctx context.Context, prompt string) (res *genai.GenerateContentResponse, err error) {
-	args := api.Called(ctx, prompt)
-	res = args.Get(0).(*genai.GenerateContentResponse)
-	return res, args.Error(1)
-}
-
-func (api *mockAPI) AutoComplete(ctx context.Context, prompt string) (res openai.ChatCompletionResponse, err error) {
-	args := api.Called(ctx, prompt)
-	res = args.Get(0).(openai.ChatCompletionResponse)
-	return res, args.Error(1)
-}
-
 func (api *mockAPI) GenerateText(ctx context.Context, prompt string) (string, error) {
 	args := api.Called(ctx, prompt)
-	return args.String(0), args.Error(1)
-}
-
-func (api *mockAPI) GenerateTextWithModel(ctx context.Context, prompt string, model string) (string, error) {
-	args := api.Called(ctx, prompt, model)
 	return args.String(0), args.Error(1)
 }
 

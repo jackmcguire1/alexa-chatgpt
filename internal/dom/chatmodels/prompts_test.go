@@ -12,15 +12,14 @@ import (
 
 func TestTextGenerationWithGPT(t *testing.T) {
 	mockResponse := "hello world"
-
-	api := &mockAPI{}
 	mockLlm := &mockLlmModel{}
 	mockLlm.On("GenerateContent", mock.Anything, mock.Anything, mock.Anything).Return(&llms.ContentResponse{
 		Choices: []*llms.ContentChoice{{Content: mockResponse}},
 	}, nil)
 
-	api.On("GenerateTextWithModel", mock.Anything, "steve", mock.Anything).Return(mockResponse, nil)
+	api := &mockAPI{}
 	api.On("GetModel").Return(mockLlm, nil)
+
 	c := Client{&Resources{GPTApi: api}}
 	resp, err := c.TextGeneration(context.Background(), "steve", CHAT_MODEL_GPT)
 	assert.NoError(t, err)
@@ -35,7 +34,6 @@ func TestTestTextGenerationWithGemini(t *testing.T) {
 	}, nil)
 
 	api := &mockAPI{}
-	api.On("GenerateTextWithModel", mock.Anything, "steve", mock.Anything).Return(mockResponse, nil)
 	api.On("GetModel").Return(mockLlm, nil)
 
 	c := Client{&Resources{GeminiAPI: api}}
