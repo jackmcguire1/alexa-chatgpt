@@ -77,6 +77,7 @@ func NewCloudflareApiClient(accountID, apiKey string) *CloudflareApiClient {
 	llm, err := cloudflare.New(
 		cloudflare.WithToken(apiKey),
 		cloudflare.WithAccountID(accountID),
+		cloudflare.WithServerURL("https://api.cloudflare.com/client/v4/accounts"),
 	)
 	if err != nil {
 		log.Fatal(err)
