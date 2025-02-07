@@ -90,20 +90,11 @@ func NewCloudflareApiClient(accountID, apiKey string) *CloudflareApiClient {
 }
 
 func (api *CloudflareApiClient) GenerateTextWithModel(ctx context.Context, prompt string, model string) (string, error) {
-	content := []llms.MessageContent{
-		llms.TextParts(llms.ChatMessageTypeSystem, "Answer as if the user is asking a question"),
-		llms.TextParts(llms.ChatMessageTypeHuman, prompt),
-	}
+	return llms.GenerateFromSinglePrompt(ctx, api.Client, prompt, llms.WithModel(model))
+}
 
-	completion, err := api.Client.GenerateContent(ctx, content, llms.WithModel(model))
-	if err != nil {
-		return "", err
-	}
-	if len(completion.Choices) == 0 {
-		return "", fmt.Errorf("no choices in response from cloudflare")
-	}
-
-	return completion.Choices[0].Content, nil
+func (api *CloudflareApiClient) GetModel() llms.Model {
+	return api.Client
 }
 
 func (api *CloudflareApiClient) GenerateImage(ctx context.Context, prompt string, model string) ([]byte, error) {
