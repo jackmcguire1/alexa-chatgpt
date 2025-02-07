@@ -17,22 +17,13 @@ func (client *Client) TextGenerationWithSystem(ctx context.Context, system strin
 		llms.TextParts(llms.ChatMessageTypeSystem, system),
 		llms.TextParts(llms.ChatMessageTypeHuman, prompt),
 	}
-
-	var res *llms.ContentResponse
-	switch model {
-	case CHAT_MODEL_META, CHAT_MODEL_SQL, CHAT_MODEL_OPEN, CHAT_MODEL_AWQ, CHAT_MODEL_QWEN:
-		res, err = client.CloudflareApiClient.GenerateContent(ctx, content, llms.WithModel(CHAT_MODEL_TO_CF_MODEL[model]))
-	case CHAT_MODEL_GEMINI:
-		res, err = client.GeminiAPI.GenerateContent(ctx, content, llms.WithModel(VERTEX_MODEL))
-	default:
-		res, err = client.GPTApi.GenerateContent(ctx, content, llms.WithModel(CHAT_MODEL_TO_OPENAI_MODEL[model]))
-	}
+	llmModel, opts := client.GetLLmModel(model)
+	res, err := llmModel.GenerateContent(ctx, content, opts...)
 	if err != nil {
 		return "", err
 	}
-
 	if len(res.Choices) == 0 {
-		return "", fmt.Errorf("no choices in response from vertex")
+		return "", fmt.Errorf("no choices in response from llm model %v", llmModel)
 	}
 	return res.Choices[0].Content, nil
 }
