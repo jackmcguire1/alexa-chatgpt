@@ -8,37 +8,67 @@ import (
 
 	"golang.org/x/oauth2/google"
 	"google.golang.org/genai"
+
+	"github.com/tmc/langchaingo/llms"
+	"github.com/tmc/langchaingo/llms/googleai"
+	"github.com/tmc/langchaingo/llms/googleai/vertex"
 )
 
-const VERTEX_MODEL string = "gemini-2.0-flash-exp"
+const (
+	VERTEX_MODEL        string = "gemini-2.0-flash-exp"
+	VERTEX_API_LOCATION string = "us-central1"
+)
 
 type GeminiApiClient struct {
 	credentials *google.Credentials
+	GenAIClient *genai.Client
+	LlmClient   *vertex.Vertex
 }
 
-func NewGeminiApiClient(token string) *GeminiApiClient {
-	tkn, _ := base64.StdEncoding.DecodeString(token)
+func NewGeminiApiClient(credsToken string) *GeminiApiClient {
+	tkn, _ := base64.StdEncoding.DecodeString(credsToken)
 
 	creds, err := google.CredentialsFromJSON(context.Background(), tkn, "https://www.googleapis.com/auth/generative-language", "https://www.googleapis.com/auth/cloud-platform")
 	if err != nil {
 		slog.With("error", err).Error("failed to init google creds")
 	}
 
-	return &GeminiApiClient{credentials: creds}
+	genAiClient, err := genai.NewClient(context.Background(), &genai.ClientConfig{
+		Location:    VERTEX_API_LOCATION,
+		Credentials: creds,
+		Backend:     genai.BackendVertexAI,
+		Project:     creds.ProjectID,
+	})
+	if err != nil {
+		slog.With("error", err).Error("failed to init genAiClient")
+		panic(err)
+	}
+
+	token, err := creds.TokenSource.Token()
+	if err != nil {
+		slog.With("error", err).Error("failed to get a google token from credentials")
+		panic(err)
+	}
+
+	vertexClient, err := vertex.New(context.Background(), googleai.WithCloudProject(creds.ProjectID), googleai.WithAPIKey(token.AccessToken), googleai.WithCloudLocation(VERTEX_API_LOCATION))
+	if err != nil {
+		slog.With("error", err).Error("failed to init vertex client")
+		panic(err)
+	}
+
+	return &GeminiApiClient{
+		credentials: creds,
+		GenAIClient: genAiClient,
+		LlmClient:   vertexClient,
+	}
+}
+
+func (api *GeminiApiClient) GetModel() llms.Model {
+	return api.LlmClient
 }
 
 func (api *GeminiApiClient) GenerateText(ctx context.Context, prompt string) (string, error) {
-	client, err := genai.NewClient(ctx, &genai.ClientConfig{
-		Location:    "us-central1",
-		Credentials: api.credentials,
-		Backend:     genai.BackendVertexAI,
-		Project:     api.credentials.ProjectID,
-	})
-	if err != nil {
-		return "", err
-	}
-
-	res, err := client.Models.GenerateContent(ctx, VERTEX_MODEL, genai.Text(prompt), nil)
+	res, err := api.GenAIClient.Models.GenerateContent(ctx, VERTEX_MODEL, genai.Text(prompt), nil)
 	if err != nil {
 		return "", err
 	}
@@ -48,4 +78,12 @@ func (api *GeminiApiClient) GenerateText(ctx context.Context, prompt string) (st
 		return fmt.Sprint(res.Candidates[0].Content.Parts[0]), nil
 	}
 	return "", fmt.Errorf("gemini missing content in response %w", MissingContentError)
+}
+
+func (api *GeminiApiClient) GenerateContent(
+	ctx context.Context,
+	messages []llms.MessageContent,
+	options ...llms.CallOption,
+) (*llms.ContentResponse, error) {
+	return api.LlmClient.GenerateContent(ctx, messages, options...)
 }

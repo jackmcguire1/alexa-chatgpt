@@ -69,7 +69,7 @@ type TranslateResponse struct {
 type CloudflareApiClient struct {
 	AccountID string
 	APIKey    string
-	Client    *cloudflare.LLM
+	LlmClient *cloudflare.LLM
 }
 
 func NewCloudflareApiClient(accountID, apiKey string) *CloudflareApiClient {
@@ -85,16 +85,20 @@ func NewCloudflareApiClient(accountID, apiKey string) *CloudflareApiClient {
 	return &CloudflareApiClient{
 		AccountID: accountID,
 		APIKey:    apiKey,
-		Client:    llm,
+		LlmClient: llm,
 	}
 }
 
-func (api *CloudflareApiClient) GenerateTextWithModel(ctx context.Context, prompt string, model string) (string, error) {
-	return llms.GenerateFromSinglePrompt(ctx, api.Client, prompt, llms.WithModel(model))
+func (api *CloudflareApiClient) GenerateContent(
+	ctx context.Context,
+	messages []llms.MessageContent,
+	options ...llms.CallOption,
+) (*llms.ContentResponse, error) {
+	return api.LlmClient.GenerateContent(ctx, messages, options...)
 }
 
 func (api *CloudflareApiClient) GetModel() llms.Model {
-	return api.Client
+	return api.LlmClient
 }
 
 func (api *CloudflareApiClient) GenerateImage(ctx context.Context, prompt string, model string) ([]byte, error) {
