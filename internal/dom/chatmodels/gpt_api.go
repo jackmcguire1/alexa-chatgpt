@@ -28,7 +28,6 @@ type OpenAIApiClient struct {
 
 func NewOpenAiApiClient(token string) *OpenAIApiClient {
 	openAIClient := openai.NewClient(token)
-
 	llm, err := langchain_openai.New(
 		langchain_openai.WithToken(token),
 	)

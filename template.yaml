@@ -17,6 +17,7 @@ Globals:
         CLOUDFLARE_ACCOUNT_ID: !Ref CloudFlareAccountId
         CLOUDFLARE_API_KEY: !Ref CloudFlareAPIKey
         S3_BUCKET: !Ref Bucket
+        OPENAI_BASE_URL: "https://api.openai.com/v1"
 
 Parameters:
   OpenAIApiKey:
