@@ -38,7 +38,7 @@ func NewGeminiApiClient(credsToken string) *GeminiApiClient {
 		googlegenai.WithCloudProject(creds.ProjectID),
 		googlegenai.WithCloudLocation(VERTEX_API_LOCATION),
 		googlegenai.WithCredentialsJSON(tkn, nil),
-		googlegenai.WithApiBackend(googlegenai.VERTEX_BACKEND),
+		googlegenai.WithAPIBackend(googlegenai.APIVertexBackend),
 	)
 	if err != nil {
 		slog.With("error", err).Error("failed to init vertex client")
