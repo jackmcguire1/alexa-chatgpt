@@ -46,6 +46,8 @@ func (client *Client) GenerateImage(ctx context.Context, prompt string, model Im
 		return client.CloudflareApiClient.GenerateImage(ctx, prompt, IMAGE_MODEL_TO_CF_MODEL[model])
 	case IMAGE_MODEL_DALL_E_2, IMAGE_MODEL_DALL_E_3:
 		return client.GPTApi.GenerateImage(ctx, prompt, IMAGE_MODEL_TO_OPENAI_MODEL[model])
+	case IMAGE_MODEL_GEMINI:
+		return client.GeminiAPI.GenerateImage(ctx, prompt, IMAGE_IMAGEN_MODEL)
 	default:
 		return client.CloudflareApiClient.GenerateImage(ctx, prompt, IMAGE_MODEL_TO_CF_MODEL[model])
 	}

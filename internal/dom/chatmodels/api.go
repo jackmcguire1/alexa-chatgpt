@@ -28,7 +28,7 @@ type GptAPI interface {
 type GeminiAPI interface {
 	LlmModel
 	LlmContentGenerator
-	GenerateText(ctx context.Context, prompt string) (string, error)
+	GenerateImage(ctx context.Context, prompt string, model string) ([]byte, error)
 }
 
 type CloudFlareAiWorkerAPI interface {

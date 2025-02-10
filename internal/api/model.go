@@ -54,6 +54,10 @@ func (h *Handler) getOrSetModel(model string) (res alexa.Response, err error) {
 		h.ImageModel = chatmodels.IMAGE_MODEL_DALL_E_2
 		res = alexa.NewResponse("Image Models", "ok", false)
 		return
+	case chatmodels.IMAGE_MODEL_GEMINI.String():
+		h.ImageModel = chatmodels.IMAGE_MODEL_GEMINI
+		res = alexa.NewResponse("Image Models", "ok", false)
+		return
 	case "which":
 		res = alexa.NewResponse("Chat Models", fmt.Sprintf("I am using the text-model %s and image-model %s", h.Model.String(), h.ImageModel.String()), false)
 		return

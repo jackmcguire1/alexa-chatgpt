@@ -34,7 +34,10 @@ func (handler *SqsHandler) ProcessGenerationRequest(ctx context.Context, req *ch
 
 	if req.ImageModel != nil {
 		switch *req.ImageModel {
-		case chatmodels.IMAGE_MODEL_STABLE_DIFFUSION, chatmodels.IMAGE_MODEL_DALL_E_2, chatmodels.IMAGE_MODEL_DALL_E_3:
+		case chatmodels.IMAGE_MODEL_STABLE_DIFFUSION,
+			chatmodels.IMAGE_MODEL_DALL_E_2,
+			chatmodels.IMAGE_MODEL_DALL_E_3,
+			chatmodels.IMAGE_MODEL_GEMINI:
 			imageBody, err := handler.GenerationModelSvc.GenerateImage(ctx, req.Prompt, *req.ImageModel)
 			if err != nil {
 				handler.Logger.
