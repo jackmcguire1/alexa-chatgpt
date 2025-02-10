@@ -37,7 +37,7 @@ func NewGeminiApiClient(credsToken string) *GeminiApiClient {
 		context.Background(),
 		googlegenai.WithCloudProject(creds.ProjectID),
 		googlegenai.WithCloudLocation(VERTEX_API_LOCATION),
-		googlegenai.WithCredentialsJSON(tkn, nil),
+		googlegenai.WithCredentialsJSON(tkn, []string{"https://www.googleapis.com/auth/generative-language", "https://www.googleapis.com/auth/cloud-platform"}),
 		googlegenai.WithAPIBackend(googlegenai.APIVertexBackend),
 	)
 	if err != nil {
