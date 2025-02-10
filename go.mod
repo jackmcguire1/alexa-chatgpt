@@ -19,14 +19,14 @@ require (
 
 require (
 	cloud.google.com/go v0.118.2 // indirect
-	cloud.google.com/go/ai v0.6.0 // indirect
+	cloud.google.com/go/ai v0.7.0 // indirect
 	cloud.google.com/go/aiplatform v1.70.0 // indirect
 	cloud.google.com/go/auth v0.14.0 // indirect
 	cloud.google.com/go/auth/oauth2adapt v0.2.7 // indirect
 	cloud.google.com/go/compute/metadata v0.6.0 // indirect
 	cloud.google.com/go/iam v1.3.1 // indirect
 	cloud.google.com/go/longrunning v0.6.4 // indirect
-	cloud.google.com/go/vertexai v0.10.0 // indirect
+	cloud.google.com/go/vertexai v0.12.0 // indirect
 	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.6.8 // indirect
 	github.com/aws/aws-sdk-go-v2/credentials v1.17.59 // indirect
 	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.16.28 // indirect
@@ -47,7 +47,7 @@ require (
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/go-logr/logr v1.4.2 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
-	github.com/google/generative-ai-go v0.14.0 // indirect
+	github.com/google/generative-ai-go v0.15.1 // indirect
 	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/google/s2a-go v0.1.9 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.3.4 // indirect
@@ -77,3 +77,5 @@ require (
 	google.golang.org/protobuf v1.36.4 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
+
+replace github.com/tmc/langchaingo => github.com/jackmcguire1/langchaingo v1.0.0

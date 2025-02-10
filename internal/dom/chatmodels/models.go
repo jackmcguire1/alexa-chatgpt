@@ -26,6 +26,7 @@ const (
 	IMAGE_MODEL_STABLE_DIFFUSION ImageModel = "stable"
 	IMAGE_MODEL_DALL_E_2         ImageModel = "dallas v2"
 	IMAGE_MODEL_DALL_E_3         ImageModel = "dallas"
+	IMAGE_MODEL_GEMINI           ImageModel = "gemini image"
 )
 
 var AvaliableModels = []string{
@@ -43,12 +44,14 @@ var ImageModels = []string{
 	IMAGE_MODEL_STABLE_DIFFUSION.String(),
 	IMAGE_MODEL_DALL_E_3.String(),
 	IMAGE_MODEL_DALL_E_2.String(),
+	IMAGE_MODEL_GEMINI.String(),
 }
 
 var StrToImageModel = map[string]ImageModel{
 	IMAGE_MODEL_STABLE_DIFFUSION.String(): IMAGE_MODEL_STABLE_DIFFUSION,
 	IMAGE_MODEL_DALL_E_2.String():         IMAGE_MODEL_DALL_E_2,
 	IMAGE_MODEL_DALL_E_3.String():         IMAGE_MODEL_DALL_E_3,
+	IMAGE_MODEL_GEMINI.String():           IMAGE_IMAGEN_MODEL,
 }
 
 func (c ChatModel) String() string {
