@@ -61,4 +61,4 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
-replace github.com/tmc/langchaingo => github.com/jackmcguire1/langchaingo v1.0.3
+replace github.com/tmc/langchaingo => github.com/jackmcguire1/langchaingo v1.0.4

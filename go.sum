@@ -74,6 +74,7 @@ github.com/gorilla/websocket v1.5.3 h1:saDtZ6Pbx/0u+bgYQ3q96pZgCzfhKXGPqt7kZ72aN
 github.com/gorilla/websocket v1.5.3/go.mod h1:YR8l580nyteQvAITg2hZ9XVh4b55+EU/adAjf1fMHhE=
 github.com/jackmcguire1/langchaingo v1.0.2 h1:rGtUiSeuELonBRznCv9utybXWhzxSd8UKbt6RmKpo4M=
 github.com/jackmcguire1/langchaingo v1.0.2/go.mod h1:Rxu7DZn04EVJv+lu5gA2U1yapzrrLXC7QLAGKGT+jzg=
+github.com/jackmcguire1/langchaingo v1.0.3/go.mod h1:vpQ5NOIhpzxDfTZK9B6tf2GM/MoaHewPWM5KXXGh7hg=
 github.com/kr/pretty v0.2.1/go.mod h1:ipq/a2n7PKx3OHsz4KJII5eveXtPO4qwEXGdVfWzfnI=
 github.com/kr/pretty v0.3.1 h1:flRD4NNwYAUpkphVc1HcthR4KEIFJ65n8Mw5qdRn3LE=
 github.com/kr/pretty v0.3.1/go.mod h1:hoEshYVHaxMs3cyo3Yncou5ZscifuDolrwPKZanG3xk=
