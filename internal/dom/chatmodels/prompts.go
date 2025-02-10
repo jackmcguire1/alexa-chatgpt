@@ -34,7 +34,7 @@ func (client *Client) GetLLmModel(model ChatModel) (llms.Model, []llms.CallOptio
 		client.CloudflareApiClient.SetModel(CHAT_MODEL_TO_CF_MODEL[model])
 		return client.CloudflareApiClient.GetModel(), []llms.CallOption{llms.WithModel(CHAT_MODEL_TO_CF_MODEL[model])}
 	case CHAT_MODEL_GEMINI:
-		return client.GeminiAPI.GetModel(), []llms.CallOption{llms.WithModel(IMAGE_IMAGEN_MODEL)}
+		return client.GeminiAPI.GetModel(), []llms.CallOption{llms.WithModel(VERTEX_MODEL)}
 	default:
 		return client.GPTApi.GetModel(), []llms.CallOption{llms.WithModel(CHAT_MODEL_TO_OPENAI_MODEL[model]), llms.WithTemperature(1)}
 	}
@@ -47,7 +47,7 @@ func (client *Client) GenerateImage(ctx context.Context, prompt string, model Im
 	case IMAGE_MODEL_DALL_E_2, IMAGE_MODEL_DALL_E_3:
 		return client.GPTApi.GenerateImage(ctx, prompt, IMAGE_MODEL_TO_OPENAI_MODEL[model])
 	case IMAGE_MODEL_GEMINI:
-		return client.GeminiAPI.GenerateImage(ctx, prompt, "")
+		return client.GeminiAPI.GenerateImage(ctx, prompt, IMAGE_IMAGEN_MODEL)
 	default:
 		return client.CloudflareApiClient.GenerateImage(ctx, prompt, IMAGE_MODEL_TO_CF_MODEL[model])
 	}
