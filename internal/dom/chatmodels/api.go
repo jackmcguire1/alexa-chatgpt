@@ -36,7 +36,6 @@ type CloudFlareAiWorkerAPI interface {
 	LlmContentGenerator
 	GenerateImage(ctx context.Context, prompt string, model string) ([]byte, error)
 	GenerateTranslation(ctx context.Context, req *GenerateTranslationRequest) (string, error)
-	SetModel(model string)
 }
 
 type mockLlmModel struct {
@@ -62,11 +61,6 @@ func (api *mockAPI) GenerateContent(ctx context.Context, messages []llms.Message
 		content = args.Get(0).(*llms.ContentResponse)
 	}
 	return content, args.Error(1)
-}
-
-func (api *mockAPI) SetModel(model string) {
-	_ = api.Called(model)
-	return
 }
 
 func (api *mockAPI) GenerateText(ctx context.Context, prompt string) (string, error) {

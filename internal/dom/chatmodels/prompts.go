@@ -31,7 +31,6 @@ func (client *Client) TextGenerationWithSystem(ctx context.Context, system strin
 func (client *Client) GetLLmModel(model ChatModel) (llms.Model, []llms.CallOption) {
 	switch model {
 	case CHAT_MODEL_META, CHAT_MODEL_SQL, CHAT_MODEL_OPEN, CHAT_MODEL_AWQ, CHAT_MODEL_QWEN:
-		client.CloudflareApiClient.SetModel(CHAT_MODEL_TO_CF_MODEL[model])
 		return client.CloudflareApiClient.GetModel(), []llms.CallOption{llms.WithModel(CHAT_MODEL_TO_CF_MODEL[model])}
 	case CHAT_MODEL_GEMINI:
 		return client.GeminiAPI.GetModel(), []llms.CallOption{llms.WithModel(VERTEX_MODEL)}
