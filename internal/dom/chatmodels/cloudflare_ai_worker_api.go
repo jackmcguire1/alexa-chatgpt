@@ -116,36 +116,11 @@ func (api *CloudflareApiClient) SetModel(model string) {
 }
 
 func (api *CloudflareApiClient) GenerateImage(ctx context.Context, prompt string, model string) ([]byte, error) {
-	url := fmt.Sprintf("https://api.cloudflare.com/client/v4/accounts/%s/ai/run/%s", api.AccountID, model)
-
-	payload := map[string]string{
-		"prompt": prompt,
-	}
-	jsonPayload, err := json.Marshal(payload)
+	content, err := api.LlmClient.CreateImage(ctx, prompt, llms.WithModel(model))
 	if err != nil {
 		return nil, err
 	}
-
-	req, err := http.NewRequestWithContext(ctx, "POST", url, bytes.NewBuffer(jsonPayload))
-	if err != nil {
-		return nil, err
-	}
-	req.Header.Set("Authorization", "Bearer "+api.APIKey)
-	req.Header.Set("Content-Type", "application/json")
-
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	data, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	return data, nil
+	return content.Data, nil
 }
 
 type GenerateTranslationRequest struct {

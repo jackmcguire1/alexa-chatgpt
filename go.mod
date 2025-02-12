@@ -10,7 +10,6 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/sqs v1.37.14
 	github.com/disintegration/imaging v1.6.2
 	github.com/google/uuid v1.6.0
-	github.com/sashabaranov/go-openai v1.37.0
 	github.com/stretchr/testify v1.10.0
 	github.com/tmc/langchaingo v0.1.12
 	golang.org/x/oauth2 v0.26.0
@@ -61,4 +60,4 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
-replace github.com/tmc/langchaingo => github.com/jackmcguire1/langchaingo v1.0.5
+replace github.com/tmc/langchaingo => github.com/jackmcguire1/langchaingo v1.0.6

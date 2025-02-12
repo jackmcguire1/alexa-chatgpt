@@ -3,7 +3,6 @@ package chatmodels
 import (
 	"context"
 	"encoding/base64"
-	"fmt"
 	"log/slog"
 
 	"github.com/tmc/langchaingo/llms"
@@ -66,17 +65,12 @@ func (api *GeminiApiClient) GenerateContent(
 func (api *GeminiApiClient) GenerateImage(ctx context.Context, prompt string, model string) (res []byte, err error) {
 	resp, err := api.LlmClient.GenerateImage(
 		ctx,
-		llms.TextContent{Text: prompt},
+		prompt,
 		llms.WithModel(model),
 		llms.WithResponseMIMEType("image/jpeg"),
 	)
 	if err != nil {
 		return nil, err
 	}
-
-	if len(resp) == 0 {
-		return nil, fmt.Errorf("empty image response")
-	}
-
-	return resp[0].Data, nil
+	return resp.Data, nil
 }

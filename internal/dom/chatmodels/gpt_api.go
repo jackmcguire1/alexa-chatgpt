@@ -2,32 +2,28 @@ package chatmodels
 
 import (
 	"context"
-	"encoding/base64"
 	"log"
 
-	"github.com/sashabaranov/go-openai"
 	"github.com/tmc/langchaingo/llms"
 	langchain_openai "github.com/tmc/langchaingo/llms/openai"
 )
 
 var IMAGE_MODEL_TO_OPENAI_MODEL = map[ImageModel]string{
-	IMAGE_MODEL_DALL_E_3: openai.CreateImageModelDallE3,
-	IMAGE_MODEL_DALL_E_2: openai.CreateImageModelDallE2,
+	IMAGE_MODEL_DALL_E_3: "dall-e-3",
+	IMAGE_MODEL_DALL_E_2: "dall-e-2",
 }
 
 var CHAT_MODEL_TO_OPENAI_MODEL = map[ChatModel]string{
-	CHAT_MODEL_GPT:    openai.O1Mini,
-	CHAT_MODEL_GPT_V4: openai.GPT4o,
+	CHAT_MODEL_GPT:    "o1-mini",
+	CHAT_MODEL_GPT_V4: "gpt-4o",
 }
 
 type OpenAIApiClient struct {
-	Token        string
-	OpenAIClient *openai.Client
-	LlmClient    *langchain_openai.LLM
+	Token     string
+	LlmClient *langchain_openai.LLM
 }
 
 func NewOpenAiApiClient(token string) *OpenAIApiClient {
-	openAIClient := openai.NewClient(token)
 	llm, err := langchain_openai.New(
 		langchain_openai.WithToken(token),
 	)
@@ -36,9 +32,8 @@ func NewOpenAiApiClient(token string) *OpenAIApiClient {
 	}
 
 	return &OpenAIApiClient{
-		Token:        token,
-		LlmClient:    llm,
-		OpenAIClient: openAIClient,
+		Token:     token,
+		LlmClient: llm,
 	}
 }
 
@@ -55,24 +50,9 @@ func (api *OpenAIApiClient) GetModel() llms.Model {
 }
 
 func (api *OpenAIApiClient) GenerateImage(ctx context.Context, prompt string, model string) ([]byte, error) {
-	req := openai.ImageRequest{
-		Model:          model,
-		Prompt:         prompt,
-		Size:           openai.CreateImageSize1024x1024,
-		ResponseFormat: openai.CreateImageResponseFormatB64JSON,
-		Quality:        "standard",
-		N:              1,
-	}
-
-	respBase64, err := api.OpenAIClient.CreateImage(ctx, req)
+	content, err := api.LlmClient.GenerateImage(ctx, prompt, llms.WithModel(model))
 	if err != nil {
 		return nil, err
 	}
-
-	imgBytes, err := base64.StdEncoding.DecodeString(respBase64.Data[0].B64JSON)
-	if err != nil {
-		return nil, err
-	}
-
-	return imgBytes, nil
+	return content.Data, nil
 }
