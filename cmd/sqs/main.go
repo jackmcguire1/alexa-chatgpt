@@ -24,6 +24,17 @@ type SqsHandler struct {
 }
 
 func (handler *SqsHandler) ProcessGenerationRequest(ctx context.Context, req *chatmodels.Request) error {
+	defer func() {
+		if r := recover(); r != nil {
+			handler.Logger.
+				With("payload", utils.ToJSON(req)).
+				With("error", r).
+				Error("panic occurred during request processing")
+
+			handler.Recover(ctx, req)
+		}
+	}()
+
 	handler.Logger.With("payload", utils.ToJSON(req)).Info("invoked with payload")
 	execTime := time.Now().UTC()
 
@@ -142,6 +153,23 @@ func (handler *SqsHandler) ProcessSQS(ctx context.Context, event events.SQSEvent
 	}
 
 	return handler.ProcessGenerationRequest(ctx, request)
+}
+
+func (handler *SqsHandler) Recover(ctx context.Context, req *chatmodels.Request) {
+	// Push a failure message to the queue
+	event := &chatmodels.LastResponse{
+		Prompt:       req.Prompt,
+		Error:        "an error occured when processing the prompt",
+		Model:        req.Model.String(),
+		SystemPrompt: req.SystemPrompt,
+	}
+
+	if pushErr := handler.ResponseQueue.PushMessage(ctx, event); pushErr != nil {
+		handler.Logger.
+			With("event", utils.ToJSON(event)).
+			With("error", pushErr).
+			Error("failed to publish panic message to queue")
+	}
 }
 
 func main() {
