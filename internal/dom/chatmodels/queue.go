@@ -8,6 +8,7 @@ type LastResponse struct {
 	ImagesResponse []string `json:"images_responses"`
 	Error          string   `json:"error_message"`
 	SystemPrompt   string   `json:"system_prompt"`
+	TraceID        string   `json:"trace_id"`
 }
 
 type Request struct {
@@ -17,4 +18,5 @@ type Request struct {
 	SourceLanguage string      `json:"source_language,omitempty"`
 	Model          ChatModel   `json:"model"`
 	ImageModel     *ImageModel `json:"image_model"`
+	TraceID        string      `json:"trace_id"`
 }

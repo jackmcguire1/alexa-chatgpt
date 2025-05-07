@@ -9,10 +9,15 @@ import (
 	"time"
 
 	"github.com/jackmcguire1/alexa-chatgpt/internal/dom/chatmodels"
+	otelsetup "github.com/jackmcguire1/alexa-chatgpt/internal/otel"
 	"github.com/jackmcguire1/alexa-chatgpt/internal/pkg/alexa"
 	"github.com/jackmcguire1/alexa-chatgpt/internal/pkg/queue"
 	"github.com/jackmcguire1/alexa-chatgpt/internal/pkg/utils"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
 )
+
+var trace = otel.Tracer("prompt-requester")
 
 type Handler struct {
 	Logger          *slog.Logger
@@ -30,11 +35,18 @@ type Handler struct {
 }
 
 func (h *Handler) randomFact(ctx context.Context) (string, error) {
+	ctx, span := trace.Start(ctx, "randomFact")
+	defer span.End()
+
 	return h.ChatGptService.TextGeneration(ctx, "tell me a random fact", h.Model)
 }
 
 func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res alexa.Response, err error) {
 	h.Logger.With("intent", utils.ToJSON(req)).Info("got intent")
+	ctx, span := trace.Start(ctx, "DispatchIntents")
+	defer span.End()
+	xrayID := otelsetup.GetXRayTraceID(ctx)
+	span.SetAttributes(attribute.String("intent", req.Body.Intent.Name))
 
 	switch req.Body.Intent.Name {
 	case alexa.PurgeIntent:
@@ -55,7 +67,7 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 		prompt := req.Body.Intent.Slots["prompt"].Value
 		h.Logger.With("prompt", prompt).Info("found phrase to autocomplete")
 
-		err = h.RequestsQueue.PushMessage(ctx, &chatmodels.Request{Prompt: prompt, ImageModel: &h.ImageModel})
+		err = h.RequestsQueue.PushMessage(ctx, &chatmodels.Request{Prompt: prompt, ImageModel: &h.ImageModel, TraceID: xrayID})
 		if err != nil {
 			break
 		}
@@ -74,7 +86,7 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 		prompt := req.Body.Intent.Slots["prompt"].Value
 		h.Logger.With("prompt", prompt).Info("found phrase to autocomplete")
 
-		err = h.RequestsQueue.PushMessage(ctx, &chatmodels.Request{Prompt: prompt, Model: h.Model, SystemPrompt: h.SystemMessage})
+		err = h.RequestsQueue.PushMessage(ctx, &chatmodels.Request{Prompt: prompt, Model: h.Model, SystemPrompt: h.SystemMessage, TraceID: xrayID})
 		if err != nil {
 			break
 		}
@@ -92,6 +104,7 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 			TargetLanguage: targetLanguage,
 			SourceLanguage: sourceLanguage,
 			Model:          chatmodels.CHAT_MODEL_TRANSLATIONS,
+			TraceID:        xrayID,
 		})
 		if err != nil {
 			break
@@ -102,7 +115,7 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 		prompt := req.Body.Intent.Slots["prompt"].Value
 		h.Logger.With("prompt", prompt).Info("found phrase to autocomplete")
 
-		err = h.RequestsQueue.PushMessage(ctx, &chatmodels.Request{Prompt: prompt, Model: h.Model})
+		err = h.RequestsQueue.PushMessage(ctx, &chatmodels.Request{Prompt: prompt, Model: h.Model, TraceID: xrayID})
 		if err != nil {
 			break
 		}
@@ -226,6 +239,8 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 }
 
 func (h *Handler) Invoke(ctx context.Context, req alexa.Request) (resp alexa.Response, err error) {
+	ctx, span := trace.Start(ctx, "Invoke")
+	defer span.End()
 	h.Logger.
 		With("payload", utils.ToJSON(req)).
 		Debug("lambda invoked")
@@ -243,6 +258,7 @@ func (h *Handler) Invoke(ctx context.Context, req alexa.Request) (resp alexa.Res
 	h.LastIntent = req
 
 	if err != nil {
+		span.RecordError(err)
 		h.Logger.
 			With("error", err).
 			Error("there as an error processing the request")
