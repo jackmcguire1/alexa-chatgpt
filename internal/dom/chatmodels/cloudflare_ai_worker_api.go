@@ -13,6 +13,7 @@ import (
 	"github.com/jackmcguire1/alexa-chatgpt/internal/pkg/utils"
 	"github.com/tmc/langchaingo/llms"
 	"github.com/tmc/langchaingo/llms/cloudflare"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 )
 
 const (
@@ -74,7 +75,10 @@ type CloudflareApiClient struct {
 
 func NewCloudflareApiClient(accountID, apiKey string) *CloudflareApiClient {
 
+	client := http.Client{Transport: otelhttp.NewTransport(http.DefaultTransport)}
+
 	llm, err := cloudflare.New(
+		cloudflare.WithHTTPClient(&client),
 		cloudflare.WithToken(apiKey),
 		cloudflare.WithAccountID(accountID),
 		cloudflare.WithServerURL("https://api.cloudflare.com/client/v4/accounts"),

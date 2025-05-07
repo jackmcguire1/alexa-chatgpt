@@ -9,12 +9,20 @@ import (
 	"github.com/jackmcguire1/alexa-chatgpt/internal/dom/chatmodels"
 	"github.com/jackmcguire1/alexa-chatgpt/internal/pkg/alexa"
 	"github.com/jackmcguire1/alexa-chatgpt/internal/pkg/queue"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
 )
 
+var tracer = otel.Tracer("prompt-requester")
+
 func (h *Handler) GetResponse(ctx context.Context, delay int, lastResponse bool) (res alexa.Response, err error) {
+	ctx, span := tracer.Start(ctx, "GetResponse")
+	defer span.End()
+
 	var data []byte
 	data, err = h.ResponsesQueue.PullMessage(ctx, delay)
 	if err != nil && !errors.Is(err, queue.EmptyMessageErr) {
+		span.RecordError(err)
 		return
 	}
 	var response *chatmodels.LastResponse
@@ -34,6 +42,7 @@ func (h *Handler) GetResponse(ctx context.Context, delay int, lastResponse bool)
 
 	err = json.Unmarshal(data, &response)
 	if err != nil {
+		span.RecordError(err)
 		h.Logger.
 			With("error", err).
 			With("data", string(data)).
@@ -43,6 +52,7 @@ func (h *Handler) GetResponse(ctx context.Context, delay int, lastResponse bool)
 
 response:
 	if response.Error != "" {
+		span.RecordError(errors.New(response.Error))
 		res = alexa.NewResponse(
 			"Response",
 			fmt.Sprintf("I encountered an error processing your prompt, %s", response.Error),
@@ -65,6 +75,7 @@ response:
 			false,
 		)
 		h.lastResponse = response
+		span.SetAttributes(attribute.Int("response-bytes", len(response.Response)))
 		return
 	case chatmodels.CHAT_MODEL_TRANSLATIONS.String():
 		res = alexa.NewResponse(

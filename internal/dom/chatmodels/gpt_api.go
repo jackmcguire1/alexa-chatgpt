@@ -3,9 +3,11 @@ package chatmodels
 import (
 	"context"
 	"log"
+	"net/http"
 
 	"github.com/tmc/langchaingo/llms"
 	langchain_openai "github.com/tmc/langchaingo/llms/openai"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 )
 
 var IMAGE_MODEL_TO_OPENAI_MODEL = map[ImageModel]string{
@@ -24,7 +26,11 @@ type OpenAIApiClient struct {
 }
 
 func NewOpenAiApiClient(token string) *OpenAIApiClient {
+
+	client := http.Client{Transport: otelhttp.NewTransport(http.DefaultTransport)}
+
 	llm, err := langchain_openai.New(
+		langchain_openai.WithHTTPClient(&client),
 		langchain_openai.WithToken(token),
 	)
 	if err != nil {

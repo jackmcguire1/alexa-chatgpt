@@ -8,12 +8,18 @@ import (
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/jackmcguire1/alexa-chatgpt/internal/api"
 	"github.com/jackmcguire1/alexa-chatgpt/internal/dom/chatmodels"
+	otelsetup "github.com/jackmcguire1/alexa-chatgpt/internal/otel"
 	"github.com/jackmcguire1/alexa-chatgpt/internal/pkg/queue"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-lambda-go/otellambda"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-lambda-go/otellambda/xrayconfig"
 )
 
 func main() {
 	jsonLogH := slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo})
 	logger := slog.New(jsonLogH)
+
+	tracer := otelsetup.SetupXrayOtel()
+
 	svc := chatmodels.NewClient(&chatmodels.Resources{
 		GPTApi:              chatmodels.NewOpenAiApiClient(os.Getenv("OPENAI_API_KEY")),
 		GeminiAPI:           chatmodels.NewGeminiApiClient(os.Getenv("GEMINI_API_KEY")),
@@ -33,5 +39,5 @@ func main() {
 		RandomNumberSvc: api.NewRandomNumberGame(100),
 		BattleShips:     api.NewBattleShipSetup(),
 	}
-	lambda.Start(h.Invoke)
+	lambda.Start(otellambda.InstrumentHandler(h.Invoke, xrayconfig.WithRecommendedOptions(tracer)...))
 }
