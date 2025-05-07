@@ -24,7 +24,7 @@ func SetupXrayOtel() (*sdktrace.TracerProvider, error) {
 	}
 
 	tp := sdktrace.NewTracerProvider(
-		sdktrace.WithSampler(sdktrace.TraceIDRatioBased(0)),
+		sdktrace.WithSampler(sdktrace.AlwaysSample()),
 		sdktrace.WithBatcher(traceExporter),
 		sdktrace.WithIDGenerator(idg),
 	)
