@@ -213,7 +213,11 @@ func main() {
 	jsonH := slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo})
 	logger := slog.New(jsonH)
 
-	tracer := otelsetup.SetupXrayOtel()
+	tp, err := otelsetup.SetupXrayOtel()
+	if err != nil {
+		logger.With("error", err).Error("failed to setup tracer")
+		panic(err)
+	}
 
 	h := &SqsHandler{
 		GenerationModelSvc: chatmodels.NewClient(&chatmodels.Resources{
@@ -227,5 +231,5 @@ func main() {
 			Name: os.Getenv("S3_BUCKET"),
 		},
 	}
-	lambda.Start(otellambda.InstrumentHandler(h.ProcessSQS, xrayconfig.WithRecommendedOptions(tracer)...))
+	lambda.Start(otellambda.InstrumentHandler(h.ProcessSQS, xrayconfig.WithRecommendedOptions(tp)...))
 }

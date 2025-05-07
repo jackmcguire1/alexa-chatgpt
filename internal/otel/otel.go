@@ -4,34 +4,35 @@ import (
 	"context"
 	"fmt"
 
-	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-lambda-go/otellambda/xrayconfig"
 	"go.opentelemetry.io/contrib/propagators/aws/xray"
 	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/sdk/resource"
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
-	semconv "go.opentelemetry.io/otel/semconv/v1.26.0"
 	"go.opentelemetry.io/otel/trace"
+	"google.golang.org/grpc"
 )
 
-// Common resource for all providers
-func newResource() (*resource.Resource, error) {
-	return resource.Merge(
-		resource.Default(),
-		resource.NewWithAttributes(
-			semconv.SchemaURL,
-			semconv.ServiceNameKey.String("alexa-chatgpt"),
-			semconv.ServiceVersionKey.String("1.0.0"),
-		),
-	)
-}
-
-func SetupXrayOtel() *sdktrace.TracerProvider {
+func SetupXrayOtel() (*sdktrace.TracerProvider, error) {
 	ctx := context.Background()
 
-	tp, err := xrayconfig.NewTracerProvider(ctx)
+	idg := xray.NewIDGenerator()
+
+	// Create and start new OTLP trace exporter
+	traceExporter, err := otlptracegrpc.New(ctx, otlptracegrpc.WithInsecure(), otlptracegrpc.WithEndpoint("0.0.0.0:4317"), otlptracegrpc.WithDialOption(grpc.WithBlock()))
 	if err != nil {
-		fmt.Printf("error creating tracer provider: %v", err)
+		return nil, err
 	}
+
+	tp := sdktrace.NewTracerProvider(
+		sdktrace.WithSampler(sdktrace.TraceIDRatioBased(0)),
+		sdktrace.WithBatcher(traceExporter),
+		sdktrace.WithIDGenerator(idg),
+	)
+
+	//tp, err := xrayconfig.NewTracerProvider(ctx)
+	//if err != nil {
+	//	fmt.Printf("error creating tracer provider: %v", err)
+	//}
 
 	defer func(ctx context.Context) {
 		err := tp.Shutdown(ctx)
@@ -42,7 +43,7 @@ func SetupXrayOtel() *sdktrace.TracerProvider {
 
 	otel.SetTracerProvider(tp)
 	otel.SetTextMapPropagator(xray.Propagator{})
-	return tp
+	return tp, nil
 }
 
 func GetXRayTraceID(ctx context.Context) string {
