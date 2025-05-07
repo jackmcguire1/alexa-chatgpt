@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log/slog"
 	"os"
 	"strconv"
@@ -18,11 +19,13 @@ func main() {
 	jsonLogH := slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo})
 	logger := slog.New(jsonLogH)
 
-	tracer, err := otelsetup.SetupXrayOtel()
+	ctx := context.Background()
+	tracer, err := otelsetup.SetupXrayOtel(ctx)
 	if err != nil {
 		logger.With("error", err).Error("failed to setup tracer")
 		panic(err)
 	}
+	defer tracer.Shutdown(ctx)
 
 	svc := chatmodels.NewClient(&chatmodels.Resources{
 		GPTApi:              chatmodels.NewOpenAiApiClient(os.Getenv("OPENAI_API_KEY")),
