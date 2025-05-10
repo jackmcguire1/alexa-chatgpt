@@ -6,6 +6,9 @@ import (
 	"log/slog"
 	"net/http"
 
+	"cloud.google.com/go/auth"
+	"cloud.google.com/go/auth/httptransport"
+	"cloud.google.com/go/auth/oauth2adapt"
 	"github.com/tmc/langchaingo/llms"
 	"github.com/tmc/langchaingo/llms/googleai/googlegenai"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
@@ -34,7 +37,23 @@ func NewGeminiApiClient(credsToken string) *GeminiApiClient {
 		panic(err)
 	}
 
-	client := http.Client{Transport: otelhttp.NewTransport(http.DefaultTransport)}
+	credentialOptions := &auth.CredentialsOptions{
+		TokenProvider: oauth2adapt.TokenProviderFromTokenSource(creds.TokenSource),
+		JSON:          creds.JSON,
+	}
+
+	httpClient, err := httptransport.NewClient(
+		&httptransport.Options{
+			Credentials: auth.NewCredentials(credentialOptions),
+			Headers: http.Header{
+				"X-Goog-User-Project": []string{creds.ProjectID},
+			},
+		})
+	if err != nil {
+		panic(err)
+	}
+
+	client := http.Client{Transport: otelhttp.NewTransport(httpClient.Transport)}
 	vertexClient, err := googlegenai.New(
 		context.Background(),
 		googlegenai.WithHTTPClient(&client),
