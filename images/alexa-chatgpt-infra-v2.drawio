@@ -1,0 +1,253 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/25.0.2 Chrome/128.0.6613.36 Electron/32.0.1 Safari/537.36" version="25.0.2">
+  <diagram name="Alexa-ChatGPT-Architecture" id="alexa-chatgpt-infra">
+    <mxGraphModel dx="1434" dy="854" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- User -->
+        <mxCell id="user-1" value="User" style="shape=actor;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="40" y="380" width="60" height="80" as="geometry" />
+        </mxCell>
+        
+        <!-- Alexa Device -->
+        <mxCell id="alexa-1" value="Alexa Device" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="160" y="390" width="120" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- AWS Cloud Container -->
+        <mxCell id="aws-cloud" value="AWS Cloud" style="swimlane;fillColor=#f5f5f5;strokeColor=#666666;fontSize=16;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="340" y="40" width="1220" height="820" as="geometry" />
+        </mxCell>
+        
+        <!-- Lambda Function 1 -->
+        <mxCell id="lambda-handler" value="Alexa Handler Lambda" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="aws-cloud">
+          <mxGeometry x="40" y="350" width="140" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- Request SQS -->
+        <mxCell id="request-sqs" value="Request SQS Queue" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="aws-cloud">
+          <mxGeometry x="240" y="350" width="140" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- Lambda Function 2 -->
+        <mxCell id="lambda-processor" value="Request Processor Lambda" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="aws-cloud">
+          <mxGeometry x="440" y="350" width="160" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- Response SQS -->
+        <mxCell id="response-sqs" value="Response SQS Queue" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="aws-cloud">
+          <mxGeometry x="240" y="480" width="140" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- S3 Bucket -->
+        <mxCell id="s3-bucket" value="S3 Bucket&#xa;(Image Storage)" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="aws-cloud">
+          <mxGeometry x="470" y="480" width="100" height="80" as="geometry" />
+        </mxCell>
+        
+        <!-- AI Providers Container -->
+        <mxCell id="ai-providers" value="AI Model Providers" style="swimlane;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=14;fontStyle=1;startSize=30;" vertex="1" parent="aws-cloud">
+          <mxGeometry x="680" y="60" width="500" height="700" as="geometry" />
+        </mxCell>
+        
+        <!-- OpenAI Group -->
+        <mxCell id="openai-group" value="OpenAI" style="swimlane;fillColor=#10a37f;fontColor=#ffffff;strokeColor=#0e7c3a;fontSize=12;fontStyle=1" vertex="1" parent="ai-providers">
+          <mxGeometry x="20" y="50" width="220" height="140" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="gpt-35" value="GPT-3.5 Turbo" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;fontColor=#000000;" vertex="1" parent="openai-group">
+          <mxGeometry x="10" y="30" width="90" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="gpt-4" value="GPT-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;fontColor=#000000;" vertex="1" parent="openai-group">
+          <mxGeometry x="110" y="30" width="90" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="dalle" value="DALL-E 2/3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;fontColor=#000000;" vertex="1" parent="openai-group">
+          <mxGeometry x="60" y="80" width="90" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- Google Group -->
+        <mxCell id="google-group" value="Google" style="swimlane;fillColor=#4285f4;fontColor=#ffffff;strokeColor=#1a73e8;fontSize=12;fontStyle=1" vertex="1" parent="ai-providers">
+          <mxGeometry x="260" y="50" width="220" height="140" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="gemini" value="Gemini Pro" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;fontColor=#000000;" vertex="1" parent="google-group">
+          <mxGeometry x="20" y="30" width="180" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="imagen" value="Imagen" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;fontColor=#000000;" vertex="1" parent="google-group">
+          <mxGeometry x="65" y="80" width="90" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- Anthropic Group -->
+        <mxCell id="anthropic-group" value="Anthropic" style="swimlane;fillColor=#d4a373;fontColor=#ffffff;strokeColor=#b8835a;fontSize=12;fontStyle=1" vertex="1" parent="ai-providers">
+          <mxGeometry x="20" y="210" width="220" height="140" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="opus" value="Claude 3 Opus" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;fontColor=#000000;" vertex="1" parent="anthropic-group">
+          <mxGeometry x="10" y="30" width="90" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="sonnet" value="Claude 3 Sonnet" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;fontColor=#000000;" vertex="1" parent="anthropic-group">
+          <mxGeometry x="110" y="30" width="90" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- Cloudflare Group -->
+        <mxCell id="cloudflare-group" value="Cloudflare Workers AI" style="swimlane;fillColor=#f48120;fontColor=#ffffff;strokeColor=#d96502;fontSize=12;fontStyle=1" vertex="1" parent="ai-providers">
+          <mxGeometry x="260" y="210" width="220" height="260" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="llama7b" value="Llama 2 7B" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;fontColor=#000000;" vertex="1" parent="cloudflare-group">
+          <mxGeometry x="10" y="30" width="90" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="llama13b" value="Llama 2 13B AWQ" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;fontColor=#000000;" vertex="1" parent="cloudflare-group">
+          <mxGeometry x="110" y="30" width="90" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="qwen" value="Qwen" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;fontColor=#000000;" vertex="1" parent="cloudflare-group">
+          <mxGeometry x="10" y="80" width="90" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="openchat" value="OpenChat 3.5" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;fontColor=#000000;" vertex="1" parent="cloudflare-group">
+          <mxGeometry x="110" y="80" width="90" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="sqlcoder" value="SQLCoder 7B" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;fontColor=#000000;" vertex="1" parent="cloudflare-group">
+          <mxGeometry x="60" y="130" width="90" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="translation" value="Translation Model" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;fontColor=#000000;" vertex="1" parent="cloudflare-group">
+          <mxGeometry x="60" y="180" width="90" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- Stability AI Group -->
+        <mxCell id="stability-group" value="Stability AI" style="swimlane;fillColor=#7c4dff;fontColor=#ffffff;strokeColor=#6200ea;fontSize=12;fontStyle=1" vertex="1" parent="ai-providers">
+          <mxGeometry x="20" y="370" width="220" height="100" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="stable-diffusion" value="Stable Diffusion" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;fontColor=#000000;" vertex="1" parent="stability-group">
+          <mxGeometry x="65" y="30" width="90" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- Observability -->
+        <mxCell id="observability" value="Observability" style="swimlane;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=12;fontStyle=1" vertex="1" parent="ai-providers">
+          <mxGeometry x="20" y="490" width="460" height="180" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="otel" value="OpenTelemetry" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" vertex="1" parent="observability">
+          <mxGeometry x="20" y="40" width="100" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="traces" value="Distributed Tracing" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" vertex="1" parent="observability">
+          <mxGeometry x="140" y="40" width="100" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="metrics" value="Metrics" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" vertex="1" parent="observability">
+          <mxGeometry x="260" y="40" width="80" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="logs" value="Structured Logs" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" vertex="1" parent="observability">
+          <mxGeometry x="360" y="40" width="80" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="monitoring" value="CloudWatch / X-Ray Integration" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" vertex="1" parent="observability">
+          <mxGeometry x="130" y="100" width="200" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- Arrows -->
+        <mxCell id="arrow1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="user-1" target="alexa-1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="alexa-1" target="lambda-handler">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="aws-cloud" source="lambda-handler" target="request-sqs">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="aws-cloud" source="request-sqs" target="lambda-processor">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="aws-cloud" source="lambda-processor" target="response-sqs">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="520" y="440" />
+              <mxPoint x="310" y="440" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="arrow6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="aws-cloud" source="response-sqs" target="lambda-handler">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="310" y="560" />
+              <mxPoint x="110" y="560" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="arrow7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="aws-cloud" source="lambda-processor" target="ai-providers">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="aws-cloud" source="lambda-processor" target="s3-bucket">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- Labels -->
+        <mxCell id="label1" value="Voice Command" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="90" y="360" width="80" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="label2" value="Invoke Skill" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="280" y="400" width="60" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="label3" value="Push Request" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;" vertex="1" parent="aws-cloud">
+          <mxGeometry x="180" y="330" width="60" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="label4" value="Trigger" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;" vertex="1" parent="aws-cloud">
+          <mxGeometry x="380" y="330" width="60" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="label5" value="API Calls" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;" vertex="1" parent="aws-cloud">
+          <mxGeometry x="610" y="360" width="60" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="label6" value="Response" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;" vertex="1" parent="aws-cloud">
+          <mxGeometry x="320" y="420" width="60" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="label7" value="Poll" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;" vertex="1" parent="aws-cloud">
+          <mxGeometry x="120" y="540" width="40" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="label8" value="Image Upload" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;" vertex="1" parent="aws-cloud">
+          <mxGeometry x="530" y="430" width="70" height="20" as="geometry" />
+        </mxCell>
+        
+        <!-- Response arrow back to Alexa -->
+        <mxCell id="arrow9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.25;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#00CC00;strokeWidth=2;" edge="1" parent="1" source="lambda-handler" target="alexa-1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="320" y="405" />
+              <mxPoint x="320" y="340" />
+              <mxPoint x="220" y="340" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="label9" value="Voice Response" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontColor=#00CC00;" vertex="1" parent="1">
+          <mxGeometry x="240" y="320" width="80" height="20" as="geometry" />
+        </mxCell>
+        
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

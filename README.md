@@ -1,6 +1,6 @@
 # Alexa-ChatGPT
 
-> This repository contains the Alexa skill serverless backend to prompt generative ai LLM models
+> 🎤 A production-ready serverless Alexa skill backend that seamlessly integrates with multiple generative AI providers, enabling natural conversations with OpenAI GPT, Google Gemini, Anthropic Claude, Cloudflare AI, and more through your Alexa device.
 
 [git]: https://git-scm.com/
 [golang]: https://golang.org/
@@ -12,219 +12,393 @@
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/jackmcguire1/alexa-chatgpt)](https://goreportcard.com/report/github.com/jackmcguire1/alexa-chatgpt)
 [![codecov](https://codecov.io/gh/jackmcguire1/alexa-chatgpt/branch/main/graph/badge.svg)](https://codecov.io/gh/jackmcguire1/alexa-chatgpt)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Go Version](https://img.shields.io/badge/Go-1.24+-blue.svg)](https://golang.org/dl/)
 
-# Logic
+## 🌟 Key Features
 
-- A user prompts the Alexa skill.
-- The Alexa skill will invoke the assigned Lambda with an 'AutoComplete' Intent.
-- The Lambda will push the user prompt to a SQS.
-- The request lambda will be invoked with the SQS message and begin to process the user's prompt via the chosen chat model [OpenAI ChatGPT , Google Gemini] and put the response onto a seperate SQS.
-- Meanwhile the Alexa skill lambda will be polling the response SQS in order to return the response for the prompt.
+- **Multi-Provider AI Support**: Seamlessly switch between OpenAI, Google, Anthropic, and Cloudflare models
+- **Asynchronous Processing**: Handles Alexa's timeout constraints with intelligent queue management
+- **Image Generation**: Create images with DALL-E, Stable Diffusion, and Google Imagen
+- **Interactive Games**: Built-in number guessing and battleship games
+- **Translation Support**: Real-time language translation capabilities
+- **Production Ready**: Complete with observability, error handling, and retry mechanisms
+- **Cost Effective**: Leverage Cloudflare Workers AI for budget-friendly inference
+
+## Table of Contents
+- [Architecture Overview](#architecture-overview)
+- [Supported Models](#supported-models)
+- [Alexa Intents & Phrases](#alexa-intents--phrases)
+- [Quick Start](#quick-start)
+- [Detailed Setup Guide](#detailed-setup-guide)
+- [Examples](#examples)
+- [Troubleshooting](#troubleshooting)
+- [API Integration Details](#api-integration-details)
+- [Contributing](#contributing)
+
+## Architecture Overview
+
+The skill uses an asynchronous architecture to handle the Alexa 8-second timeout constraint:
+
+1. User prompts the Alexa skill
+2. Alexa invokes the Lambda function with the user's intent
+3. Lambda pushes the request to an SQS queue
+4. A separate Lambda processes the request using the selected AI model
+5. The response is placed on a response SQS queue
+6. The original Lambda polls for the response
 
 > [!CAUTION]
-> Due to the Alexa skill idle constraint of ~8 seconds, the following logic below, has been applied.
+> Due to Alexa's ~8 second timeout constraint:
+> - If no response is received within ~7 seconds, Alexa responds with "your response will be available shortly!"
+> - Users can retrieve delayed responses by saying "last response"
 
-- If the Alexa skill does not poll a message from the queue within ~7 seconds, users will be given a direct response of 'your response will be available shortly!', this is too avoid the Alexa skill session from expiring.
+### Infrastructure Diagram
 
-- Querying the Alexa skill with 'Last Response', the lambda will immediately poll the response SQS to retrieve the delayed response and output the prompt with the timestamp of response time, if there is no item on the queue, however a previous answer to a prompt was cached, this will be returned instead.
+![Alexa ChatGPT Infrastructure](images/alexa-chatgpt-infra-v2.drawio)
+
+> 💡 The architecture uses AWS Lambda functions with SQS queues to handle Alexa's timeout constraints while providing access to multiple AI providers. [View/Edit Diagram](images/alexa-chatgpt-infra-v2.drawio)
 
 ## Supported Models
-> Find available models by asking 'model available'
 
-> Check the model in-use by asking 'model which'
+### Chat Models
 
-> [!NOTE]
-> Users are able to change which chat model is in use
+| Provider | Model | Alias | Internal Reference |
+|----------|-------|-------|-------------------|
+| **OpenAI** | o1-mini | `gpt` | `CHAT_MODEL_GPT` |
+| **OpenAI** | gpt-4o | `g. p. t. version number four` | `CHAT_MODEL_GPT_V4` |
+| **Google** | gemini-2.0-flash-exp | `gemini` | `CHAT_MODEL_GEMINI` |
+| **Anthropic** | claude-opus-4-20250514 | `opus` | `CHAT_MODEL_OPUS` |
+| **Anthropic** | claude-sonnet-4-20250514 | `sonnet` | `CHAT_MODEL_SONNET` |
+| **Cloudflare** | llama-4-scout-17b-16e-instruct | `llama` | `CHAT_MODEL_META` |
+| **Cloudflare** | llama-2-13b-chat-awq | `awq` | `CHAT_MODEL_AWQ` |
+| **Cloudflare** | deepseek-r1-distill-qwen-32b | `qwen` | `CHAT_MODEL_QWEN` |
+| **Cloudflare** | openchat-3.5-0106 | `open chat` | `CHAT_MODEL_OPEN` |
+| **Cloudflare** | sqlcoder-7b-2 | `sql` | `CHAT_MODEL_SQL` |
 
-### OpenAI ChatGPT
+### Image Generation Models
 
-- user's can select this by prompting 'model gpt'
+| Provider | Model | Alias | Internal Reference |
+|----------|-------|-------|-------------------|
+| **OpenAI** | dall-e-3 | `dallas` | `IMAGE_MODEL_DALL_E_3` |
+| **OpenAI** | dall-e-2 | `dallas v2` | `IMAGE_MODEL_DALL_E_2` |
+| **Cloudflare** | stable-diffusion-xl-base-1.0 | `stable` | `IMAGE_MODEL_STABLE_DIFFUSION` |
+| **Google** | "imagen-3.0-generate-002" | `gemini image` | `IMAGE_MODEL_GEMINI` |
 
-### Google's GenerativeAI Gemini
+### Translation Model
+- Special model for translations: `CHAT_MODEL_TRANSLATIONS`
 
-- user's can select this by prompting 'model gemini'
+## Alexa Intents & Phrases
 
-### Cloudflare AI Workers
-> https://developers.cloudflare.com/workers-ai/models/
+### Core Conversation Intents
 
-Use the 'alias' to select one of the models below:
-- llama-2-7b-chat-int8
-  - alias "meta"
-- sqlcoder-7b-2
-  - alias "sql"
-- llama-2-13b-chat-awq
-  - alias "awq"
-- openchat-3.5-0106 
-  - alias "open chat"
+| Intent | Example Phrases | Description |
+|--------|----------------|-------------|
+| **AutoCompleteIntent** | "question {prompt}" | Main intent for asking questions to the AI |
+| **SystemAutoCompleteIntent** | "system {prompt}" | Set a system message context for the AI |
+| **LastResponseIntent** | "last response" | Retrieve delayed responses from previous queries |
 
-### Image models
-> Image Models used to generate images with AI
-> Images are generated by prompting a model, b64 decoding the response into PNG, compress the image(s) further and finally uploading the results to S3.
+### Model Management
 
-- Stable Diffusion
-  - alias "stable"
+| Intent | Example Phrases | Description |
+|--------|----------------|-------------|
+| **Model** | "model <MODEL_ALIAS_HERE>"| Switch to the desired LLM |
 
-- DALL_E_3
-  - alias "dallas
+### Image Generation
 
-## Alexa Intents
+| Intent | Example Phrases | Description |
+|--------|----------------|-------------|
+| **ImageIntent** | "image {prompt}" | Generate images using AI models |
 
-> The Alexa Intents or phrases to interact with the Alexa Skill
+### Games & Entertainment
 
-- AutoComplete
+| Intent | Example Phrases | Description |
+|--------|----------------|-------------|
+| **RandomFactIntent** | "random fact" | Get a random fact from the model |
+| **Guess** | "guess {number}" | Play a number guessing game |
+| **Battleship** | "battleship {x} {y}" | Play battleship game |
+| **BattleshipStatus** | "battleship status" | Get current battleship game status |
 
-  > the intent used to prompt the LLM models
+### Utility Intents
 
-- Image
+| Intent | Example Phrases | Description |
+|--------|----------------|-------------|
+| **TranslateIntent** | "translate {source_lang} to {target_lang} {text}" | Translate between two ISO 639-1 language codes.<br><br> uses model ```m2m100-1.2b``` from Meta provided by Cloudflare |
+| **SystemMessageIntent** | "system {prompt}" | Get a prompt with combined system role message |
+| **SystemContextIntent** | "set system message {prompt}" | Set the message added as context for the role of the model subsequent queries |
+| **Purge** | "purge" | Clear the response queue |
 
-  > the intent to generate images
+### Built-in Alexa Intents
 
-- Model
+| Intent | Example Phrases | Description |
+|--------|----------------|-------------|
+| **AMAZON.HelpIntent** | "help" | Get help on available commands |
+| **AMAZON.CancelIntent** | "cancel"<br>"menu" | Cancel current operation |
+| **AMAZON.StopIntent** | "stop"<br>"exit" | End the skill session |
+| **AMAZON.FallbackIntent** | (triggered on unrecognized input) | Handle unrecognized commands |
 
-  > Allows users to select LLM model to use
+## Quick Start
 
-- Last Response
+### 🚀 Deploy in 5 Minutes
 
-  > Fetch delayed LLM response to user's prompt
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/jackmcguire1/alexa-chatgpt.git
+   cd alexa-chatgpt
+   ```
 
-- Cancel
+2. **Set up minimal environment variables**
+   ```bash
+   export OPENAI_API_KEY=your_openai_api_key
+   export S3_BUCKET_NAME=your_deployment_bucket
+   ```
 
-  > Force Alexa to await for next intent
+3. **Deploy to AWS**
+   ```bash
+   sam build && sam deploy --guided
+   ```
 
-- Stop
+4. **Create Alexa Skill**
+   - Go to [Alexa Developer Console](https://developer.amazon.com/alexa/console/ask)
+   - Create new skill with "Custom" model
+   - Copy the Lambda ARN from deployment output
+   - Set as endpoint in Alexa skill
 
-  > Terminate Alexa skill session
-
-- Help
-  > List all avalible interactions or intents
-
-# Infrastructure
-
-  <img src="./images/infra.png">
-
-# Examples
-
-<p align="center">
-  <img src="./images/image.png" width="400" height="500" title="Example question">
-  </p>
-
-## SETUP
-
-> How to configure your Alexa Skill
-
-### Environment
-
-> we use handler env var to name the go binary either 'main' or 'bootstrap' for AL2.Provided purposes, devs should use 'main'
-
-```shell
-  HANDLER=main
-  OPENAI_API_KEY=xxx
-  GEMINI_API_KEY={base64 service account json}
-  CLOUDFLARE_ACCOUNT_ID=xxx
-  CLOUDFLARE_API_KEY=xxxx
-```
+## Detailed Setup Guide
 
 ### Prerequisites
 
 - [Git][git]
-- [Go 1.21][golang]+
+- [Go 1.21+][golang]
 - [golangCI-Lint][golint]
 - [AWS CLI][aws-cli]
 - [AWS SAM CLI][aws-sam-cli]
-- CloudFlare account
-- Google Cloud account
 - AWS Account
+- OpenAI API Account
+- Google Cloud Account (for Gemini)
+- Anthropic API Account (for Claude)
+- Cloudflare Account (for Workers AI)
 
-### [AWS CLI Configuration][aws-cli-config]
+### Environment Variables
 
-> Make sure you configure the AWS CLI
+```bash
+# Required
+export HANDLER=main
+export OPENAI_API_KEY=your_openai_api_key
+export ANTHROPIC_API_KEY=your_anthropic_api_key
+export CLOUDFLARE_ACCOUNT_ID=your_cloudflare_account_id
+export CLOUDFLARE_API_KEY=your_cloudflare_api_key
 
-- AWS Access Key ID
-- AWS Secret Access Key
-- Default region 'us-east-1'
+# Google Service Account (base64 encoded JSON)
+export GEMINI_API_KEY=base64_encoded_service_account_json
 
-```shell
-aws configure
+# AWS S3 Bucket for SAM deployment
+export S3_BUCKET_NAME=your_s3_bucket_name
 ```
 
-### Requirements
+### AWS CLI Configuration
 
-- <b>OPENAI API KEY</b>
+Configure AWS CLI with your credentials:
 
-  - please set environment variables for your OPENAI API key
-    > export OPENAI_API_KEY=123456
-
-- <b>Cloudflare AI Workers API KEY</b>
-
-  - fetch your cloudflare account ID and generate a cloudflare worker AI API KEY
-    > export CLOUDFLARE_ACCOUNT_ID=xxxx
-
-    > export CLOUDFLARE_API_KEY=xxxx 
-
-
-- <b>Google Service Account Credentials</b>
-
-  - create a Google Service Account JSON Credentials with access to vertex/generative ai, generate b64 string
-    > export GEMINI_API_KEY=xxxx
-
-- <b>Create a S3 Bucket on your AWS Account</b>
-  - Set envrionment variable of the S3 Bucket name you have created [this is where AWS SAM]
-    > export S3_BUCKET_NAME=bucket_name
+```bash
+aws configure
+# Set:
+# - AWS Access Key ID
+# - AWS Secret Access Key
+# - Default region: us-east-1
+```
 
 ### Deployment Steps
 
-1. Create a new Alexa skill with a name of your choice
+1. **Create Alexa Skill**
+   - Create a new Alexa skill in the Alexa Developer Console
+   - Set invocation name (e.g., "my assistant")
 
-2. Set the Alexa skill invocation with a phrase i.e. 'My question'
+2. **Configure Intents**
+   - Add all custom intents from the [Alexa Intents section](#alexa-intents--phrases)
+   - For AutoCompleteIntent, add a slot named `prompt` with type `AMAZON.SearchQuery`
+   - Configure sample utterances for each intent
 
-3. Set built-in invent invocations to their relevant phrases i.e. 'help', 'stop', 'cancel', etc.
+3. **Build and Deploy Backend**
 
-4. Create a new Intent named 'AutoCompleteIntent'
+   ```bash
+   # Set architecture variables
+   export ARCH=GOARCH=arm64
+   export LAMBDA_RUNTIME=provided.al2023
+   export LAMBDA_HANDLER=bootstrap
+   export LAMBDA_ARCH=arm64
 
-5. Add a new Alexa slot to this Intent and name it 'prompt' with type AMAZON.SearchQuery'
+   # Build the SAM application
+   sam build --parameter-overrides \
+     Runtime=$LAMBDA_RUNTIME \
+     Handler=$LAMBDA_HANDLER \
+     Architecture=$LAMBDA_ARCH
 
-6. Add invocation phrase for the 'AutoCompleteIntent' with value 'question {prompt}'
+   # Deploy to AWS
+   sam deploy --stack-name alexa-chatgpt \
+     --s3-bucket $S3_BUCKET_NAME \
+     --parameter-overrides \
+       Runtime=$LAMBDA_RUNTIME \
+       Handler=$LAMBDA_HANDLER \
+       Architecture=$LAMBDA_ARCH \
+       OpenAIApiKey=$OPENAI_API_KEY \
+       GeminiApiKey=$GEMINI_API_KEY \
+       AnthropicApiKey=$ANTHROPIC_API_KEY \
+       CloudflareAccountId=$CLOUDFLARE_ACCOUNT_ID \
+       CloudflareApiKey=$CLOUDFLARE_API_KEY \
+     --capabilities CAPABILITY_IAM
+   ```
 
-7. Deploy the stack to your AWS account.
+4. **Connect Lambda to Alexa**
+   ```bash
+   # Get the Lambda ARN
+   sam list stack-outputs --stack-name alexa-chatgpt
+   ```
+   - Copy the `ChatGPTLambdaArn` value
+   - In Alexa Developer Console, set this ARN as the Default Endpoint
 
+5. **Test Your Skill**
+   - "Alexa, open [your invocation name]"
+   - "Question what is the weather today?"
+   - "Model gemini" (to switch models)
+   - "Last response" (to get delayed responses)
+
+## Examples
+
+### Basic Conversation
 ```
-  export ARCH=GOARCH=arm64
-  export LAMBDA_RUNTIME=provided.al2023
-  export LAMBDA_HANDLER=bootstrap
-  export LAMBDA_ARCH=arm64
+User: "Alexa, open my assistant"
+Alexa: "Hi, let's begin our conversation!"
+
+User: "Question what is machine learning?"
+Alexa: [AI responds with explanation]
+
+User: "Model gemini"
+Alexa: "Ok"
+
+User: "Question explain quantum computing"
+Alexa: [Gemini responds]
 ```
 
+### Image Generation
 ```
-sam build --parameter-overrides Runtime=$LAMBDA_RUNTIME Handler=$LAMBDA_HANDLER Architecture=$LAMBDA_ARCH
+User: "Image a sunset over mountains"
+Alexa: "Your image will be ready shortly!"
+
+User: "Last response"
+Alexa: "Image generated and uploaded to S3"
 ```
 
+### Model Management
 ```
-sam deploy --stack-name chat-gpt --s3-bucket $S3_BUCKET --parameter-overrides Runtime=$LAMBDA_RUNTIME Handler=$LAMBDA_HANDLER Architecture=$LAMBDA_ARCH OpenAIApiKey=$OPENAI_API_KEY GeminiApiKey=$GEMINI_API_KEY --capabilities CAPABILITY_IAM
+User: "Model which"
+Alexa: "I am using the text-model gpt and image-model dallas"
 
+User: "Model available"
+Alexa: "The available chat models are: gpt, gemini, opus, sonnet, llama, awq, qwen, open chat, sql..."
 ```
 
-9. Once the stack has deployed, make note of lambda ARN from the 'ChatGPTLambdaArn' field, from the the output of
+## API Integration Details
 
-   > sam list stack-outputs --stack-name chat-gpt
+### OpenAI Integration
+- Models: o1-mini, gpt-4o
+- Used for general conversation and DALL-E image generation
+- Requires `OPENAI_API_KEY`
 
-10. Apply this lambda ARN to your 'Default Endpoint' configuration within your Alexa skill, i.e. 'arn:aws:lambda:us-east-1:123456789:function:chatGPT'
+### Google Vertex AI / Gemini Integration
+- Model: Gemini Pro
+- GOOGLE Service account JSON must be base64 encoded
+- Requires `GEMINI_API_KEY`
 
-11. Begin testing your Alexa skill by querying for 'My question' or your chosen invocation phrase, Alexa should respond with "Hi, let's begin our conversation!"
+### Anthropic Integration
+- Models: Claude 3 Opus, Claude 3 Sonnet
+- Premium conversational AI models
+- Requires `ANTHROPIC_API_KEY`
 
-12. Query Alexa 'question {your sentence here}'
+### Cloudflare Workers AI Integration
+- Models: Llama 2, Qwen, OpenChat, SQLCoder
+- Cost-effective AI inference
+- Requires `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_KEY`
 
-    > Note the OpenAI API may take longer than 8 seconds to respond, in this scenario Alexa will tell you your answer will be ready momentarily, simply then ask Alexa 'last response'
+## Troubleshooting
 
-13. Tell Alexa to 'stop'
+### Common Issues
 
-14. <b>Testing complete!</b>
+#### "Your response will be available shortly!"
+This occurs when the AI takes longer than 7 seconds to respond. Simply say "last response" to retrieve it.
 
-## Contributors
+#### Model not responding
+- Check API key configuration in environment variables
+- Verify the model name in your voice command
+- Check CloudWatch logs for detailed error messages
 
-This project exists thanks to **all** the people who contribute.
+#### Deployment failures
+```bash
+# Clean and rebuild
+sam delete --stack-name alexa-chatgpt
+sam build --use-container
+sam deploy --guided
+```
+
+#### API Rate Limits
+If you encounter rate limits:
+- Switch to a different model temporarily
+- Implement request throttling in your usage
+- Consider upgrading your API plan
+
+### Debug Commands
+
+```bash
+# View Lambda logs
+sam logs -n ChatGPTLambda --stack-name alexa-chatgpt --tail
+
+# Check SQS queue status
+aws sqs get-queue-attributes --queue-url <your-queue-url> --attribute-names All
+
+# Test locally
+sam local start-lambda
+```
+
+## Performance Optimization
+
+### Response Time Improvements
+
+1. **Use Cloudflare Workers AI** for faster response times
+2. **Enable Lambda Reserved Concurrency** to reduce cold starts
+3. **Optimize prompt length** to reduce processing time
+4. **Pre-warm Lambda functions** for consistent performance
+
+## Contributing
+
+This project welcomes contributions! Please feel free to submit pull requests or open issues for bugs and feature requests.
+
+### Development Setup
+
+```bash
+# Install dependencies
+go mod download
+
+# Run tests
+go test ./...
+
+# Build locally
+ARCH=arm64 make build
+```
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE.md) file for details.
 
 ## Donations
 
 All donations are appreciated!
 
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](http://paypal.me/crazyjack12)
+
+## Acknowledgments
+
+- OpenAI for GPT models and DALL-E
+- Google for Gemini and Vertex AI
+- Anthropic for Claude models
+- Cloudflare for Workers AI platform
+- AWS for serverless infrastructure
+- The open-source community for continuous support
