@@ -52,9 +52,16 @@ The skill uses an asynchronous architecture to handle the Alexa 8-second timeout
 > - If no response is received within ~7 seconds, Alexa responds with "your response will be available shortly!"
 > - Users can retrieve delayed responses by saying "last response"
 
-### Infrastructure Diagram
+### Infrastructure Diagrams
 
-![Alexa ChatGPT Infrastructure](images/alexa-chatgpt-infra-v2.drawio)
+#### DrawIO
+[DrawIO Infrastructure File](images/alexa-chatgpt-infra-v2.drawio)
+<img src="./images/infra-drawio.png">
+
+#### Xray Trace Map
+
+<img src="./images/infra.png">
+
 
 > 💡 The architecture uses AWS Lambda functions with SQS queues to handle Alexa's timeout constraints while providing access to multiple AI providers. [View/Edit Diagram](images/alexa-chatgpt-infra-v2.drawio)
 
