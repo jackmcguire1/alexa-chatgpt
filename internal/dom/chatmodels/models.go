@@ -19,6 +19,8 @@ const (
 	CHAT_MODEL_OPEN         ChatModel = "open chat"
 	CHAT_MODEL_SQL          ChatModel = "sql"
 	CHAT_MODEL_QWEN         ChatModel = "qwen"
+	CHAT_MODEL_OPUS         ChatModel = "opus"
+	CHAT_MODEL_SONNET       ChatModel = "sonnet"
 	CHAT_MODEL_GPT_V4       ChatModel = "g. p. t. version number four"
 )
 
@@ -38,6 +40,8 @@ var AvaliableModels = []string{
 	CHAT_MODEL_AWQ.String(),
 	CHAT_MODEL_QWEN.String(),
 	CHAT_MODEL_GPT_V4.String(),
+	CHAT_MODEL_OPUS.String(),
+	CHAT_MODEL_SONNET.String(),
 }
 
 var ImageModels = []string{

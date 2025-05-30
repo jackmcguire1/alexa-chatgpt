@@ -226,6 +226,7 @@ func main() {
 			GPTApi:              chatmodels.NewOpenAiApiClient(os.Getenv("OPENAI_API_KEY")),
 			GeminiAPI:           chatmodels.NewGeminiApiClient(os.Getenv("GEMINI_API_KEY")),
 			CloudflareApiClient: chatmodels.NewCloudflareApiClient(os.Getenv("CLOUDFLARE_ACCOUNT_ID"), os.Getenv("CLOUDFLARE_API_KEY")),
+			AnthropicAPI:        chatmodels.NewAnthropicApiClient(os.Getenv("ANTHROPIC_API_KEY")),
 		}),
 		ResponseQueue: queue.NewQueue(os.Getenv("RESPONSES_QUEUE_URI")),
 		Logger:        logger,

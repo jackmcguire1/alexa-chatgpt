@@ -18,6 +18,7 @@ Globals:
         CLOUDFLARE_API_KEY: !Ref CloudFlareAPIKey
         S3_BUCKET: !Ref Bucket
         OPENAI_BASE_URL: "https://api.openai.com/v1"
+        ANTHROPIC_API_KEY: !Ref AnthropicAPIKey
     Layers:
       - !Sub arn:aws:lambda:${AWS::Region}:901920570463:layer:aws-otel-collector-arm64-ver-0-115-0:3
     Tracing: Active
@@ -37,6 +38,10 @@ Parameters:
   CloudFlareAPIKey:
     Type: String
     Description: Cloudflare API key
+
+  AnthropicAPIKey:
+    Type: String
+    Description: Anthropic API Key
 
   Runtime:
     Type: String

@@ -6,6 +6,7 @@ type Resources struct {
 	GPTApi              GptAPI
 	GeminiAPI           GeminiAPI
 	CloudflareApiClient CloudFlareAiWorkerAPI
+	AnthropicAPI        AnthropicAPI
 }
 
 type Service interface {

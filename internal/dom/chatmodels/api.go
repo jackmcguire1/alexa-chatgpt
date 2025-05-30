@@ -31,6 +31,11 @@ type GeminiAPI interface {
 	GenerateImage(ctx context.Context, prompt string, model string) ([]byte, error)
 }
 
+type AnthropicAPI interface {
+	LlmModel
+	LlmContentGenerator
+}
+
 type CloudFlareAiWorkerAPI interface {
 	LlmModel
 	LlmContentGenerator

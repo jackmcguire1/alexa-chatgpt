@@ -42,6 +42,14 @@ func (h *Handler) getOrSetModel(model string) (res alexa.Response, err error) {
 		h.Model = chatmodels.CHAT_MODEL_QWEN
 		res = alexa.NewResponse("Chat Models", "ok", false)
 		return
+	case chatmodels.CHAT_MODEL_OPUS.String():
+		h.Model = chatmodels.CHAT_MODEL_OPUS
+		res = alexa.NewResponse("Chat Models", "ok", false)
+		return
+	case chatmodels.CHAT_MODEL_SONNET.String():
+		h.Model = chatmodels.CHAT_MODEL_SONNET
+		res = alexa.NewResponse("Chat Models", "ok", false)
+		return
 	case chatmodels.IMAGE_MODEL_STABLE_DIFFUSION.String():
 		h.ImageModel = chatmodels.IMAGE_MODEL_STABLE_DIFFUSION
 		res = alexa.NewResponse("Image Models", "ok", false)
