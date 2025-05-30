@@ -132,7 +132,7 @@
         <mxCell id="openai-group" value="OpenAI" style="swimlane;fillColor=#10a37f;fontColor=#ffffff;strokeColor=#0e7c3a;fontSize=12;fontStyle=1" parent="ai-providers" vertex="1">
           <mxGeometry x="20" y="50" width="220" height="140" as="geometry" />
         </mxCell>
-        <mxCell id="gpt-35" value="GPT-3.5 Turbo" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;fontColor=#000000;" parent="openai-group" vertex="1">
+        <mxCell id="gpt-35" value="o1-mini" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;fontColor=#000000;" parent="openai-group" vertex="1">
           <mxGeometry x="10" y="30" width="90" height="40" as="geometry" />
         </mxCell>
         <mxCell id="gpt-4" value="GPT-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;fontColor=#000000;" parent="openai-group" vertex="1">
@@ -153,10 +153,10 @@
         <mxCell id="anthropic-group" value="Anthropic" style="swimlane;fillColor=#d4a373;fontColor=#ffffff;strokeColor=#b8835a;fontSize=12;fontStyle=1" parent="ai-providers" vertex="1">
           <mxGeometry x="20" y="210" width="220" height="140" as="geometry" />
         </mxCell>
-        <mxCell id="opus" value="Claude 3 Opus" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;fontColor=#000000;" parent="anthropic-group" vertex="1">
+        <mxCell id="opus" value="Claude 4 Opus" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;fontColor=#000000;" parent="anthropic-group" vertex="1">
           <mxGeometry x="10" y="30" width="90" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="sonnet" value="Claude 3 Sonnet" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;fontColor=#000000;" parent="anthropic-group" vertex="1">
+        <mxCell id="sonnet" value="Claude 4 Sonnet" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;fontColor=#000000;" parent="anthropic-group" vertex="1">
           <mxGeometry x="110" y="30" width="90" height="40" as="geometry" />
         </mxCell>
         <mxCell id="cloudflare-group" value="Cloudflare Workers AI" style="swimlane;fillColor=#f48120;fontColor=#ffffff;strokeColor=#d96502;fontSize=12;fontStyle=1" parent="ai-providers" vertex="1">
@@ -175,16 +175,13 @@
           <mxGeometry x="110" y="80" width="90" height="40" as="geometry" />
         </mxCell>
         <mxCell id="sqlcoder" value="SQLCoder 7B" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;fontColor=#000000;" parent="cloudflare-group" vertex="1">
-          <mxGeometry x="60" y="130" width="90" height="40" as="geometry" />
+          <mxGeometry x="10" y="135" width="90" height="40" as="geometry" />
         </mxCell>
         <mxCell id="translation" value="Translation Model" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;fontColor=#000000;" parent="cloudflare-group" vertex="1">
-          <mxGeometry x="60" y="180" width="90" height="40" as="geometry" />
+          <mxGeometry x="110" y="135" width="90" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="stability-group" value="Stability AI" style="swimlane;fillColor=#7c4dff;fontColor=#ffffff;strokeColor=#6200ea;fontSize=12;fontStyle=1" parent="ai-providers" vertex="1">
-          <mxGeometry x="20" y="370" width="220" height="100" as="geometry" />
-        </mxCell>
-        <mxCell id="stable-diffusion" value="Stable Diffusion" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;fontColor=#000000;" parent="stability-group" vertex="1">
-          <mxGeometry x="65" y="30" width="90" height="40" as="geometry" />
+        <mxCell id="stable-diffusion" value="Stable Diffusion" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;fontColor=#000000;" parent="cloudflare-group" vertex="1">
+          <mxGeometry x="60" y="195" width="90" height="40" as="geometry" />
         </mxCell>
         <mxCell id="arrow7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="lambda-processor" target="ai-providers" edge="1">
           <mxGeometry relative="1" as="geometry" />
