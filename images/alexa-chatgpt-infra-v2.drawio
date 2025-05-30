@@ -1,6 +1,6 @@
 <mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36" version="26.1.1">
   <diagram name="Alexa-ChatGPT-Architecture" id="alexa-chatgpt-infra">
-    <mxGraphModel dx="1026" dy="579" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="900" math="0" shadow="0">
+    <mxGraphModel dx="1710" dy="965" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="900" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -26,7 +26,7 @@
           <mxGeometry x="240" y="480" width="140" height="60" as="geometry" />
         </mxCell>
         <mxCell id="s3-bucket" value="S3 Bucket&#xa;(Image Storage)" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#f8cecc;strokeColor=#b85450;" parent="aws-cloud" vertex="1">
-          <mxGeometry x="440" y="460" width="150" height="100" as="geometry" />
+          <mxGeometry x="445" y="460" width="150" height="100" as="geometry" />
         </mxCell>
         <mxCell id="arrow3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="aws-cloud" source="lambda-handler" target="request-sqs" edge="1">
           <mxGeometry relative="1" as="geometry" />
@@ -108,8 +108,7 @@
         <mxCell id="vQfQHcLK3Ua7SgZMoblK-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;" edge="1" parent="1" source="s3-bucket" target="alexa-1">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="820" y="610" />
-              <mxPoint x="820" y="680" />
+              <mxPoint x="830" y="680" />
               <mxPoint x="200" y="680" />
             </Array>
             <mxPoint x="800" y="620" as="sourcePoint" />
@@ -121,15 +120,14 @@
             <Array as="points">
               <mxPoint x="200" y="460" />
               <mxPoint x="200" y="680" />
-              <mxPoint x="820" y="680" />
-              <mxPoint x="820" y="610" />
+              <mxPoint x="830" y="680" />
             </Array>
             <mxPoint x="220" y="460" as="sourcePoint" />
             <mxPoint x="800" y="610" as="targetPoint" />
           </mxGeometry>
         </mxCell>
         <mxCell id="ai-providers" value="AI Model Providers" style="swimlane;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=14;fontStyle=1;startSize=30;" parent="1" vertex="1">
-          <mxGeometry x="1110" y="80" width="500" height="700" as="geometry" />
+          <mxGeometry x="1110" y="185" width="500" height="490" as="geometry" />
         </mxCell>
         <mxCell id="openai-group" value="OpenAI" style="swimlane;fillColor=#10a37f;fontColor=#ffffff;strokeColor=#0e7c3a;fontSize=12;fontStyle=1" parent="ai-providers" vertex="1">
           <mxGeometry x="20" y="50" width="220" height="140" as="geometry" />
@@ -193,6 +191,12 @@
         </mxCell>
         <mxCell id="vQfQHcLK3Ua7SgZMoblK-5" value="Voice or Image Response" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontColor=#00CC00;" vertex="1" parent="1">
           <mxGeometry x="270" y="440" width="80" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="vQfQHcLK3Ua7SgZMoblK-6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1100" y="430" as="sourcePoint" />
+            <mxPoint x="910" y="431" as="targetPoint" />
+          </mxGeometry>
         </mxCell>
       </root>
     </mxGraphModel>
