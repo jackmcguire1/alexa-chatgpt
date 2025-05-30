@@ -35,5 +35,5 @@ func GetXRayTraceID(ctx context.Context) string {
 }
 
 func DefaultTransportFormatter(_ string, r *http.Request) string {
-	return fmt.Sprintf("HTTP %s %s", r.Method, r.URL.Host)
+	return r.URL.Host
 }
