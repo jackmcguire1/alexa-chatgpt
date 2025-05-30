@@ -10,6 +10,7 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/jackmcguire1/alexa-chatgpt/internal/otel"
 	"github.com/jackmcguire1/alexa-chatgpt/internal/pkg/utils"
 	"github.com/tmc/langchaingo/llms"
 	"github.com/tmc/langchaingo/llms/cloudflare"
@@ -75,7 +76,7 @@ type CloudflareApiClient struct {
 
 func NewCloudflareApiClient(accountID, apiKey string) *CloudflareApiClient {
 
-	client := http.Client{Transport: otelhttp.NewTransport(http.DefaultTransport)}
+	client := http.Client{Transport: otelhttp.NewTransport(http.DefaultTransport, otelhttp.WithSpanNameFormatter(otel.DefaultTransportFormatter))}
 
 	llm, err := cloudflare.New(
 		cloudflare.WithHTTPClient(&client),

@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/jackmcguire1/alexa-chatgpt/internal/otel"
 	"github.com/tmc/langchaingo/llms"
 	langchain_openai "github.com/tmc/langchaingo/llms/openai"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
@@ -27,7 +28,7 @@ type OpenAIApiClient struct {
 
 func NewOpenAiApiClient(token string) *OpenAIApiClient {
 
-	client := http.Client{Transport: otelhttp.NewTransport(http.DefaultTransport)}
+	client := http.Client{Transport: otelhttp.NewTransport(http.DefaultTransport, otelhttp.WithSpanNameFormatter(otel.DefaultTransportFormatter))}
 
 	llm, err := langchain_openai.New(
 		langchain_openai.WithHTTPClient(&client),

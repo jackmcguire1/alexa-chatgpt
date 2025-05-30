@@ -9,6 +9,7 @@ import (
 	"cloud.google.com/go/auth"
 	"cloud.google.com/go/auth/httptransport"
 	"cloud.google.com/go/auth/oauth2adapt"
+	"github.com/jackmcguire1/alexa-chatgpt/internal/otel"
 	"github.com/tmc/langchaingo/llms"
 	"github.com/tmc/langchaingo/llms/googleai/googlegenai"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
@@ -53,7 +54,7 @@ func NewGeminiApiClient(credsToken string) *GeminiApiClient {
 		panic(err)
 	}
 
-	client := http.Client{Transport: otelhttp.NewTransport(httpClient.Transport)}
+	client := http.Client{Transport: otelhttp.NewTransport(httpClient.Transport, otelhttp.WithSpanNameFormatter(otel.DefaultTransportFormatter))}
 	vertexClient, err := googlegenai.New(
 		context.Background(),
 		googlegenai.WithHTTPClient(&client),

@@ -3,6 +3,7 @@ package otel
 import (
 	"context"
 	"fmt"
+	"net/http"
 
 	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-lambda-go/otellambda/xrayconfig"
 	"go.opentelemetry.io/contrib/propagators/aws/xray"
@@ -31,4 +32,8 @@ func GetXRayTraceID(ctx context.Context) string {
 	traceID := spanCtx.TraceID().String() // 32-char hex
 	// Convert to AWS X-Ray trace ID: 1-<8_hex_digits>-<24_hex_digits>
 	return fmt.Sprintf("1-%s-%s", traceID[0:8], traceID[8:])
+}
+
+func DefaultTransportFormatter(_ string, r *http.Request) string {
+	return fmt.Sprintf("HTTP %s %s", r.Method, r.URL.Host)
 }

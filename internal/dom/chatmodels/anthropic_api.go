@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/jackmcguire1/alexa-chatgpt/internal/otel"
 	"github.com/tmc/langchaingo/llms"
 	"github.com/tmc/langchaingo/llms/anthropic"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
@@ -25,7 +26,7 @@ type AnthropicApiClient struct {
 
 func NewAnthropicApiClient(token string) *AnthropicApiClient {
 	tokenOpt := anthropic.WithToken(token)
-	httpClient := &http.Client{Transport: otelhttp.NewTransport(http.DefaultTransport)}
+	httpClient := &http.Client{Transport: otelhttp.NewTransport(http.DefaultTransport, otelhttp.WithSpanNameFormatter(otel.DefaultTransportFormatter))}
 
 	httpClientOpt := anthropic.WithHTTPClient(httpClient)
 	llm, err := anthropic.New(tokenOpt, httpClientOpt)
