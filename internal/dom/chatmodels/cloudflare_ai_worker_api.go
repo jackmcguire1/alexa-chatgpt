@@ -23,6 +23,7 @@ const (
 	CF_LLAMA_3_1_INSTRUCT_MODEL     = "@cf/meta/llama-3.1-8b-instruct"
 	CF_LLAMA_3_2_3B_INSTRUCT_MODEL  = "@cf/meta/llama-3.2-3b-instruct"
 	CF_LLAMA_3_3_70B_INSTRUCT_MODEL = "@cf/meta/llama-3.3-70b-instruct-fp8-fast"
+	CF_LLAMA_4_SCOUT                = "@cf/meta/llama-4-scout-17b-16e-instruct"
 	CF_SQL_MODEL                    = "@cf/defog/sqlcoder-7b-2"
 	CF_AWQ_MODEL                    = "@hf/thebloke/llama-2-13b-chat-awq"
 	CF_OPEN_CHAT_MODEL              = "@cf/openchat/openchat-3.5-0106"
@@ -34,7 +35,7 @@ const (
 var CHAT_MODEL_TO_CF_MODEL = map[ChatModel]string{
 	CHAT_MODEL_SQL:          CF_SQL_MODEL,
 	CHAT_MODEL_AWQ:          CF_AWQ_MODEL,
-	CHAT_MODEL_META:         CF_LLAMA_3_3_70B_INSTRUCT_MODEL,
+	CHAT_MODEL_META:         CF_LLAMA_4_SCOUT,
 	CHAT_MODEL_OPEN:         CF_OPEN_CHAT_MODEL,
 	CHAT_MODEL_TRANSLATIONS: CF_META_TRANSLATION_MODEL,
 	CHAT_MODEL_QWEN:         CF_QWEN_MODEL,
