@@ -136,6 +136,7 @@ github.com/jackmcguire1/langchaingo v1.0.10 h1:B2uBMcaIQwKrXQzGxz5vVdCyRa9iVSoJh
 github.com/jackmcguire1/langchaingo v1.0.10/go.mod h1:qGP3E4JusuQ4EtWMFYUAQ5G7V6Ti/ogEb0vVuZDvWpU=
 github.com/jackmcguire1/langchaingo v1.0.11 h1:+yrCyNhC77OJzTILPIkQSU6c27zmZkg506NJuvGEl5k=
 github.com/jackmcguire1/langchaingo v1.0.11/go.mod h1:E/d2jZIdCUgPKSro66Z34Su7+ccvBZjoUeG67vqskhc=
+github.com/jackmcguire1/langchaingo v1.0.12/go.mod h1:E/d2jZIdCUgPKSro66Z34Su7+ccvBZjoUeG67vqskhc=
 github.com/kr/pretty v0.3.1 h1:flRD4NNwYAUpkphVc1HcthR4KEIFJ65n8Mw5qdRn3LE=
 github.com/kr/pretty v0.3.1/go.mod h1:hoEshYVHaxMs3cyo3Yncou5ZscifuDolrwPKZanG3xk=
 github.com/kr/text v0.2.0 h1:5Nx0Ya0ZqY2ygV366QzturHI13Jq95ApcVaJBhpS+AY=
