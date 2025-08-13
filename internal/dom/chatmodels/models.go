@@ -22,6 +22,7 @@ const (
 	CHAT_MODEL_OPUS         ChatModel = "opus"
 	CHAT_MODEL_SONNET       ChatModel = "sonnet"
 	CHAT_MODEL_GPT_V4       ChatModel = "g. p. t. version number four"
+	CHAT_MODEL_GPT_OSS      ChatModel = "apache"
 )
 
 const (
@@ -42,6 +43,7 @@ var AvaliableModels = []string{
 	CHAT_MODEL_GPT_V4.String(),
 	CHAT_MODEL_OPUS.String(),
 	CHAT_MODEL_SONNET.String(),
+	CHAT_MODEL_GPT_OSS.String(),
 }
 
 var ImageModels = []string{

@@ -30,6 +30,7 @@ const (
 	CF_STABLE_DIFFUSION             = "@cf/stabilityai/stable-diffusion-xl-base-1.0"
 	CF_META_TRANSLATION_MODEL       = "@cf/meta/m2m100-1.2b"
 	CF_QWEN_MODEL                   = "@cf/deepseek-ai/deepseek-r1-distill-qwen-32b"
+	CF_GPT_OSS_MODEL                = "@cf/openai/gpt-oss-120b"
 )
 
 var CHAT_MODEL_TO_CF_MODEL = map[ChatModel]string{
@@ -39,6 +40,7 @@ var CHAT_MODEL_TO_CF_MODEL = map[ChatModel]string{
 	CHAT_MODEL_OPEN:         CF_OPEN_CHAT_MODEL,
 	CHAT_MODEL_TRANSLATIONS: CF_META_TRANSLATION_MODEL,
 	CHAT_MODEL_QWEN:         CF_QWEN_MODEL,
+	CHAT_MODEL_GPT_OSS:      CF_GPT_OSS_MODEL,
 }
 
 var IMAGE_MODEL_TO_CF_MODEL = map[ImageModel]string{
