@@ -81,6 +81,7 @@ The skill uses an asynchronous architecture to handle the Alexa 8-second timeout
 | **Cloudflare** | deepseek-r1-distill-qwen-32b | `qwen` | `CHAT_MODEL_QWEN` |
 | **Cloudflare** | openchat-3.5-0106 | `open chat` | `CHAT_MODEL_OPEN` |
 | **Cloudflare** | sqlcoder-7b-2 | `sql` | `CHAT_MODEL_SQL` |
+| **Cloudflare** | gpt-oss-120b | `apache` | `CHAT_MODEL_GPT_OSS` |
 
 ### Image Generation Models
 
