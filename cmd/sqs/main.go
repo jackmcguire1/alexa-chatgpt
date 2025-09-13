@@ -12,8 +12,8 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/jackmcguire1/alexa-chatgpt/internal/dom/chatmodels"
-	otelsetup "github.com/jackmcguire1/alexa-chatgpt/internal/otel"
 	"github.com/jackmcguire1/alexa-chatgpt/internal/pkg/bucket"
+	pkginit "github.com/jackmcguire1/alexa-chatgpt/internal/pkg/init"
 	"github.com/jackmcguire1/alexa-chatgpt/internal/pkg/queue"
 	"github.com/jackmcguire1/alexa-chatgpt/internal/pkg/utils"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-lambda-go/otellambda"
@@ -209,53 +209,14 @@ func (handler *SqsHandler) Recover(ctx context.Context, req *chatmodels.Request)
 	}
 }
 
-func initializeResources() *chatmodels.Resources {
-	resources := &chatmodels.Resources{}
-
-	openAIKey := os.Getenv("OPENAI_API_KEY")
-	if openAIKey != "" {
-		resources.GPTApi = chatmodels.NewOpenAiApiClient(openAIKey)
-	}
-
-	geminiKey := os.Getenv("GEMINI_API_KEY")
-	if geminiKey != "" {
-		resources.GeminiAPI = chatmodels.NewGeminiApiClient(geminiKey)
-	}
-
-	cloudflareAccountID := os.Getenv("CLOUDFLARE_ACCOUNT_ID")
-	cloudflareAPIKey := os.Getenv("CLOUDFLARE_API_KEY")
-	if cloudflareAccountID != "" && cloudflareAPIKey != "" {
-		resources.CloudflareApiClient = chatmodels.NewCloudflareApiClient(cloudflareAccountID, cloudflareAPIKey)
-	}
-
-	anthropicKey := os.Getenv("ANTHROPIC_API_KEY")
-	if anthropicKey != "" {
-		resources.AnthropicAPI = chatmodels.NewAnthropicApiClient(anthropicKey)
-	}
-
-	chatmodels.RegisterAvailableClients(
-		resources.GPTApi != nil,
-		resources.GeminiAPI != nil,
-		resources.AnthropicAPI != nil,
-		resources.CloudflareApiClient != nil,
-	)
-
-	return resources
-}
 
 func main() {
-	jsonH := slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo})
-	logger := slog.New(jsonH)
-
+	logger := pkginit.SetupLogger()
 	ctx := context.Background()
-	tp, err := otelsetup.SetupXrayOtel(ctx)
-	if err != nil {
-		logger.With("error", err).Error("failed to setup tracer")
-		panic(err)
-	}
+	tp := pkginit.SetupTracing(ctx, logger)
 	defer tp.Shutdown(ctx)
 
-	resources := initializeResources()
+	resources := pkginit.InitializeResources()
 
 	h := &SqsHandler{
 		GenerationModelSvc: chatmodels.NewClient(resources),
