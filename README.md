@@ -78,10 +78,7 @@ The skill uses an asynchronous architecture to handle the Alexa 8-second timeout
 | **Anthropic** | claude-opus-4-20250514 | `opus` | `CHAT_MODEL_OPUS` |
 | **Anthropic** | claude-sonnet-4-20250514 | `sonnet` | `CHAT_MODEL_SONNET` |
 | **Cloudflare** | llama-4-scout-17b-16e-instruct | `llama` | `CHAT_MODEL_META` |
-| **Cloudflare** | llama-2-13b-chat-awq | `awq` | `CHAT_MODEL_AWQ` |
 | **Cloudflare** | deepseek-r1-distill-qwen-32b | `qwen` | `CHAT_MODEL_QWEN` |
-| **Cloudflare** | openchat-3.5-0106 | `open chat` | `CHAT_MODEL_OPEN` |
-| **Cloudflare** | sqlcoder-7b-2 | `sql` | `CHAT_MODEL_SQL` |
 | **Cloudflare** | gpt-oss-120b | `apache` | `CHAT_MODEL_GPT_OSS` |
 
 ### Image Generation Models
@@ -303,7 +300,7 @@ User: "Model which"
 Alexa: "I am using the text-model gpt and image-model dallas"
 
 User: "Model available"
-Alexa: "The available chat models are: gpt, gemini, opus, sonnet, llama, awq, qwen, open chat, sql..."
+Alexa: "The available chat models are: gpt, gemini, opus, sonnet, llama, qwen, apache..."
 ```
 
 ## API Integration Details
@@ -324,7 +321,7 @@ Alexa: "The available chat models are: gpt, gemini, opus, sonnet, llama, awq, qw
 - Requires `ANTHROPIC_API_KEY`
 
 ### Cloudflare Workers AI Integration
-- Models: Llama 2, Qwen, OpenChat, SQLCoder
+- Models: Llama 4 Scout, DeepSeek Qwen, GPT-OSS
 - Cost-effective AI inference
 - Requires `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_KEY`
 
