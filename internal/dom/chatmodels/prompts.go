@@ -41,7 +41,7 @@ func (client *Client) GetLLmModel(model ChatModel) (llms.Model, []llms.CallOptio
 			return nil, nil
 		}
 		return client.AnthropicAPI.GetModel(), []llms.CallOption{llms.WithModel(CHAT_MODEL_TO_ANTHROPIC_MODELS[model])}
-	case CHAT_MODEL_META, CHAT_MODEL_SQL, CHAT_MODEL_OPEN, CHAT_MODEL_AWQ, CHAT_MODEL_QWEN:
+	case CHAT_MODEL_META, CHAT_MODEL_QWEN, CHAT_MODEL_GPT_OSS:
 		if client.CloudflareApiClient == nil {
 			return nil, nil
 		}

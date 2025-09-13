@@ -42,30 +42,6 @@ func (h *Handler) getOrSetModel(model string) (res alexa.Response, err error) {
 		h.Model = chatmodels.CHAT_MODEL_META
 		res = alexa.NewResponse("Chat Models", "ok", false)
 		return
-	case chatmodels.CHAT_MODEL_SQL.String():
-		if !chatmodels.IsModelAvailable(chatmodels.CHAT_MODEL_SQL) {
-			res = alexa.NewResponse("Chat Models", "SQL model is not available - Cloudflare API key not configured", false)
-			return
-		}
-		h.Model = chatmodels.CHAT_MODEL_SQL
-		res = alexa.NewResponse("Chat Models", "ok", false)
-		return
-	case chatmodels.CHAT_MODEL_OPEN.String():
-		if !chatmodels.IsModelAvailable(chatmodels.CHAT_MODEL_OPEN) {
-			res = alexa.NewResponse("Chat Models", "Open model is not available - Cloudflare API key not configured", false)
-			return
-		}
-		h.Model = chatmodels.CHAT_MODEL_OPEN
-		res = alexa.NewResponse("Chat Models", "ok", false)
-		return
-	case chatmodels.CHAT_MODEL_AWQ.String():
-		if !chatmodels.IsModelAvailable(chatmodels.CHAT_MODEL_AWQ) {
-			res = alexa.NewResponse("Chat Models", "AWQ model is not available - Cloudflare API key not configured", false)
-			return
-		}
-		h.Model = chatmodels.CHAT_MODEL_AWQ
-		res = alexa.NewResponse("Chat Models", "ok", false)
-		return
 	case chatmodels.CHAT_MODEL_QWEN.String():
 		if !chatmodels.IsModelAvailable(chatmodels.CHAT_MODEL_QWEN) {
 			res = alexa.NewResponse("Chat Models", "Qwen model is not available - Cloudflare API key not configured", false)

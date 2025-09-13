@@ -21,10 +21,7 @@ const (
 	CHAT_MODEL_GEMINI       ChatModel = "gemini"
 	CHAT_MODEL_GPT          ChatModel = "gpt"
 	CHAT_MODEL_META         ChatModel = "llama"
-	CHAT_MODEL_AWQ          ChatModel = "awq"
 	CHAT_MODEL_TRANSLATIONS ChatModel = "translate"
-	CHAT_MODEL_OPEN         ChatModel = "open chat"
-	CHAT_MODEL_SQL          ChatModel = "sql"
 	CHAT_MODEL_QWEN         ChatModel = "qwen"
 	CHAT_MODEL_OPUS         ChatModel = "opus"
 	CHAT_MODEL_SONNET       ChatModel = "sonnet"
@@ -56,7 +53,6 @@ func RegisterAvailableClients(openAI, gemini, anthropic, cloudflare bool) {
 		AvailableModels = append(AvailableModels,
 			CHAT_MODEL_GPT.String(),
 			CHAT_MODEL_GPT_V4.String(),
-			CHAT_MODEL_GPT_OSS.String(),
 		)
 		ImageModels = append(ImageModels,
 			IMAGE_MODEL_DALL_E_3.String(),
@@ -79,10 +75,8 @@ func RegisterAvailableClients(openAI, gemini, anthropic, cloudflare bool) {
 	if hasCloudflare {
 		AvailableModels = append(AvailableModels,
 			CHAT_MODEL_META.String(),
-			CHAT_MODEL_SQL.String(),
-			CHAT_MODEL_OPEN.String(),
-			CHAT_MODEL_AWQ.String(),
 			CHAT_MODEL_QWEN.String(),
+			CHAT_MODEL_GPT_OSS.String(),
 		)
 		ImageModels = append(ImageModels, IMAGE_MODEL_STABLE_DIFFUSION.String())
 	}
@@ -90,13 +84,13 @@ func RegisterAvailableClients(openAI, gemini, anthropic, cloudflare bool) {
 
 func IsModelAvailable(model ChatModel) bool {
 	switch model {
-	case CHAT_MODEL_GPT, CHAT_MODEL_GPT_V4, CHAT_MODEL_GPT_OSS:
+	case CHAT_MODEL_GPT, CHAT_MODEL_GPT_V4:
 		return hasOpenAI
 	case CHAT_MODEL_GEMINI:
 		return hasGemini
 	case CHAT_MODEL_OPUS, CHAT_MODEL_SONNET:
 		return hasAnthropic
-	case CHAT_MODEL_META, CHAT_MODEL_SQL, CHAT_MODEL_OPEN, CHAT_MODEL_AWQ, CHAT_MODEL_QWEN, CHAT_MODEL_TRANSLATIONS:
+	case CHAT_MODEL_META, CHAT_MODEL_QWEN, CHAT_MODEL_TRANSLATIONS, CHAT_MODEL_GPT_OSS:
 		return hasCloudflare
 	default:
 		return false
