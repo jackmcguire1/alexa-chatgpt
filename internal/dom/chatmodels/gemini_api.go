@@ -20,7 +20,13 @@ const (
 	VERTEX_MODEL        string = "gemini-2.0-flash-exp"
 	VERTEX_API_LOCATION string = "us-central1"
 	IMAGE_IMAGEN_MODEL         = "imagen-3.0-generate-002"
+	IMAGE_BANANA_NANO_MODEL    = "gemini-2.5-flash-image-preview"
 )
+
+var IMAGE_MODEL_TO_GEMINI_MODEL = map[ImageModel]string{
+	IMAGE_MODEL_GEMINI:             IMAGE_IMAGEN_MODEL,
+	IMAGE_MODEL_GEMINI_BANANA_NANO: IMAGE_BANANA_NANO_MODEL,
+}
 
 type GeminiApiClient struct {
 	credentials *google.Credentials

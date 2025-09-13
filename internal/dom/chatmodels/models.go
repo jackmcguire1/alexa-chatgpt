@@ -34,6 +34,7 @@ const (
 	IMAGE_MODEL_DALL_E_2         ImageModel = "dallas v2"
 	IMAGE_MODEL_DALL_E_3         ImageModel = "dallas"
 	IMAGE_MODEL_GEMINI           ImageModel = "gemini image"
+	IMAGE_MODEL_GEMINI_BANANA_NANO ImageModel = "banana nano"
 )
 
 var AvailableModels []string
