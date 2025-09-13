@@ -61,11 +61,6 @@ func (client *Client) GetLLmModel(model ChatModel) (llms.Model, []llms.CallOptio
 
 func (client *Client) GenerateImage(ctx context.Context, prompt string, model ImageModel) ([]byte, error) {
 	switch model {
-	case IMAGE_MODEL_STABLE_DIFFUSION:
-		if client.CloudflareApiClient == nil {
-			return nil, fmt.Errorf("image model %s is not available: Cloudflare client not configured", model)
-		}
-		return client.CloudflareApiClient.GenerateImage(ctx, prompt, IMAGE_MODEL_TO_CF_MODEL[model])
 	case IMAGE_MODEL_DALL_E_2, IMAGE_MODEL_DALL_E_3:
 		if client.GPTApi == nil {
 			return nil, fmt.Errorf("image model %s is not available: OpenAI client not configured", model)
@@ -76,7 +71,10 @@ func (client *Client) GenerateImage(ctx context.Context, prompt string, model Im
 			return nil, fmt.Errorf("image model %s is not available: Gemini client not configured", model)
 		}
 		return client.GeminiAPI.GenerateImage(ctx, prompt, IMAGE_IMAGEN_MODEL)
+	case IMAGE_MODEL_STABLE_DIFFUSION:
+		fallthrough
 	default:
+		// Both STABLE_DIFFUSION and default case use Cloudflare
 		if client.CloudflareApiClient == nil {
 			return nil, fmt.Errorf("image model %s is not available: Cloudflare client not configured", model)
 		}

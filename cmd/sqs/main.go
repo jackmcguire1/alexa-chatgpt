@@ -209,18 +209,7 @@ func (handler *SqsHandler) Recover(ctx context.Context, req *chatmodels.Request)
 	}
 }
 
-func main() {
-	jsonH := slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo})
-	logger := slog.New(jsonH)
-
-	ctx := context.Background()
-	tp, err := otelsetup.SetupXrayOtel(ctx)
-	if err != nil {
-		logger.With("error", err).Error("failed to setup tracer")
-		panic(err)
-	}
-	defer tp.Shutdown(ctx)
-
+func initializeResources() *chatmodels.Resources {
 	resources := &chatmodels.Resources{}
 
 	openAIKey := os.Getenv("OPENAI_API_KEY")
@@ -250,6 +239,23 @@ func main() {
 		resources.AnthropicAPI != nil,
 		resources.CloudflareApiClient != nil,
 	)
+
+	return resources
+}
+
+func main() {
+	jsonH := slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo})
+	logger := slog.New(jsonH)
+
+	ctx := context.Background()
+	tp, err := otelsetup.SetupXrayOtel(ctx)
+	if err != nil {
+		logger.With("error", err).Error("failed to setup tracer")
+		panic(err)
+	}
+	defer tp.Shutdown(ctx)
+
+	resources := initializeResources()
 
 	h := &SqsHandler{
 		GenerationModelSvc: chatmodels.NewClient(resources),

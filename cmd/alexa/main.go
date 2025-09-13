@@ -15,18 +15,7 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-lambda-go/otellambda/xrayconfig"
 )
 
-func main() {
-	jsonLogH := slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo})
-	logger := slog.New(jsonLogH)
-
-	ctx := context.Background()
-	tracer, err := otelsetup.SetupXrayOtel(ctx)
-	if err != nil {
-		logger.With("error", err).Error("failed to setup tracer")
-		panic(err)
-	}
-	defer tracer.Shutdown(ctx)
-
+func initializeResources() *chatmodels.Resources {
 	resources := &chatmodels.Resources{}
 
 	openAIKey := os.Getenv("OPENAI_API_KEY")
@@ -57,37 +46,63 @@ func main() {
 		resources.CloudflareApiClient != nil,
 	)
 
+	return resources
+}
+
+func getDefaultChatModel(resources *chatmodels.Resources) chatmodels.ChatModel {
+	if len(chatmodels.AvailableModels) == 0 {
+		return chatmodels.CHAT_MODEL_GPT
+	}
+	
+	if resources.GPTApi != nil {
+		return chatmodels.CHAT_MODEL_GPT
+	}
+	if resources.GeminiAPI != nil {
+		return chatmodels.CHAT_MODEL_GEMINI
+	}
+	if resources.AnthropicAPI != nil {
+		return chatmodels.CHAT_MODEL_OPUS
+	}
+	if resources.CloudflareApiClient != nil {
+		return chatmodels.CHAT_MODEL_META
+	}
+	
+	return chatmodels.CHAT_MODEL_GPT
+}
+
+func getDefaultImageModel(resources *chatmodels.Resources) chatmodels.ImageModel {
+	if len(chatmodels.ImageModels) == 0 {
+		return chatmodels.IMAGE_MODEL_STABLE_DIFFUSION
+	}
+	
+	if resources.CloudflareApiClient != nil {
+		return chatmodels.IMAGE_MODEL_STABLE_DIFFUSION
+	}
+	if resources.GPTApi != nil {
+		return chatmodels.IMAGE_MODEL_DALL_E_3
+	}
+	if resources.GeminiAPI != nil {
+		return chatmodels.IMAGE_MODEL_GEMINI
+	}
+	
+	return chatmodels.IMAGE_MODEL_STABLE_DIFFUSION
+}
+
+func main() {
+	jsonLogH := slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo})
+	logger := slog.New(jsonLogH)
+
+	ctx := context.Background()
+	tracer, err := otelsetup.SetupXrayOtel(ctx)
+	if err != nil {
+		logger.With("error", err).Error("failed to setup tracer")
+		panic(err)
+	}
+	defer tracer.Shutdown(ctx)
+
+	resources := initializeResources()
 	svc := chatmodels.NewClient(resources)
-
 	pollDelay, _ := strconv.Atoi(os.Getenv("POLL_DELAY"))
-
-	// Set default models based on available clients
-	defaultChatModel := chatmodels.CHAT_MODEL_GPT
-	defaultImageModel := chatmodels.IMAGE_MODEL_STABLE_DIFFUSION
-
-	// Choose first available chat model as default
-	if len(chatmodels.AvailableModels) > 0 {
-		if resources.GPTApi != nil {
-			defaultChatModel = chatmodels.CHAT_MODEL_GPT
-		} else if resources.GeminiAPI != nil {
-			defaultChatModel = chatmodels.CHAT_MODEL_GEMINI
-		} else if resources.AnthropicAPI != nil {
-			defaultChatModel = chatmodels.CHAT_MODEL_OPUS
-		} else if resources.CloudflareApiClient != nil {
-			defaultChatModel = chatmodels.CHAT_MODEL_META
-		}
-	}
-
-	// Choose first available image model as default
-	if len(chatmodels.ImageModels) > 0 {
-		if resources.CloudflareApiClient != nil {
-			defaultImageModel = chatmodels.IMAGE_MODEL_STABLE_DIFFUSION
-		} else if resources.GPTApi != nil {
-			defaultImageModel = chatmodels.IMAGE_MODEL_DALL_E_3
-		} else if resources.GeminiAPI != nil {
-			defaultImageModel = chatmodels.IMAGE_MODEL_GEMINI
-		}
-	}
 
 	h := api.Handler{
 		ChatGptService:  svc,
@@ -95,8 +110,8 @@ func main() {
 		ResponsesQueue:  queue.NewQueue(os.Getenv("RESPONSES_QUEUE_URI")),
 		PollDelay:       pollDelay,
 		Logger:          logger,
-		Model:           defaultChatModel,
-		ImageModel:      defaultImageModel,
+		Model:           getDefaultChatModel(resources),
+		ImageModel:      getDefaultImageModel(resources),
 		RandomNumberSvc: api.NewRandomNumberGame(100),
 		BattleShips:     api.NewBattleShipSetup(),
 	}
