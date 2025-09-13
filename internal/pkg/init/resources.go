@@ -46,7 +46,7 @@ func GetDefaultChatModel(resources *chatmodels.Resources) chatmodels.ChatModel {
 	if len(chatmodels.AvailableModels) == 0 {
 		return chatmodels.CHAT_MODEL_GPT
 	}
-	
+
 	if resources.GPTApi != nil {
 		return chatmodels.CHAT_MODEL_GPT
 	}
@@ -59,7 +59,7 @@ func GetDefaultChatModel(resources *chatmodels.Resources) chatmodels.ChatModel {
 	if resources.CloudflareApiClient != nil {
 		return chatmodels.CHAT_MODEL_META
 	}
-	
+
 	return chatmodels.CHAT_MODEL_GPT
 }
 
@@ -68,7 +68,7 @@ func GetDefaultImageModel(resources *chatmodels.Resources) chatmodels.ImageModel
 	if len(chatmodels.ImageModels) == 0 {
 		return chatmodels.IMAGE_MODEL_STABLE_DIFFUSION
 	}
-	
+
 	if resources.CloudflareApiClient != nil {
 		return chatmodels.IMAGE_MODEL_STABLE_DIFFUSION
 	}
@@ -78,6 +78,6 @@ func GetDefaultImageModel(resources *chatmodels.Resources) chatmodels.ImageModel
 	if resources.GeminiAPI != nil {
 		return chatmodels.IMAGE_MODEL_GEMINI
 	}
-	
+
 	return chatmodels.IMAGE_MODEL_STABLE_DIFFUSION
 }

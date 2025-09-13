@@ -114,7 +114,7 @@ var StrToImageModel = map[string]ImageModel{
 	IMAGE_MODEL_STABLE_DIFFUSION.String(): IMAGE_MODEL_STABLE_DIFFUSION,
 	IMAGE_MODEL_DALL_E_2.String():         IMAGE_MODEL_DALL_E_2,
 	IMAGE_MODEL_DALL_E_3.String():         IMAGE_MODEL_DALL_E_3,
-	IMAGE_MODEL_GEMINI.String():           IMAGE_IMAGEN_MODEL,
+	IMAGE_MODEL_GEMINI.String():           IMAGE_MODEL_GEMINI,
 }
 
 func (c ChatModel) String() string {
