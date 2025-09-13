@@ -27,14 +27,67 @@ func main() {
 	}
 	defer tracer.Shutdown(ctx)
 
-	svc := chatmodels.NewClient(&chatmodels.Resources{
-		GPTApi:              chatmodels.NewOpenAiApiClient(os.Getenv("OPENAI_API_KEY")),
-		GeminiAPI:           chatmodels.NewGeminiApiClient(os.Getenv("GEMINI_API_KEY")),
-		CloudflareApiClient: chatmodels.NewCloudflareApiClient(os.Getenv("CLOUDFLARE_ACCOUNT_ID"), os.Getenv("CLOUDFLARE_API_KEY")),
-		AnthropicAPI:        chatmodels.NewAnthropicApiClient(os.Getenv("ANTHROPIC_API_KEY")),
-	})
+	resources := &chatmodels.Resources{}
+
+	openAIKey := os.Getenv("OPENAI_API_KEY")
+	if openAIKey != "" {
+		resources.GPTApi = chatmodels.NewOpenAiApiClient(openAIKey)
+	}
+
+	geminiKey := os.Getenv("GEMINI_API_KEY")
+	if geminiKey != "" {
+		resources.GeminiAPI = chatmodels.NewGeminiApiClient(geminiKey)
+	}
+
+	cloudflareAccountID := os.Getenv("CLOUDFLARE_ACCOUNT_ID")
+	cloudflareAPIKey := os.Getenv("CLOUDFLARE_API_KEY")
+	if cloudflareAccountID != "" && cloudflareAPIKey != "" {
+		resources.CloudflareApiClient = chatmodels.NewCloudflareApiClient(cloudflareAccountID, cloudflareAPIKey)
+	}
+
+	anthropicKey := os.Getenv("ANTHROPIC_API_KEY")
+	if anthropicKey != "" {
+		resources.AnthropicAPI = chatmodels.NewAnthropicApiClient(anthropicKey)
+	}
+
+	chatmodels.RegisterAvailableClients(
+		resources.GPTApi != nil,
+		resources.GeminiAPI != nil,
+		resources.AnthropicAPI != nil,
+		resources.CloudflareApiClient != nil,
+	)
+
+	svc := chatmodels.NewClient(resources)
 
 	pollDelay, _ := strconv.Atoi(os.Getenv("POLL_DELAY"))
+
+	// Set default models based on available clients
+	defaultChatModel := chatmodels.CHAT_MODEL_GPT
+	defaultImageModel := chatmodels.IMAGE_MODEL_STABLE_DIFFUSION
+
+	// Choose first available chat model as default
+	if len(chatmodels.AvailableModels) > 0 {
+		if resources.GPTApi != nil {
+			defaultChatModel = chatmodels.CHAT_MODEL_GPT
+		} else if resources.GeminiAPI != nil {
+			defaultChatModel = chatmodels.CHAT_MODEL_GEMINI
+		} else if resources.AnthropicAPI != nil {
+			defaultChatModel = chatmodels.CHAT_MODEL_OPUS
+		} else if resources.CloudflareApiClient != nil {
+			defaultChatModel = chatmodels.CHAT_MODEL_META
+		}
+	}
+
+	// Choose first available image model as default
+	if len(chatmodels.ImageModels) > 0 {
+		if resources.CloudflareApiClient != nil {
+			defaultImageModel = chatmodels.IMAGE_MODEL_STABLE_DIFFUSION
+		} else if resources.GPTApi != nil {
+			defaultImageModel = chatmodels.IMAGE_MODEL_DALL_E_3
+		} else if resources.GeminiAPI != nil {
+			defaultImageModel = chatmodels.IMAGE_MODEL_GEMINI
+		}
+	}
 
 	h := api.Handler{
 		ChatGptService:  svc,
@@ -42,8 +95,8 @@ func main() {
 		ResponsesQueue:  queue.NewQueue(os.Getenv("RESPONSES_QUEUE_URI")),
 		PollDelay:       pollDelay,
 		Logger:          logger,
-		Model:           chatmodels.CHAT_MODEL_GPT,
-		ImageModel:      chatmodels.IMAGE_MODEL_STABLE_DIFFUSION,
+		Model:           defaultChatModel,
+		ImageModel:      defaultImageModel,
 		RandomNumberSvc: api.NewRandomNumberGame(100),
 		BattleShips:     api.NewBattleShipSetup(),
 	}

@@ -221,15 +221,40 @@ func main() {
 	}
 	defer tp.Shutdown(ctx)
 
+	resources := &chatmodels.Resources{}
+
+	openAIKey := os.Getenv("OPENAI_API_KEY")
+	if openAIKey != "" {
+		resources.GPTApi = chatmodels.NewOpenAiApiClient(openAIKey)
+	}
+
+	geminiKey := os.Getenv("GEMINI_API_KEY")
+	if geminiKey != "" {
+		resources.GeminiAPI = chatmodels.NewGeminiApiClient(geminiKey)
+	}
+
+	cloudflareAccountID := os.Getenv("CLOUDFLARE_ACCOUNT_ID")
+	cloudflareAPIKey := os.Getenv("CLOUDFLARE_API_KEY")
+	if cloudflareAccountID != "" && cloudflareAPIKey != "" {
+		resources.CloudflareApiClient = chatmodels.NewCloudflareApiClient(cloudflareAccountID, cloudflareAPIKey)
+	}
+
+	anthropicKey := os.Getenv("ANTHROPIC_API_KEY")
+	if anthropicKey != "" {
+		resources.AnthropicAPI = chatmodels.NewAnthropicApiClient(anthropicKey)
+	}
+
+	chatmodels.RegisterAvailableClients(
+		resources.GPTApi != nil,
+		resources.GeminiAPI != nil,
+		resources.AnthropicAPI != nil,
+		resources.CloudflareApiClient != nil,
+	)
+
 	h := &SqsHandler{
-		GenerationModelSvc: chatmodels.NewClient(&chatmodels.Resources{
-			GPTApi:              chatmodels.NewOpenAiApiClient(os.Getenv("OPENAI_API_KEY")),
-			GeminiAPI:           chatmodels.NewGeminiApiClient(os.Getenv("GEMINI_API_KEY")),
-			CloudflareApiClient: chatmodels.NewCloudflareApiClient(os.Getenv("CLOUDFLARE_ACCOUNT_ID"), os.Getenv("CLOUDFLARE_API_KEY")),
-			AnthropicAPI:        chatmodels.NewAnthropicApiClient(os.Getenv("ANTHROPIC_API_KEY")),
-		}),
-		ResponseQueue: queue.NewQueue(os.Getenv("RESPONSES_QUEUE_URI")),
-		Logger:        logger,
+		GenerationModelSvc: chatmodels.NewClient(resources),
+		ResponseQueue:      queue.NewQueue(os.Getenv("RESPONSES_QUEUE_URI")),
+		Logger:             logger,
 		Bucket: &bucket.Bucket{
 			Name: os.Getenv("S3_BUCKET"),
 		},
