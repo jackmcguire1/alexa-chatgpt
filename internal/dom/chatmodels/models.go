@@ -6,6 +6,13 @@ import (
 
 var MissingContentError = errors.New("Missing content")
 
+var (
+	hasOpenAI     bool
+	hasGemini     bool
+	hasAnthropic  bool
+	hasCloudflare bool
+)
+
 type ChatModel string
 
 type ImageModel string
@@ -32,25 +39,81 @@ const (
 	IMAGE_MODEL_GEMINI           ImageModel = "gemini image"
 )
 
-var AvaliableModels = []string{
-	CHAT_MODEL_GPT.String(),
-	CHAT_MODEL_GEMINI.String(),
-	CHAT_MODEL_META.String(),
-	CHAT_MODEL_SQL.String(),
-	CHAT_MODEL_OPEN.String(),
-	CHAT_MODEL_AWQ.String(),
-	CHAT_MODEL_QWEN.String(),
-	CHAT_MODEL_GPT_V4.String(),
-	CHAT_MODEL_OPUS.String(),
-	CHAT_MODEL_SONNET.String(),
-	CHAT_MODEL_GPT_OSS.String(),
+var AvailableModels []string
+
+var ImageModels []string
+
+func RegisterAvailableClients(openAI, gemini, anthropic, cloudflare bool) {
+	hasOpenAI = openAI
+	hasGemini = gemini
+	hasAnthropic = anthropic
+	hasCloudflare = cloudflare
+
+	AvailableModels = []string{}
+	ImageModels = []string{}
+
+	if hasOpenAI {
+		AvailableModels = append(AvailableModels,
+			CHAT_MODEL_GPT.String(),
+			CHAT_MODEL_GPT_V4.String(),
+			CHAT_MODEL_GPT_OSS.String(),
+		)
+		ImageModels = append(ImageModels,
+			IMAGE_MODEL_DALL_E_3.String(),
+			IMAGE_MODEL_DALL_E_2.String(),
+		)
+	}
+
+	if hasGemini {
+		AvailableModels = append(AvailableModels, CHAT_MODEL_GEMINI.String())
+		ImageModels = append(ImageModels, IMAGE_MODEL_GEMINI.String())
+	}
+
+	if hasAnthropic {
+		AvailableModels = append(AvailableModels,
+			CHAT_MODEL_OPUS.String(),
+			CHAT_MODEL_SONNET.String(),
+		)
+	}
+
+	if hasCloudflare {
+		AvailableModels = append(AvailableModels,
+			CHAT_MODEL_META.String(),
+			CHAT_MODEL_SQL.String(),
+			CHAT_MODEL_OPEN.String(),
+			CHAT_MODEL_AWQ.String(),
+			CHAT_MODEL_QWEN.String(),
+		)
+		ImageModels = append(ImageModels, IMAGE_MODEL_STABLE_DIFFUSION.String())
+	}
 }
 
-var ImageModels = []string{
-	IMAGE_MODEL_STABLE_DIFFUSION.String(),
-	IMAGE_MODEL_DALL_E_3.String(),
-	IMAGE_MODEL_DALL_E_2.String(),
-	IMAGE_MODEL_GEMINI.String(),
+func IsModelAvailable(model ChatModel) bool {
+	switch model {
+	case CHAT_MODEL_GPT, CHAT_MODEL_GPT_V4, CHAT_MODEL_GPT_OSS:
+		return hasOpenAI
+	case CHAT_MODEL_GEMINI:
+		return hasGemini
+	case CHAT_MODEL_OPUS, CHAT_MODEL_SONNET:
+		return hasAnthropic
+	case CHAT_MODEL_META, CHAT_MODEL_SQL, CHAT_MODEL_OPEN, CHAT_MODEL_AWQ, CHAT_MODEL_QWEN, CHAT_MODEL_TRANSLATIONS:
+		return hasCloudflare
+	default:
+		return false
+	}
+}
+
+func IsImageModelAvailable(model ImageModel) bool {
+	switch model {
+	case IMAGE_MODEL_DALL_E_2, IMAGE_MODEL_DALL_E_3:
+		return hasOpenAI
+	case IMAGE_MODEL_GEMINI:
+		return hasGemini
+	case IMAGE_MODEL_STABLE_DIFFUSION:
+		return hasCloudflare
+	default:
+		return false
+	}
 }
 
 var StrToImageModel = map[string]ImageModel{

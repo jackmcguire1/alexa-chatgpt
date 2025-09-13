@@ -12,8 +12,8 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/jackmcguire1/alexa-chatgpt/internal/dom/chatmodels"
-	otelsetup "github.com/jackmcguire1/alexa-chatgpt/internal/otel"
 	"github.com/jackmcguire1/alexa-chatgpt/internal/pkg/bucket"
+	pkginit "github.com/jackmcguire1/alexa-chatgpt/internal/pkg/init"
 	"github.com/jackmcguire1/alexa-chatgpt/internal/pkg/queue"
 	"github.com/jackmcguire1/alexa-chatgpt/internal/pkg/utils"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-lambda-go/otellambda"
@@ -209,27 +209,19 @@ func (handler *SqsHandler) Recover(ctx context.Context, req *chatmodels.Request)
 	}
 }
 
-func main() {
-	jsonH := slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo})
-	logger := slog.New(jsonH)
 
+func main() {
+	logger := pkginit.SetupLogger()
 	ctx := context.Background()
-	tp, err := otelsetup.SetupXrayOtel(ctx)
-	if err != nil {
-		logger.With("error", err).Error("failed to setup tracer")
-		panic(err)
-	}
+	tp := pkginit.SetupTracing(ctx, logger)
 	defer tp.Shutdown(ctx)
 
+	resources := pkginit.InitializeResources()
+
 	h := &SqsHandler{
-		GenerationModelSvc: chatmodels.NewClient(&chatmodels.Resources{
-			GPTApi:              chatmodels.NewOpenAiApiClient(os.Getenv("OPENAI_API_KEY")),
-			GeminiAPI:           chatmodels.NewGeminiApiClient(os.Getenv("GEMINI_API_KEY")),
-			CloudflareApiClient: chatmodels.NewCloudflareApiClient(os.Getenv("CLOUDFLARE_ACCOUNT_ID"), os.Getenv("CLOUDFLARE_API_KEY")),
-			AnthropicAPI:        chatmodels.NewAnthropicApiClient(os.Getenv("ANTHROPIC_API_KEY")),
-		}),
-		ResponseQueue: queue.NewQueue(os.Getenv("RESPONSES_QUEUE_URI")),
-		Logger:        logger,
+		GenerationModelSvc: chatmodels.NewClient(resources),
+		ResponseQueue:      queue.NewQueue(os.Getenv("RESPONSES_QUEUE_URI")),
+		Logger:             logger,
 		Bucket: &bucket.Bucket{
 			Name: os.Getenv("S3_BUCKET"),
 		},

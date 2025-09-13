@@ -26,22 +26,27 @@ Parameters:
   OpenAIApiKey:
     Type: String
     Description: OpenAI API Key
+    Default: ""
 
   GeminiApiKey:
     Type: String
     Description: Google Service Account JSON B64
+    Default: ""
 
   CloudFlareAccountId:
     Type: String
     Description: Cloudflare Account Id
+    Default: ""
 
   CloudFlareAPIKey:
     Type: String
     Description: Cloudflare API key
+    Default: ""
 
   AnthropicAPIKey:
     Type: String
     Description: Anthropic API Key
+    Default: ""
 
   Runtime:
     Type: String

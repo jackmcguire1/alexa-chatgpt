@@ -21,6 +21,11 @@ var (
 	logger   = slog.New(jsonLogH)
 )
 
+func init() {
+	// Register all clients as available for tests
+	chatmodels.RegisterAvailableClients(true, true, true, true)
+}
+
 func TestLaunchIntent(t *testing.T) {
 	mockChatGptService := &chatmodels.MockClient{}
 	h := &Handler{
@@ -373,6 +378,9 @@ func TestHelpIntent(t *testing.T) {
 }
 
 func TestModelIntentGPT(t *testing.T) {
+	// Temporarily register all clients as available
+	chatmodels.RegisterAvailableClients(true, true, true, true)
+
 	mockChatGptService := &chatmodels.MockClient{}
 	h := &Handler{
 		ChatGptService: mockChatGptService,
@@ -410,6 +418,9 @@ func TestModelIntentGPT(t *testing.T) {
 }
 
 func TestModelIntentGemini(t *testing.T) {
+	// Temporarily register all clients as available
+	chatmodels.RegisterAvailableClients(true, true, true, true)
+
 	mockChatGptService := &chatmodels.MockClient{}
 	h := &Handler{
 		ChatGptService: mockChatGptService,
