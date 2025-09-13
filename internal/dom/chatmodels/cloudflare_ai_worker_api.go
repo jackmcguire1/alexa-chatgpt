@@ -19,13 +19,11 @@ import (
 
 const (
 	// Active models
-	CF_LLAMA_3_2_3B_INSTRUCT_MODEL  = "@cf/meta/llama-3.2-3b-instruct"
-	CF_LLAMA_3_3_70B_INSTRUCT_MODEL = "@cf/meta/llama-3.3-70b-instruct-fp8-fast"
-	CF_LLAMA_4_SCOUT                = "@cf/meta/llama-4-scout-17b-16e-instruct"
-	CF_STABLE_DIFFUSION             = "@cf/stabilityai/stable-diffusion-xl-base-1.0"
-	CF_META_TRANSLATION_MODEL       = "@cf/meta/m2m100-1.2b"
-	CF_QWEN_MODEL                   = "@cf/deepseek-ai/deepseek-r1-distill-qwen-32b"
-	CF_GPT_OSS_MODEL                = "@cf/openai/gpt-oss-120b"
+	CF_LLAMA_4_SCOUT          = "@cf/meta/llama-4-scout-17b-16e-instruct"
+	CF_STABLE_DIFFUSION       = "@cf/stabilityai/stable-diffusion-xl-base-1.0"
+	CF_META_TRANSLATION_MODEL = "@cf/meta/m2m100-1.2b"
+	CF_QWEN_MODEL             = "@cf/deepseek-ai/deepseek-r1-distill-qwen-32b"
+	CF_GPT_OSS_MODEL          = "@cf/openai/gpt-oss-120b"
 )
 
 var CHAT_MODEL_TO_CF_MODEL = map[ChatModel]string{
