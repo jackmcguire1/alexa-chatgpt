@@ -18,6 +18,7 @@
 ## 🌟 Key Features
 
 - **Multi-Provider AI Support**: Seamlessly switch between OpenAI, Google, Anthropic, and Cloudflare models
+- **Optional Client Initialization**: Only configured providers are initialized - no need to set up all API keys
 - **Asynchronous Processing**: Handles Alexa's timeout constraints with intelligent queue management
 - **Image Generation**: Create images with DALL-E, Stable Diffusion, and Google Imagen
 - **Interactive Games**: Built-in number guessing and battleship games
@@ -71,7 +72,7 @@ The skill uses an asynchronous architecture to handle the Alexa 8-second timeout
 
 | Provider | Model | Alias | Internal Reference |
 |----------|-------|-------|-------------------|
-| **OpenAI** | o1-mini | `gpt` | `CHAT_MODEL_GPT` |
+| **OpenAI** | gpt-5-mini | `gpt` | `CHAT_MODEL_GPT` |
 | **OpenAI** | gpt-4o | `g. p. t. version number four` | `CHAT_MODEL_GPT_V4` |
 | **Google** | gemini-2.0-flash-exp | `gemini` | `CHAT_MODEL_GEMINI` |
 | **Anthropic** | claude-opus-4-20250514 | `opus` | `CHAT_MODEL_OPUS` |
@@ -188,19 +189,19 @@ The skill uses an asynchronous architecture to handle the Alexa 8-second timeout
 
 ### Environment Variables
 
+All API provider credentials are optional. The skill will automatically detect which providers are configured and only make those models available.
+
 ```bash
-# Required
+# Optional API Provider Credentials (configure only the ones you need)
+export OPENAI_API_KEY=your_openai_api_key           # For GPT and DALL-E models
+export ANTHROPIC_API_KEY=your_anthropic_api_key     # For Claude models
+export CLOUDFLARE_ACCOUNT_ID=your_cloudflare_id     # For Cloudflare AI models
+export CLOUDFLARE_API_KEY=your_cloudflare_api_key   # For Cloudflare AI models
+export GEMINI_API_KEY=base64_encoded_service_json   # For Gemini models (Google Service Account)
+
+# Required for deployment
 export HANDLER=main
-export OPENAI_API_KEY=your_openai_api_key
-export ANTHROPIC_API_KEY=your_anthropic_api_key
-export CLOUDFLARE_ACCOUNT_ID=your_cloudflare_account_id
-export CLOUDFLARE_API_KEY=your_cloudflare_api_key
-
-# Google Service Account (base64 encoded JSON)
-export GEMINI_API_KEY=base64_encoded_service_account_json
-
-# AWS S3 Bucket for SAM deployment
-export S3_BUCKET_NAME=your_s3_bucket_name
+export S3_BUCKET_NAME=your_s3_bucket_name           # AWS S3 Bucket for SAM deployment
 ```
 
 ### AWS CLI Configuration
@@ -308,7 +309,7 @@ Alexa: "The available chat models are: gpt, gemini, opus, sonnet, llama, awq, qw
 ## API Integration Details
 
 ### OpenAI Integration
-- Models: o1-mini, gpt-4o
+- Models: gpt-5-mini, gpt-4o
 - Used for general conversation and DALL-E image generation
 - Requires `OPENAI_API_KEY`
 

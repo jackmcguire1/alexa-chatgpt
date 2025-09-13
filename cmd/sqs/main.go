@@ -209,7 +209,6 @@ func (handler *SqsHandler) Recover(ctx context.Context, req *chatmodels.Request)
 	}
 }
 
-
 func main() {
 	logger := pkginit.SetupLogger()
 	ctx := context.Background()

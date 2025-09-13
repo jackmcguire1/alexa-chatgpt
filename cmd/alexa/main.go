@@ -14,7 +14,6 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-lambda-go/otellambda/xrayconfig"
 )
 
-
 func main() {
 	logger := pkginit.SetupLogger()
 	ctx := context.Background()
