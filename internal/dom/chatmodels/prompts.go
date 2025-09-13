@@ -66,11 +66,11 @@ func (client *Client) GenerateImage(ctx context.Context, prompt string, model Im
 			return nil, fmt.Errorf("image model %s is not available: OpenAI client not configured", model)
 		}
 		return client.GPTApi.GenerateImage(ctx, prompt, IMAGE_MODEL_TO_OPENAI_MODEL[model])
-	case IMAGE_MODEL_GEMINI:
+	case IMAGE_MODEL_GEMINI, IMAGE_MODEL_GEMINI_BANANA_NANO:
 		if client.GeminiAPI == nil {
 			return nil, fmt.Errorf("image model %s is not available: Gemini client not configured", model)
 		}
-		return client.GeminiAPI.GenerateImage(ctx, prompt, IMAGE_IMAGEN_MODEL)
+		return client.GeminiAPI.GenerateImage(ctx, prompt, IMAGE_MODEL_TO_GEMINI_MODEL[model])
 	case IMAGE_MODEL_STABLE_DIFFUSION:
 		fallthrough
 	default:
