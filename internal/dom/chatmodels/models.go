@@ -63,7 +63,7 @@ func RegisterAvailableClients(openAI, gemini, anthropic, cloudflare bool) {
 
 	if hasGemini {
 		AvailableModels = append(AvailableModels, CHAT_MODEL_GEMINI.String())
-		ImageModels = append(ImageModels, IMAGE_MODEL_GEMINI.String())
+		ImageModels = append(ImageModels, IMAGE_MODEL_GEMINI.String(), IMAGE_MODEL_GEMINI_BANANA_NANO.String())
 	}
 
 	if hasAnthropic {
@@ -102,7 +102,7 @@ func IsImageModelAvailable(model ImageModel) bool {
 	switch model {
 	case IMAGE_MODEL_DALL_E_2, IMAGE_MODEL_DALL_E_3:
 		return hasOpenAI
-	case IMAGE_MODEL_GEMINI:
+	case IMAGE_MODEL_GEMINI, IMAGE_MODEL_GEMINI_BANANA_NANO:
 		return hasGemini
 	case IMAGE_MODEL_STABLE_DIFFUSION:
 		return hasCloudflare
@@ -116,6 +116,7 @@ var StrToImageModel = map[string]ImageModel{
 	IMAGE_MODEL_DALL_E_2.String():         IMAGE_MODEL_DALL_E_2,
 	IMAGE_MODEL_DALL_E_3.String():         IMAGE_MODEL_DALL_E_3,
 	IMAGE_MODEL_GEMINI.String():           IMAGE_MODEL_GEMINI,
+	IMAGE_MODEL_GEMINI_BANANA_NANO.String(): IMAGE_MODEL_GEMINI_BANANA_NANO,
 }
 
 func (c ChatModel) String() string {
