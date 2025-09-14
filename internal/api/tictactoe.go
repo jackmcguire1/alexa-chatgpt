@@ -125,18 +125,7 @@ func (t *TicTacToe) MakeAIMove() (int, int, error) {
 	bestRow, bestCol := t.findBestMove()
 
 	if bestRow == -1 || bestCol == -1 {
-		// Find first empty spot (fallback)
-		for i := 0; i < t.size; i++ {
-			for j := 0; j < t.size; j++ {
-				if t.board[i][j] == TicTacToeEmpty {
-					bestRow, bestCol = i, j
-					break
-				}
-			}
-			if bestRow != -1 {
-				break
-			}
-		}
+		bestRow, bestCol = t.findFirstEmptySpot()
 	}
 
 	if bestRow == -1 || bestCol == -1 {
@@ -147,33 +136,26 @@ func (t *TicTacToe) MakeAIMove() (int, int, error) {
 	return bestRow, bestCol, err
 }
 
-func (t *TicTacToe) findBestMove() (int, int) {
-	// Try to win
+func (t *TicTacToe) findFirstEmptySpot() (int, int) {
 	for i := 0; i < t.size; i++ {
 		for j := 0; j < t.size; j++ {
 			if t.board[i][j] == TicTacToeEmpty {
-				t.board[i][j] = TicTacToeO
-				if t.checkWinner() {
-					t.board[i][j] = TicTacToeEmpty
-					return i, j
-				}
-				t.board[i][j] = TicTacToeEmpty
+				return i, j
 			}
 		}
 	}
+	return -1, -1
+}
+
+func (t *TicTacToe) findBestMove() (int, int) {
+	// Try to win
+	if row, col := t.findWinningMove(TicTacToeO); row != -1 {
+		return row, col
+	}
 
 	// Try to block opponent
-	for i := 0; i < t.size; i++ {
-		for j := 0; j < t.size; j++ {
-			if t.board[i][j] == TicTacToeEmpty {
-				t.board[i][j] = TicTacToeX
-				if t.checkWinner() {
-					t.board[i][j] = TicTacToeEmpty
-					return i, j
-				}
-				t.board[i][j] = TicTacToeEmpty
-			}
-		}
+	if row, col := t.findWinningMove(TicTacToeX); row != -1 {
+		return row, col
 	}
 
 	// Take center if available
@@ -182,13 +164,32 @@ func (t *TicTacToe) findBestMove() (int, int) {
 	}
 
 	// Take corners
+	return t.findEmptyCorner()
+}
+
+func (t *TicTacToe) findWinningMove(player int) (int, int) {
+	for i := 0; i < t.size; i++ {
+		for j := 0; j < t.size; j++ {
+			if t.board[i][j] == TicTacToeEmpty {
+				t.board[i][j] = player
+				isWin := t.checkWinner()
+				t.board[i][j] = TicTacToeEmpty
+				if isWin {
+					return i, j
+				}
+			}
+		}
+	}
+	return -1, -1
+}
+
+func (t *TicTacToe) findEmptyCorner() (int, int) {
 	corners := [][]int{{0, 0}, {0, 2}, {2, 0}, {2, 2}}
 	for _, corner := range corners {
 		if t.board[corner[0]][corner[1]] == TicTacToeEmpty {
 			return corner[0], corner[1]
 		}
 	}
-
 	return -1, -1
 }
 
