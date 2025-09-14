@@ -30,6 +30,7 @@ type Handler struct {
 	ImageModel      chatmodels.ImageModel
 	RandomNumberSvc *RandomNumberGame
 	BattleShips     *Battleships
+	TicTacToe       *TicTacToe
 	LastIntent      alexa.Request
 	SystemMessage   string
 }
