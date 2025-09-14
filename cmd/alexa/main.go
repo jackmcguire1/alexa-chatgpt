@@ -34,6 +34,7 @@ func main() {
 		ImageModel:      pkginit.GetDefaultImageModel(resources),
 		RandomNumberSvc: api.NewRandomNumberGame(100),
 		BattleShips:     api.NewBattleShipSetup(),
+		TicTacToe:       api.NewTicTacToe(),
 	}
 	lambda.Start(otellambda.InstrumentHandler(h.Invoke, xrayconfig.WithRecommendedOptions(tracer)...))
 }
