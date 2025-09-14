@@ -40,7 +40,8 @@ var imageModelConfigs = map[string]imageModelConfig{
 	"stable":       {chatmodels.IMAGE_MODEL_STABLE_DIFFUSION, "Stable Diffusion model is not available - Cloudflare API key not configured"},
 	"dallas":       {chatmodels.IMAGE_MODEL_DALL_E_3, "DALL-E 3 model is not available - OpenAI API key not configured"},
 	"dallas v2":    {chatmodels.IMAGE_MODEL_DALL_E_2, "DALL-E 2 model is not available - OpenAI API key not configured"},
-	"gemini image": {chatmodels.IMAGE_MODEL_GEMINI, "Gemini image model is not available - Gemini API key not configured"},
+	"gemini image": {chatmodels.IMAGE_MODEL_GEMINI, "Gemini imagen model is not available - Gemini API key not configured"},
+	"banana nano":  {chatmodels.IMAGE_MODEL_GEMINI_BANANA_NANO, "Gemini banana nano image model is not available - Gemini API key not configured"},
 }
 
 func (h *Handler) setChatModel(config modelConfig) alexa.Response {
