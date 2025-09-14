@@ -189,6 +189,13 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 			res = alexa.NewResponse("BattleShips", statement, false)
 		}
 		h.lastResponse = &chatmodels.LastResponse{Response: statement, TimeDiff: fmt.Sprintf("%.0f", time.Since(execTime).Seconds()), Model: h.Model.String()}
+
+	case alexa.TicTacToeStatusIntent:
+		return h.handleTicTacToeStatus(ctx)
+
+	case alexa.TicTacToeIntent:
+		return h.handleTicTacToeMove(ctx, req)
+
 	case alexa.RandomNumberIntent:
 		if req.Body.Intent.Slots["number"].Value == "cheat" {
 			res = alexa.NewResponse("Random Fact", fmt.Sprintf("You gave up so easily, your number is %d", h.RandomNumberSvc.Number), false)
@@ -276,4 +283,102 @@ func (h *Handler) Invoke(ctx context.Context, req alexa.Request) (resp alexa.Res
 		Debug("returning response to alexa")
 
 	return
+}
+
+func (h *Handler) handleTicTacToeStatus(ctx context.Context) (alexa.Response, error) {
+	if h.TicTacToe == nil {
+		h.TicTacToe = NewTicTacToe()
+	}
+
+	boardState := h.TicTacToe.GetTextBoard()
+	statusPrompt := fmt.Sprintf("The user is playing tic-tac-toe. Here's the current board state:\n%s\nProvide a brief status update.", boardState)
+	statement, _ := h.ChatGptService.TextGeneration(ctx, statusPrompt, h.Model)
+	return alexa.NewResponse("TicTacToe Status", statement, false), nil
+}
+
+func (h *Handler) handleTicTacToeMove(ctx context.Context, req alexa.Request) (alexa.Response, error) {
+	execTime := time.Now().UTC()
+
+	if h.TicTacToe == nil || h.TicTacToe.IsGameOver() {
+		h.TicTacToe = NewTicTacToe()
+	}
+
+	row, ok := req.Body.Intent.Slots["row"]
+	if !ok {
+		statement, _ := h.ChatGptService.TextGeneration(ctx, "playing tic-tac-toe, tell the user they need to specify a row number (1-3)", h.Model)
+		return alexa.NewResponse("TicTacToe", statement, false), nil
+	}
+
+	col, ok := req.Body.Intent.Slots["column"]
+	if !ok {
+		statement, _ := h.ChatGptService.TextGeneration(ctx, "playing tic-tac-toe, tell the user they need to specify a column number (1-3)", h.Model)
+		return alexa.NewResponse("TicTacToe", statement, false), nil
+	}
+
+	rowNum, _ := strconv.Atoi(row.Value)
+	colNum, _ := strconv.Atoi(col.Value)
+
+	// Convert to 0-based index
+	rowNum--
+	colNum--
+
+	var statement string
+	var shouldGenerateImage bool
+
+	// Player makes move
+	err := h.TicTacToe.MakeMove(rowNum, colNum)
+	if err != nil {
+		statement, _ = h.ChatGptService.TextGeneration(ctx, fmt.Sprintf("playing tic-tac-toe, tell the user their move was invalid: %s", err.Error()), h.Model)
+		return alexa.NewResponse("TicTacToe", statement, false), nil
+	}
+
+	// Check if player won
+	if h.TicTacToe.GetWinner() == TicTacToeX {
+		statement, _ = h.ChatGptService.TextGeneration(ctx, "playing tic-tac-toe, congratulate the user for winning the game!", h.Model)
+		shouldGenerateImage = true
+		h.TicTacToe = NewTicTacToe() // Reset for new game
+	} else if h.TicTacToe.IsDraw() {
+		statement, _ = h.ChatGptService.TextGeneration(ctx, "playing tic-tac-toe, tell the user the game is a draw", h.Model)
+		shouldGenerateImage = true
+		h.TicTacToe = NewTicTacToe() // Reset for new game
+	} else {
+		// AI makes move
+		aiRow, aiCol, _ := h.TicTacToe.MakeAIMove()
+
+		// Check if AI won
+		if h.TicTacToe.GetWinner() == TicTacToeO {
+			statement, _ = h.ChatGptService.TextGeneration(ctx, fmt.Sprintf("playing tic-tac-toe, the AI played at row %d, column %d and won the game! Better luck next time!", aiRow+1, aiCol+1), h.Model)
+			shouldGenerateImage = true
+			h.TicTacToe = NewTicTacToe() // Reset for new game
+		} else if h.TicTacToe.IsDraw() {
+			statement, _ = h.ChatGptService.TextGeneration(ctx, "playing tic-tac-toe, the game is a draw after AI's move", h.Model)
+			shouldGenerateImage = true
+			h.TicTacToe = NewTicTacToe() // Reset for new game
+		} else {
+			statement, _ = h.ChatGptService.TextGeneration(ctx, fmt.Sprintf("playing tic-tac-toe, you played at row %d column %d, AI played at row %d column %d. Your turn!", rowNum+1, colNum+1, aiRow+1, aiCol+1), h.Model)
+			shouldGenerateImage = true
+		}
+	}
+
+	// Queue image generation if needed
+	if shouldGenerateImage {
+		imagePrompt := h.TicTacToe.GetBoardDescription()
+		imageReq := &chatmodels.Request{
+			Prompt:     imagePrompt,
+			Model:      h.Model,
+			ImageModel: &h.ImageModel,
+		}
+		// Queue the image generation request (fire and forget)
+		go h.RequestsQueue.PushMessage(ctx, imageReq)
+
+		statement += " A visual board is being generated."
+	}
+
+	h.lastResponse = &chatmodels.LastResponse{
+		Response: statement,
+		TimeDiff: fmt.Sprintf("%.0f", time.Since(execTime).Seconds()),
+		Model:    h.Model.String(),
+	}
+
+	return alexa.NewResponse("TicTacToe", statement, false), nil
 }
