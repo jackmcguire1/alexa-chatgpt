@@ -74,7 +74,7 @@ The skill uses an asynchronous architecture to handle the Alexa 8-second timeout
 |----------|-------|-------|-------------------|
 | **OpenAI** | gpt-5-mini | `gpt` | `CHAT_MODEL_GPT` |
 | **OpenAI** | gpt-4o | `g. p. t. version number four` | `CHAT_MODEL_GPT_V4` |
-| **Google** | gemini-2.0-flash-exp | `gemini` | `CHAT_MODEL_GEMINI` |
+| **Google** | gemini-2.5-flash | `gemini` | `CHAT_MODEL_GEMINI` |
 | **Anthropic** | claude-opus-4-20250514 | `opus` | `CHAT_MODEL_OPUS` |
 | **Anthropic** | claude-sonnet-4-20250514 | `sonnet` | `CHAT_MODEL_SONNET` |
 | **Cloudflare** | llama-4-scout-17b-16e-instruct | `llama` | `CHAT_MODEL_META` |
@@ -83,12 +83,12 @@ The skill uses an asynchronous architecture to handle the Alexa 8-second timeout
 
 ### Image Generation Models
 
-| Provider | Model | Alias | Internal Reference |
-|----------|-------|-------|-------------------|
-| **OpenAI** | dall-e-3 | `dallas` | `IMAGE_MODEL_DALL_E_3` |
-| **OpenAI** | dall-e-2 | `dallas v2` | `IMAGE_MODEL_DALL_E_2` |
-| **Cloudflare** | stable-diffusion-xl-base-1.0 | `stable` | `IMAGE_MODEL_STABLE_DIFFUSION` |
-| **Google** | imagen-3.0-generate-002 | `gemini image` | `IMAGE_MODEL_GEMINI` |
+| Provider | Model                          | Alias | Internal Reference |
+|----------|--------------------------------|-------|-------------------|
+| **OpenAI** | dall-e-3                       | `dallas` | `IMAGE_MODEL_DALL_E_3` |
+| **OpenAI** | dall-e-2                       | `dallas v2` | `IMAGE_MODEL_DALL_E_2` |
+| **Cloudflare** | stable-diffusion-xl-base-1.0   | `stable` | `IMAGE_MODEL_STABLE_DIFFUSION` |
+| **Google** | imagen-4.0-generate-001        | `gemini image` | `IMAGE_MODEL_GEMINI` |
 | **Google** | gemini-2.5-flash-image-preview | `banana nano` | `IMAGE_MODEL_GEMINI_BANANA_NANO` |
 
 ### Translation Model
