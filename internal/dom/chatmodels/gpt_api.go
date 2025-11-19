@@ -14,6 +14,7 @@ import (
 var IMAGE_MODEL_TO_OPENAI_MODEL = map[ImageModel]string{
 	IMAGE_MODEL_DALL_E_3: "dall-e-3",
 	IMAGE_MODEL_DALL_E_2: "dall-e-2",
+	IMAGE_MODEL_GPT:      "gpt-image-1",
 }
 
 var CHAT_MODEL_TO_OPENAI_MODEL = map[ChatModel]string{

@@ -61,7 +61,7 @@ func (client *Client) GetLLmModel(model ChatModel) (llms.Model, []llms.CallOptio
 
 func (client *Client) GenerateImage(ctx context.Context, prompt string, model ImageModel) ([]byte, error) {
 	switch model {
-	case IMAGE_MODEL_DALL_E_2, IMAGE_MODEL_DALL_E_3:
+	case IMAGE_MODEL_DALL_E_2, IMAGE_MODEL_DALL_E_3, IMAGE_MODEL_GPT:
 		if client.GPTApi == nil {
 			return nil, fmt.Errorf("image model %s is not available: OpenAI client not configured", model)
 		}

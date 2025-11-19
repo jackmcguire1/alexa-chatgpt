@@ -30,11 +30,12 @@ const (
 )
 
 const (
-	IMAGE_MODEL_STABLE_DIFFUSION ImageModel = "stable"
-	IMAGE_MODEL_DALL_E_2         ImageModel = "dallas v2"
-	IMAGE_MODEL_DALL_E_3         ImageModel = "dallas"
-	IMAGE_MODEL_GEMINI           ImageModel = "gemini image"
+	IMAGE_MODEL_STABLE_DIFFUSION   ImageModel = "stable"
+	IMAGE_MODEL_DALL_E_2           ImageModel = "dallas v2"
+	IMAGE_MODEL_DALL_E_3           ImageModel = "dallas"
+	IMAGE_MODEL_GEMINI             ImageModel = "gemini image"
 	IMAGE_MODEL_GEMINI_BANANA_NANO ImageModel = "banana nano"
+	IMAGE_MODEL_GPT                ImageModel = "gpt-image"
 )
 
 var AvailableModels []string
@@ -58,6 +59,7 @@ func RegisterAvailableClients(openAI, gemini, anthropic, cloudflare bool) {
 		ImageModels = append(ImageModels,
 			IMAGE_MODEL_DALL_E_3.String(),
 			IMAGE_MODEL_DALL_E_2.String(),
+			IMAGE_MODEL_GPT.String(),
 		)
 	}
 
@@ -100,7 +102,7 @@ func IsModelAvailable(model ChatModel) bool {
 
 func IsImageModelAvailable(model ImageModel) bool {
 	switch model {
-	case IMAGE_MODEL_DALL_E_2, IMAGE_MODEL_DALL_E_3:
+	case IMAGE_MODEL_DALL_E_2, IMAGE_MODEL_DALL_E_3, IMAGE_MODEL_GPT:
 		return hasOpenAI
 	case IMAGE_MODEL_GEMINI, IMAGE_MODEL_GEMINI_BANANA_NANO:
 		return hasGemini
@@ -112,10 +114,10 @@ func IsImageModelAvailable(model ImageModel) bool {
 }
 
 var StrToImageModel = map[string]ImageModel{
-	IMAGE_MODEL_STABLE_DIFFUSION.String(): IMAGE_MODEL_STABLE_DIFFUSION,
-	IMAGE_MODEL_DALL_E_2.String():         IMAGE_MODEL_DALL_E_2,
-	IMAGE_MODEL_DALL_E_3.String():         IMAGE_MODEL_DALL_E_3,
-	IMAGE_MODEL_GEMINI.String():           IMAGE_MODEL_GEMINI,
+	IMAGE_MODEL_STABLE_DIFFUSION.String():   IMAGE_MODEL_STABLE_DIFFUSION,
+	IMAGE_MODEL_DALL_E_2.String():           IMAGE_MODEL_DALL_E_2,
+	IMAGE_MODEL_DALL_E_3.String():           IMAGE_MODEL_DALL_E_3,
+	IMAGE_MODEL_GEMINI.String():             IMAGE_MODEL_GEMINI,
 	IMAGE_MODEL_GEMINI_BANANA_NANO.String(): IMAGE_MODEL_GEMINI_BANANA_NANO,
 }
 
