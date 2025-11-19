@@ -1,8 +1,8 @@
 module github.com/jackmcguire1/alexa-chatgpt
 
-go 1.24.0
+go 1.24.4
 
-toolchain go1.24.2
+toolchain go1.24.10
 
 require (
 	cloud.google.com/go/auth v0.17.0
@@ -79,4 +79,4 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
-replace github.com/tmc/langchaingo => github.com/jackmcguire1/langchaingo v1.0.12
+replace github.com/tmc/langchaingo => github.com/jackmcguire1/langchaingo v1.0.13
