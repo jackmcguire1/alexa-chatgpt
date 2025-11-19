@@ -17,7 +17,7 @@ var IMAGE_MODEL_TO_OPENAI_MODEL = map[ImageModel]string{
 }
 
 var CHAT_MODEL_TO_OPENAI_MODEL = map[ChatModel]string{
-	CHAT_MODEL_GPT:    "gpt-5-mini",
+	CHAT_MODEL_GPT:    "gpt-5.1-2025-11-13",
 	CHAT_MODEL_GPT_V4: "gpt-4o",
 }
 
