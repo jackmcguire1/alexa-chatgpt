@@ -69,6 +69,7 @@ response:
 		chatmodels.IMAGE_MODEL_GEMINI.String(),
 		chatmodels.IMAGE_MODEL_GEMINI_BANANA_NANO.String(),
 		chatmodels.IMAGE_MODEL_GPT.String():
+
 		res = alexa.NewImageResponse(
 			"Response",
 			fmt.Sprintf("your generated image took %s seconds to fetch", response.TimeDiff),
