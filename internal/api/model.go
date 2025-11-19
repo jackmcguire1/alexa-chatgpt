@@ -82,11 +82,19 @@ func (h *Handler) getOrSetModel(model string) (res alexa.Response, err error) {
 				h.Model.String(), h.ImageModel.String()), false)
 		return
 	default:
+		chatModels := []string{}
+		for k, _ := range chatModelConfigs {
+			chatModels = append(chatModels, k)
+		}
+		imageModels := []string{}
+		for k, _ := range imageModelConfigs {
+			imageModels = append(imageModels, k)
+		}
 		res = alexa.NewResponse(
 			responseTitleModels,
-			fmt.Sprintf("The available chat models are \n - %s and image models %s",
-				strings.Join(chatmodels.AvailableModels, "\n - "),
-				strings.Join(chatmodels.ImageModels, "\n - ")),
+			fmt.Sprintf("The available models are, TEXT MODELS: \n - %s IMAGE MODELS %s",
+				strings.Join(chatModels, "\n - "),
+				strings.Join(imageModels, "\n - ")),
 			false,
 		)
 		return
