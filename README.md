@@ -21,7 +21,7 @@
 - **Optional Client Initialization**: Only configured providers are initialized - no need to set up all API keys
 - **Asynchronous Processing**: Handles Alexa's timeout constraints with intelligent queue management
 - **Image Generation**: Create images with DALL-E, Stable Diffusion, and Google Imagen
-- **Interactive Games**: Built-in number guessing and battleship games
+- **Interactive Games**: Built-in number guessing, battleship, and tic-tac-toe games with visual board generation
 - **Translation Support**: Real-time language translation capabilities
 - **Production Ready**: Complete with observability, error handling, and retry mechanisms
 - **Cost Effective**: Leverage Cloudflare Workers AI for budget-friendly inference
@@ -124,6 +124,8 @@ The skill uses an asynchronous architecture to handle the Alexa 8-second timeout
 | **Guess** | "guess {number}" | Play a number guessing game |
 | **Battleship** | "battleship {x} {y}" | Play battleship game |
 | **BattleshipStatus** | "battleship status" | Get current battleship game status |
+| **TicTacToe** | "tic tac toe {row} {column}" | Play tic-tac-toe with visual board generation |
+| **TicTacToeStatus** | "tic tac toe status" | Get current tic-tac-toe game status |
 
 ### Utility Intents
 
@@ -302,6 +304,20 @@ Alexa: "I am using the text-model gpt and image-model dallas"
 
 User: "Model available"
 Alexa: "The available chat models are: gpt, gemini, opus, sonnet, llama, qwen, apache..."
+```
+
+### Playing Tic-Tac-Toe
+```
+User: "Tic tac toe row 1 column 1"
+Alexa: "You played at row 1 column 1, AI played at row 2 column 2. Your turn!"
+[Visual board is generated showing current game state]
+
+User: "Tic tac toe row 1 column 2"
+Alexa: "You played at row 1 column 2, AI played at row 1 column 3 to block you. Your turn!"
+[Updated visual board is generated]
+
+User: "Tic tac toe status"
+Alexa: "The current board shows X marks at positions (1,1) and (1,2), O marks at positions (2,2) and (1,3)..."
 ```
 
 ## API Integration Details

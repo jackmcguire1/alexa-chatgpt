@@ -14,6 +14,8 @@ const (
 	RandomFactIntent         = "RandomFactIntent"
 	BattleShipsIntent        = "Battleship"
 	BattleshipStatusIntent   = "BattleshipStatus"
+	TicTacToeIntent          = "TicTacToe"
+	TicTacToeStatusIntent    = "TicTacToeStatus"
 	ModelIntent              = "Model"
 	RandomNumberIntent       = "Guess"
 	PurgeIntent              = "Purge"

@@ -17,9 +17,9 @@ import (
 )
 
 const (
-	VERTEX_MODEL            string = "gemini-2.5-flash"
+	VERTEX_MODEL            string = "gemini-2.0-flash-exp"
 	VERTEX_API_LOCATION     string = "us-central1"
-	IMAGE_IMAGEN_MODEL             = "imagen-4.0-generate-001"
+	IMAGE_IMAGEN_MODEL             = "imagen-3.0-generate-002"
 	IMAGE_BANANA_NANO_MODEL        = "gemini-2.5-flash-image-preview"
 )
 
