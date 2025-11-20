@@ -17,26 +17,6 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 )
 
-const (
-	// Active models
-	CF_LLAMA_4_SCOUT          = "@cf/meta/llama-4-scout-17b-16e-instruct"
-	CF_STABLE_DIFFUSION       = "@cf/stabilityai/stable-diffusion-xl-base-1.0"
-	CF_META_TRANSLATION_MODEL = "@cf/meta/m2m100-1.2b"
-	CF_QWEN_MODEL             = "@cf/deepseek-ai/deepseek-r1-distill-qwen-32b"
-	CF_GPT_OSS_MODEL          = "@cf/openai/gpt-oss-120b"
-)
-
-var CHAT_MODEL_TO_CF_MODEL = map[ChatModel]string{
-	CHAT_MODEL_META:         CF_LLAMA_4_SCOUT,
-	CHAT_MODEL_TRANSLATIONS: CF_META_TRANSLATION_MODEL,
-	CHAT_MODEL_QWEN:         CF_QWEN_MODEL,
-	CHAT_MODEL_GPT_OSS:      CF_GPT_OSS_MODEL,
-}
-
-var IMAGE_MODEL_TO_CF_MODEL = map[ImageModel]string{
-	IMAGE_MODEL_STABLE_DIFFUSION: CF_STABLE_DIFFUSION,
-}
-
 type Response struct {
 	Result struct {
 		Response string `json:"response"`

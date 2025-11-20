@@ -17,16 +17,8 @@ import (
 )
 
 const (
-	VERTEX_MODEL            string = "gemini-2.5-flash"
-	VERTEX_API_LOCATION     string = "us-central1"
-	IMAGE_IMAGEN_MODEL             = "imagen-4.0-generate-001"
-	IMAGE_BANANA_NANO_MODEL        = "gemini-2.5-flash-image-preview"
+	VERTEX_API_LOCATION string = "us-central1"
 )
-
-var IMAGE_MODEL_TO_GEMINI_MODEL = map[ImageModel]string{
-	IMAGE_MODEL_GEMINI:             IMAGE_IMAGEN_MODEL,
-	IMAGE_MODEL_GEMINI_BANANA_NANO: IMAGE_BANANA_NANO_MODEL,
-}
 
 type GeminiApiClient struct {
 	credentials *google.Credentials

@@ -6,13 +6,6 @@ import (
 
 var MissingContentError = errors.New("Missing content")
 
-var (
-	hasOpenAI     bool
-	hasGemini     bool
-	hasAnthropic  bool
-	hasCloudflare bool
-)
-
 type ChatModel string
 
 type ImageModel string
@@ -38,89 +31,6 @@ const (
 	IMAGE_MODEL_GPT                ImageModel = "gpt-image"
 )
 
-var AvailableModels []string
-
-var ImageModels []string
-
-func RegisterAvailableClients(openAI, gemini, anthropic, cloudflare bool) {
-	hasOpenAI = openAI
-	hasGemini = gemini
-	hasAnthropic = anthropic
-	hasCloudflare = cloudflare
-
-	AvailableModels = []string{}
-	ImageModels = []string{}
-
-	if hasOpenAI {
-		AvailableModels = append(AvailableModels,
-			CHAT_MODEL_GPT.String(),
-			CHAT_MODEL_GPT_V4.String(),
-		)
-		ImageModels = append(ImageModels,
-			IMAGE_MODEL_DALL_E_3.String(),
-			IMAGE_MODEL_DALL_E_2.String(),
-			IMAGE_MODEL_GPT.String(),
-		)
-	}
-
-	if hasGemini {
-		AvailableModels = append(AvailableModels, CHAT_MODEL_GEMINI.String())
-		ImageModels = append(ImageModels, IMAGE_MODEL_GEMINI.String(), IMAGE_MODEL_GEMINI_BANANA_NANO.String())
-	}
-
-	if hasAnthropic {
-		AvailableModels = append(AvailableModels,
-			CHAT_MODEL_OPUS.String(),
-			CHAT_MODEL_SONNET.String(),
-		)
-	}
-
-	if hasCloudflare {
-		AvailableModels = append(AvailableModels,
-			CHAT_MODEL_META.String(),
-			CHAT_MODEL_QWEN.String(),
-			CHAT_MODEL_GPT_OSS.String(),
-		)
-		ImageModels = append(ImageModels, IMAGE_MODEL_STABLE_DIFFUSION.String())
-	}
-}
-
-func IsModelAvailable(model ChatModel) bool {
-	switch model {
-	case CHAT_MODEL_GPT, CHAT_MODEL_GPT_V4:
-		return hasOpenAI
-	case CHAT_MODEL_GEMINI:
-		return hasGemini
-	case CHAT_MODEL_OPUS, CHAT_MODEL_SONNET:
-		return hasAnthropic
-	case CHAT_MODEL_META, CHAT_MODEL_QWEN, CHAT_MODEL_TRANSLATIONS, CHAT_MODEL_GPT_OSS:
-		return hasCloudflare
-	default:
-		return false
-	}
-}
-
-func IsImageModelAvailable(model ImageModel) bool {
-	switch model {
-	case IMAGE_MODEL_DALL_E_2, IMAGE_MODEL_DALL_E_3, IMAGE_MODEL_GPT:
-		return hasOpenAI
-	case IMAGE_MODEL_GEMINI, IMAGE_MODEL_GEMINI_BANANA_NANO:
-		return hasGemini
-	case IMAGE_MODEL_STABLE_DIFFUSION:
-		return hasCloudflare
-	default:
-		return false
-	}
-}
-
-var StrToImageModel = map[string]ImageModel{
-	IMAGE_MODEL_STABLE_DIFFUSION.String():   IMAGE_MODEL_STABLE_DIFFUSION,
-	IMAGE_MODEL_DALL_E_2.String():           IMAGE_MODEL_DALL_E_2,
-	IMAGE_MODEL_DALL_E_3.String():           IMAGE_MODEL_DALL_E_3,
-	IMAGE_MODEL_GEMINI.String():             IMAGE_MODEL_GEMINI,
-	IMAGE_MODEL_GEMINI_BANANA_NANO.String(): IMAGE_MODEL_GEMINI_BANANA_NANO,
-}
-
 func (c ChatModel) String() string {
 	return string(c)
 }
@@ -128,3 +38,355 @@ func (c ChatModel) String() string {
 func (c ImageModel) String() string {
 	return string(c)
 }
+
+// Provider identifies which AI service provides the model
+type Provider string
+
+const (
+	ProviderOpenAI     Provider = "openai"
+	ProviderGemini     Provider = "gemini"
+	ProviderAnthropic  Provider = "anthropic"
+	ProviderCloudflare Provider = "cloudflare"
+)
+
+// ModelType distinguishes between chat and image models
+type ModelType string
+
+const (
+	ModelTypeChat  ModelType = "chat"
+	ModelTypeImage ModelType = "image"
+)
+
+// ModelConfig contains all configuration for a single model
+type ModelConfig struct {
+	// The model constant identifier
+	ChatModel  ChatModel
+	ImageModel ImageModel
+
+	// Type of model (chat or image)
+	Type ModelType
+
+	// Provider that owns this model
+	Provider Provider
+
+	// Provider-specific model identifier (e.g., "gpt-4o", "claude-sonnet-4-20250514")
+	ProviderModelID string
+
+	// Alexa voice command aliases (what users say to select this model)
+	Aliases []string
+
+	// Error message when model is unavailable
+	ErrorMessage string
+}
+
+// ModelRegistry holds all model configurations
+type ModelRegistry struct {
+	configs []ModelConfig
+
+	// Provider availability flags
+	hasOpenAI     bool
+	hasGemini     bool
+	hasAnthropic  bool
+	hasCloudflare bool
+
+	// Cached lookups
+	chatModelByAlias  map[string]ModelConfig
+	imageModelByAlias map[string]ModelConfig
+}
+
+var registry = &ModelRegistry{}
+
+// Model registry - single source of truth for all models
+var allModelConfigs = []ModelConfig{
+	// OpenAI Chat Models
+	{
+		ChatModel:       CHAT_MODEL_GPT,
+		Type:            ModelTypeChat,
+		Provider:        ProviderOpenAI,
+		ProviderModelID: "gpt-5.1-2025-11-13",
+		Aliases:         []string{"gpt"},
+		ErrorMessage:    "GPT model is not available - OpenAI API key not configured",
+	},
+	{
+		ChatModel:       CHAT_MODEL_GPT_V4,
+		Type:            ModelTypeChat,
+		Provider:        ProviderOpenAI,
+		ProviderModelID: "gpt-4o",
+		Aliases:         []string{"g. p. t. version number four"},
+		ErrorMessage:    "GPT-4 model is not available - OpenAI API key not configured",
+	},
+
+	// OpenAI Image Models
+	{
+		ImageModel:      IMAGE_MODEL_DALL_E_3,
+		Type:            ModelTypeImage,
+		Provider:        ProviderOpenAI,
+		ProviderModelID: "dall-e-3",
+		Aliases:         []string{"dallas"},
+		ErrorMessage:    "DALL-E 3 model is not available - OpenAI API key not configured",
+	},
+	{
+		ImageModel:      IMAGE_MODEL_DALL_E_2,
+		Type:            ModelTypeImage,
+		Provider:        ProviderOpenAI,
+		ProviderModelID: "dall-e-2",
+		Aliases:         []string{"dallas v2"},
+		ErrorMessage:    "DALL-E 2 model is not available - OpenAI API key not configured",
+	},
+	{
+		ImageModel:      IMAGE_MODEL_GPT,
+		Type:            ModelTypeImage,
+		Provider:        ProviderOpenAI,
+		ProviderModelID: "gpt-image-1",
+		Aliases:         []string{"chatgpt image"},
+		ErrorMessage:    "GPT-Image model is not available - OpenAI API key not configured",
+	},
+
+	// Gemini Chat Models
+	{
+		ChatModel:       CHAT_MODEL_GEMINI,
+		Type:            ModelTypeChat,
+		Provider:        ProviderGemini,
+		ProviderModelID: "gemini-2.5-flash",
+		Aliases:         []string{"gemini"},
+		ErrorMessage:    "Gemini model is not available - Gemini API key not configured",
+	},
+
+	// Gemini Image Models
+	{
+		ImageModel:      IMAGE_MODEL_GEMINI,
+		Type:            ModelTypeImage,
+		Provider:        ProviderGemini,
+		ProviderModelID: "imagen-4.0-generate-001",
+		Aliases:         []string{"gemini image"},
+		ErrorMessage:    "Gemini imagen model is not available - Gemini API key not configured",
+	},
+	{
+		ImageModel:      IMAGE_MODEL_GEMINI_BANANA_NANO,
+		Type:            ModelTypeImage,
+		Provider:        ProviderGemini,
+		ProviderModelID: "gemini-2.5-flash-image-preview",
+		Aliases:         []string{"banana nano"},
+		ErrorMessage:    "Gemini banana nano image model is not available - Gemini API key not configured",
+	},
+
+	// Anthropic Chat Models
+	{
+		ChatModel:       CHAT_MODEL_OPUS,
+		Type:            ModelTypeChat,
+		Provider:        ProviderAnthropic,
+		ProviderModelID: "claude-opus-4-20250514",
+		Aliases:         []string{"opus"},
+		ErrorMessage:    "Opus model is not available - Anthropic API key not configured",
+	},
+	{
+		ChatModel:       CHAT_MODEL_SONNET,
+		Type:            ModelTypeChat,
+		Provider:        ProviderAnthropic,
+		ProviderModelID: "claude-sonnet-4-20250514",
+		Aliases:         []string{"sonnet"},
+		ErrorMessage:    "Sonnet model is not available - Anthropic API key not configured",
+	},
+
+	// Cloudflare Chat Models
+	{
+		ChatModel:       CHAT_MODEL_META,
+		Type:            ModelTypeChat,
+		Provider:        ProviderCloudflare,
+		ProviderModelID: "@cf/meta/llama-4-scout-17b-16e-instruct",
+		Aliases:         []string{"llama"},
+		ErrorMessage:    "Meta model is not available - Cloudflare API key not configured",
+	},
+	{
+		ChatModel:       CHAT_MODEL_QWEN,
+		Type:            ModelTypeChat,
+		Provider:        ProviderCloudflare,
+		ProviderModelID: "@cf/deepseek-ai/deepseek-r1-distill-qwen-32b",
+		Aliases:         []string{"qwen"},
+		ErrorMessage:    "Qwen model is not available - Cloudflare API key not configured",
+	},
+	{
+		ChatModel:       CHAT_MODEL_GPT_OSS,
+		Type:            ModelTypeChat,
+		Provider:        ProviderCloudflare,
+		ProviderModelID: "@cf/openai/gpt-oss-120b",
+		Aliases:         []string{"apache"},
+		ErrorMessage:    "GPT-OSS model is not available - Cloudflare API key not configured",
+	},
+	{
+		ChatModel:       CHAT_MODEL_TRANSLATIONS,
+		Type:            ModelTypeChat,
+		Provider:        ProviderCloudflare,
+		ProviderModelID: "@cf/meta/m2m100-1.2b",
+		Aliases:         []string{"translate"},
+		ErrorMessage:    "Translation model is not available - Cloudflare API key not configured",
+	},
+
+	// Cloudflare Image Models
+	{
+		ImageModel:      IMAGE_MODEL_STABLE_DIFFUSION,
+		Type:            ModelTypeImage,
+		Provider:        ProviderCloudflare,
+		ProviderModelID: "@cf/stabilityai/stable-diffusion-xl-base-1.0",
+		Aliases:         []string{"stable"},
+		ErrorMessage:    "Stable Diffusion model is not available - Cloudflare API key not configured",
+	},
+}
+
+// RegisterAvailableClients initializes the registry with provider availability
+func RegisterAvailableClients(openAI, gemini, anthropic, cloudflare bool) {
+	registry.hasOpenAI = openAI
+	registry.hasGemini = gemini
+	registry.hasAnthropic = anthropic
+	registry.hasCloudflare = cloudflare
+	registry.configs = allModelConfigs
+
+	// Build alias lookup maps
+	registry.chatModelByAlias = make(map[string]ModelConfig)
+	registry.imageModelByAlias = make(map[string]ModelConfig)
+
+	// Populate legacy arrays
+	AvailableModels = []string{}
+	ImageModels = []string{}
+
+	for _, config := range registry.configs {
+		// Only include available models
+		if !registry.isProviderAvailable(config.Provider) {
+			continue
+		}
+
+		for _, alias := range config.Aliases {
+			if config.Type == ModelTypeChat {
+				registry.chatModelByAlias[alias] = config
+				AvailableModels = append(AvailableModels, alias)
+			} else {
+				registry.imageModelByAlias[alias] = config
+				ImageModels = append(ImageModels, alias)
+			}
+		}
+	}
+}
+
+// IsModelAvailable checks if a chat model is available
+func IsModelAvailable(model ChatModel) bool {
+	for _, config := range registry.configs {
+		if config.ChatModel == model && config.Type == ModelTypeChat {
+			return registry.isProviderAvailable(config.Provider)
+		}
+	}
+	return false
+}
+
+// IsImageModelAvailable checks if an image model is available
+func IsImageModelAvailable(model ImageModel) bool {
+	for _, config := range registry.configs {
+		if config.ImageModel == model && config.Type == ModelTypeImage {
+			return registry.isProviderAvailable(config.Provider)
+		}
+	}
+	return false
+}
+
+// isProviderAvailable checks if a provider is configured
+func (r *ModelRegistry) isProviderAvailable(provider Provider) bool {
+	switch provider {
+	case ProviderOpenAI:
+		return r.hasOpenAI
+	case ProviderGemini:
+		return r.hasGemini
+	case ProviderAnthropic:
+		return r.hasAnthropic
+	case ProviderCloudflare:
+		return r.hasCloudflare
+	default:
+		return false
+	}
+}
+
+// GetChatModelByAlias returns a chat model config by its alias
+func GetChatModelByAlias(alias string) (ModelConfig, bool) {
+	config, ok := registry.chatModelByAlias[alias]
+	return config, ok
+}
+
+// GetImageModelByAlias returns an image model config by its alias
+func GetImageModelByAlias(alias string) (ModelConfig, bool) {
+	config, ok := registry.imageModelByAlias[alias]
+	return config, ok
+}
+
+// GetAvailableChatModels returns all available chat model aliases
+func GetAvailableChatModels() []string {
+	var models []string
+	for _, config := range registry.configs {
+		if config.Type == ModelTypeChat && registry.isProviderAvailable(config.Provider) {
+			models = append(models, config.Aliases...)
+		}
+	}
+	return models
+}
+
+// GetAvailableImageModels returns all available image model aliases
+func GetAvailableImageModels() []string {
+	var models []string
+	for _, config := range registry.configs {
+		if config.Type == ModelTypeImage && registry.isProviderAvailable(config.Provider) {
+			models = append(models, config.Aliases...)
+		}
+	}
+	return models
+}
+
+// GetAvailableChatModelsWithProviderIDs returns all available chat models with their provider model IDs
+// Returns a map of alias -> provider model ID
+func GetAvailableChatModelsWithProviderIDs() map[string]string {
+	models := make(map[string]string)
+	for _, config := range registry.configs {
+		if config.Type == ModelTypeChat && registry.isProviderAvailable(config.Provider) {
+			for _, alias := range config.Aliases {
+				models[alias] = config.ProviderModelID
+			}
+		}
+	}
+	return models
+}
+
+// GetAvailableImageModelsWithProviderIDs returns all available image models with their provider model IDs
+// Returns a map of alias -> provider model ID
+func GetAvailableImageModelsWithProviderIDs() map[string]string {
+	models := make(map[string]string)
+	for _, config := range registry.configs {
+		if config.Type == ModelTypeImage && registry.isProviderAvailable(config.Provider) {
+			for _, alias := range config.Aliases {
+				models[alias] = config.ProviderModelID
+			}
+		}
+	}
+	return models
+}
+
+// GetProviderModelID returns the provider-specific model ID for a chat model
+func GetProviderModelID(model ChatModel) (string, bool) {
+	// Use allModelConfigs directly (works even before RegisterAvailableClients is called)
+	for _, config := range allModelConfigs {
+		if config.ChatModel == model && config.Type == ModelTypeChat {
+			return config.ProviderModelID, true
+		}
+	}
+	return "", false
+}
+
+// GetImageProviderModelID returns the provider-specific model ID for an image model
+func GetImageProviderModelID(model ImageModel) (string, bool) {
+	// Use allModelConfigs directly (works even before RegisterAvailableClients is called)
+	for _, config := range allModelConfigs {
+		if config.ImageModel == model && config.Type == ModelTypeImage {
+			return config.ProviderModelID, true
+		}
+	}
+	return "", false
+}
+
+// Legacy compatibility exports - populated by RegisterAvailableClients
+var AvailableModels []string
+var ImageModels []string

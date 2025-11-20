@@ -15,49 +15,19 @@ const (
 	responseOK               = "ok"
 )
 
-type modelConfig struct {
-	model        chatmodels.ChatModel
-	errorMessage string
-}
-
-type imageModelConfig struct {
-	model        chatmodels.ImageModel
-	errorMessage string
-}
-
-var chatModelConfigs = map[string]modelConfig{
-	"gemini":                       {chatmodels.CHAT_MODEL_GEMINI, "Gemini model is not available - Gemini API key not configured"},
-	"gpt":                          {chatmodels.CHAT_MODEL_GPT, "GPT model is not available - OpenAI API key not configured"},
-	"g. p. t. version number four": {chatmodels.CHAT_MODEL_GPT_V4, "GPT-4 model is not available - OpenAI API key not configured"},
-	"llama":                        {chatmodels.CHAT_MODEL_META, "Meta model is not available - Cloudflare API key not configured"},
-	"qwen":                         {chatmodels.CHAT_MODEL_QWEN, "Qwen model is not available - Cloudflare API key not configured"},
-	"opus":                         {chatmodels.CHAT_MODEL_OPUS, "Opus model is not available - Anthropic API key not configured"},
-	"sonnet":                       {chatmodels.CHAT_MODEL_SONNET, "Sonnet model is not available - Anthropic API key not configured"},
-	"apache":                       {chatmodels.CHAT_MODEL_GPT_OSS, "GPT-OSS model is not available - Cloudflare API key not configured"},
-}
-
-var imageModelConfigs = map[string]imageModelConfig{
-	"stable":        {chatmodels.IMAGE_MODEL_STABLE_DIFFUSION, "Stable Diffusion model is not available - Cloudflare API key not configured"},
-	"dallas":        {chatmodels.IMAGE_MODEL_DALL_E_3, "DALL-E 3 model is not available - OpenAI API key not configured"},
-	"dallas v2":     {chatmodels.IMAGE_MODEL_DALL_E_2, "DALL-E 2 model is not available - OpenAI API key not configured"},
-	"gemini image":  {chatmodels.IMAGE_MODEL_GEMINI, "Gemini imagen model is not available - Gemini API key not configured"},
-	"banana nano":   {chatmodels.IMAGE_MODEL_GEMINI_BANANA_NANO, "Gemini banana nano image model is not available - Gemini API key not configured"},
-	"chatgpt image": {chatmodels.IMAGE_MODEL_GPT, "GPT-Image model is not available - OpenAI API key not configured"},
-}
-
-func (h *Handler) setChatModel(config modelConfig) alexa.Response {
-	if !chatmodels.IsModelAvailable(config.model) {
-		return alexa.NewResponse(responseTitleChatModels, config.errorMessage, false)
+func (h *Handler) setChatModel(config chatmodels.ModelConfig) alexa.Response {
+	if !chatmodels.IsModelAvailable(config.ChatModel) {
+		return alexa.NewResponse(responseTitleChatModels, config.ErrorMessage, false)
 	}
-	h.Model = config.model
+	h.Model = config.ChatModel
 	return alexa.NewResponse(responseTitleChatModels, responseOK, false)
 }
 
-func (h *Handler) setImageModel(config imageModelConfig) alexa.Response {
-	if !chatmodels.IsImageModelAvailable(config.model) {
-		return alexa.NewResponse(responseTitleImageModels, config.errorMessage, false)
+func (h *Handler) setImageModel(config chatmodels.ModelConfig) alexa.Response {
+	if !chatmodels.IsImageModelAvailable(config.ImageModel) {
+		return alexa.NewResponse(responseTitleImageModels, config.ErrorMessage, false)
 	}
-	h.ImageModel = config.model
+	h.ImageModel = config.ImageModel
 	return alexa.NewResponse(responseTitleImageModels, responseOK, false)
 }
 
@@ -65,12 +35,12 @@ func (h *Handler) getOrSetModel(model string) (res alexa.Response, err error) {
 	lowerModel := strings.ToLower(model)
 
 	// Check chat models
-	if config, ok := chatModelConfigs[lowerModel]; ok {
+	if config, ok := chatmodels.GetChatModelByAlias(lowerModel); ok {
 		return h.setChatModel(config), nil
 	}
 
 	// Check image models
-	if config, ok := imageModelConfigs[lowerModel]; ok {
+	if config, ok := chatmodels.GetImageModelByAlias(lowerModel); ok {
 		return h.setImageModel(config), nil
 	}
 
@@ -82,19 +52,25 @@ func (h *Handler) getOrSetModel(model string) (res alexa.Response, err error) {
 				h.Model.String(), h.ImageModel.String()), false)
 		return
 	default:
-		chatModels := []string{}
-		for k, _ := range chatModelConfigs {
-			chatModels = append(chatModels, k)
+		// Build formatted list with alias -> provider model mapping
+		chatModelsMap := chatmodels.GetAvailableChatModelsWithProviderIDs()
+		imageModelsMap := chatmodels.GetAvailableImageModelsWithProviderIDs()
+
+		var chatModelsList []string
+		for alias, providerModel := range chatModelsMap {
+			chatModelsList = append(chatModelsList, fmt.Sprintf("%s (%s)", alias, providerModel))
 		}
-		imageModels := []string{}
-		for k, _ := range imageModelConfigs {
-			imageModels = append(imageModels, k)
+
+		var imageModelsList []string
+		for alias, providerModel := range imageModelsMap {
+			imageModelsList = append(imageModelsList, fmt.Sprintf("%s (%s)", alias, providerModel))
 		}
+
 		res = alexa.NewResponse(
 			responseTitleModels,
-			fmt.Sprintf("The available models are, TEXT MODELS: \n - %s IMAGE MODELS %s",
-				strings.Join(chatModels, "\n - "),
-				strings.Join(imageModels, "\n - ")),
+			fmt.Sprintf("The available models are, TEXT MODELS: \n - %s\n\nIMAGE MODELS: \n - %s",
+				strings.Join(chatModelsList, "\n - "),
+				strings.Join(imageModelsList, "\n - ")),
 			false,
 		)
 		return
