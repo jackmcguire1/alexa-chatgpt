@@ -35,42 +35,54 @@ func (client *Client) TextGenerationWithSystem(ctx context.Context, system strin
 }
 
 func (client *Client) GetLLmModel(model ChatModel) (llms.Model, []llms.CallOption) {
+	// Get provider model ID from centralized registry
+	providerModelID, ok := GetProviderModelID(model)
+	if !ok {
+		return nil, nil
+	}
+
 	switch model {
 	case CHAT_MODEL_OPUS, CHAT_MODEL_SONNET:
 		if client.AnthropicAPI == nil {
 			return nil, nil
 		}
-		return client.AnthropicAPI.GetModel(), []llms.CallOption{llms.WithModel(CHAT_MODEL_TO_ANTHROPIC_MODELS[model])}
-	case CHAT_MODEL_META, CHAT_MODEL_QWEN, CHAT_MODEL_GPT_OSS:
+		return client.AnthropicAPI.GetModel(), []llms.CallOption{llms.WithModel(providerModelID)}
+	case CHAT_MODEL_META, CHAT_MODEL_QWEN, CHAT_MODEL_GPT_OSS, CHAT_MODEL_TRANSLATIONS:
 		if client.CloudflareApiClient == nil {
 			return nil, nil
 		}
-		return client.CloudflareApiClient.GetModel(), []llms.CallOption{llms.WithModel(CHAT_MODEL_TO_CF_MODEL[model])}
+		return client.CloudflareApiClient.GetModel(), []llms.CallOption{llms.WithModel(providerModelID)}
 	case CHAT_MODEL_GEMINI:
 		if client.GeminiAPI == nil {
 			return nil, nil
 		}
-		return client.GeminiAPI.GetModel(), []llms.CallOption{llms.WithModel(VERTEX_MODEL)}
+		return client.GeminiAPI.GetModel(), []llms.CallOption{llms.WithModel(providerModelID)}
 	default:
 		if client.GPTApi == nil {
 			return nil, nil
 		}
-		return client.GPTApi.GetModel(), []llms.CallOption{llms.WithModel(CHAT_MODEL_TO_OPENAI_MODEL[model]), llms.WithTemperature(1)}
+		return client.GPTApi.GetModel(), []llms.CallOption{llms.WithModel(providerModelID), llms.WithTemperature(1)}
 	}
 }
 
 func (client *Client) GenerateImage(ctx context.Context, prompt string, model ImageModel) ([]byte, error) {
+	// Get provider model ID from centralized registry
+	providerModelID, ok := GetImageProviderModelID(model)
+	if !ok {
+		return nil, fmt.Errorf("image model %s is not configured", model)
+	}
+
 	switch model {
 	case IMAGE_MODEL_DALL_E_2, IMAGE_MODEL_DALL_E_3, IMAGE_MODEL_GPT:
 		if client.GPTApi == nil {
 			return nil, fmt.Errorf("image model %s is not available: OpenAI client not configured", model)
 		}
-		return client.GPTApi.GenerateImage(ctx, prompt, IMAGE_MODEL_TO_OPENAI_MODEL[model])
+		return client.GPTApi.GenerateImage(ctx, prompt, providerModelID)
 	case IMAGE_MODEL_GEMINI, IMAGE_MODEL_GEMINI_BANANA_NANO:
 		if client.GeminiAPI == nil {
 			return nil, fmt.Errorf("image model %s is not available: Gemini client not configured", model)
 		}
-		return client.GeminiAPI.GenerateImage(ctx, prompt, IMAGE_MODEL_TO_GEMINI_MODEL[model])
+		return client.GeminiAPI.GenerateImage(ctx, prompt, providerModelID)
 	case IMAGE_MODEL_STABLE_DIFFUSION:
 		fallthrough
 	default:
@@ -78,7 +90,7 @@ func (client *Client) GenerateImage(ctx context.Context, prompt string, model Im
 		if client.CloudflareApiClient == nil {
 			return nil, fmt.Errorf("image model %s is not available: Cloudflare client not configured", model)
 		}
-		return client.CloudflareApiClient.GenerateImage(ctx, prompt, IMAGE_MODEL_TO_CF_MODEL[model])
+		return client.CloudflareApiClient.GenerateImage(ctx, prompt, providerModelID)
 	}
 }
 
@@ -101,10 +113,17 @@ func (client *Client) Translate(
 	if client.CloudflareApiClient == nil {
 		return "", fmt.Errorf("translation model is not available: Cloudflare client not configured")
 	}
+
+	// Get provider model ID from centralized registry
+	providerModelID, ok := GetProviderModelID(model)
+	if !ok {
+		return "", fmt.Errorf("translation model %s is not configured", model)
+	}
+
 	return client.CloudflareApiClient.GenerateTranslation(ctx, &GenerateTranslationRequest{
 		SourceLanguage: sourceLang,
 		TargetLanguage: targetLang,
 		Prompt:         prompt,
-		Model:          CHAT_MODEL_TO_CF_MODEL[model],
+		Model:          providerModelID,
 	})
 }
