@@ -52,13 +52,25 @@ func (h *Handler) getOrSetModel(model string) (res alexa.Response, err error) {
 				h.Model.String(), h.ImageModel.String()), false)
 		return
 	default:
-		chatModels := chatmodels.GetAvailableChatModels()
-		imageModels := chatmodels.GetAvailableImageModels()
+		// Build formatted list with alias -> provider model mapping
+		chatModelsMap := chatmodels.GetAvailableChatModelsWithProviderIDs()
+		imageModelsMap := chatmodels.GetAvailableImageModelsWithProviderIDs()
+
+		var chatModelsList []string
+		for alias, providerModel := range chatModelsMap {
+			chatModelsList = append(chatModelsList, fmt.Sprintf("%s (%s)", alias, providerModel))
+		}
+
+		var imageModelsList []string
+		for alias, providerModel := range imageModelsMap {
+			imageModelsList = append(imageModelsList, fmt.Sprintf("%s (%s)", alias, providerModel))
+		}
+
 		res = alexa.NewResponse(
 			responseTitleModels,
-			fmt.Sprintf("The available models are, TEXT MODELS: \n - %s IMAGE MODELS %s",
-				strings.Join(chatModels, "\n - "),
-				strings.Join(imageModels, "\n - ")),
+			fmt.Sprintf("The available models are, TEXT MODELS: \n - %s\n\nIMAGE MODELS: \n - %s",
+				strings.Join(chatModelsList, "\n - "),
+				strings.Join(imageModelsList, "\n - ")),
 			false,
 		)
 		return

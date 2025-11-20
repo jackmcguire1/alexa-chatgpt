@@ -337,6 +337,34 @@ func GetAvailableImageModels() []string {
 	return models
 }
 
+// GetAvailableChatModelsWithProviderIDs returns all available chat models with their provider model IDs
+// Returns a map of alias -> provider model ID
+func GetAvailableChatModelsWithProviderIDs() map[string]string {
+	models := make(map[string]string)
+	for _, config := range registry.configs {
+		if config.Type == ModelTypeChat && registry.isProviderAvailable(config.Provider) {
+			for _, alias := range config.Aliases {
+				models[alias] = config.ProviderModelID
+			}
+		}
+	}
+	return models
+}
+
+// GetAvailableImageModelsWithProviderIDs returns all available image models with their provider model IDs
+// Returns a map of alias -> provider model ID
+func GetAvailableImageModelsWithProviderIDs() map[string]string {
+	models := make(map[string]string)
+	for _, config := range registry.configs {
+		if config.Type == ModelTypeImage && registry.isProviderAvailable(config.Provider) {
+			for _, alias := range config.Aliases {
+				models[alias] = config.ProviderModelID
+			}
+		}
+	}
+	return models
+}
+
 // GetProviderModelID returns the provider-specific model ID for a chat model
 func GetProviderModelID(model ChatModel) (string, bool) {
 	// Use allModelConfigs directly (works even before RegisterAvailableClients is called)
