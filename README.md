@@ -391,6 +391,32 @@ go test ./...
 ARCH=arm64 make build
 ```
 
+### Adding New Models
+
+The codebase uses a centralized model registry for easy model management. To add a new model:
+
+1. **Add model constant** in `internal/dom/chatmodels/models.go`:
+```go
+const (
+   CHAT_MODEL_NEW_MODEL ChatModel = "new-model"
+)
+```
+
+2. **Add model configuration** to the `allModelConfigs` array in `internal/dom/chatmodels/models.go`:
+```go
+// OpenAI Chat Models
+{
+    ChatModel:       CHAT_MODEL_GPT_TURBO,
+    Type:            ModelTypeChat,
+    Provider:        ProviderOpenAI,
+    ProviderModelID: "gpt-4-turbo-2024-04-09",
+    Aliases:         []string{"turbo""},
+    ErrorMessage:    "GPT Turbo is not available - OpenAI API key not configured",
+}
+```
+
+Now users can say: "model turbo" to use GPT-4 Turbo!
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE.md) file for details.
