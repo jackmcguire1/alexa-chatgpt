@@ -387,6 +387,26 @@ func GetImageProviderModelID(model ImageModel) (string, bool) {
 	return "", false
 }
 
+// GetChatModelProvider returns the provider for a chat model
+func GetChatModelProvider(model ChatModel) (Provider, bool) {
+	for _, config := range allModelConfigs {
+		if config.ChatModel == model && config.Type == ModelTypeChat {
+			return config.Provider, true
+		}
+	}
+	return "", false
+}
+
+// GetImageModelProvider returns the provider for an image model
+func GetImageModelProvider(model ImageModel) (Provider, bool) {
+	for _, config := range allModelConfigs {
+		if config.ImageModel == model && config.Type == ModelTypeImage {
+			return config.Provider, true
+		}
+	}
+	return "", false
+}
+
 // Legacy compatibility exports - populated by RegisterAvailableClients
 var AvailableModels []string
 var ImageModels []string

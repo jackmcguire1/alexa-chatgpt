@@ -35,62 +35,75 @@ func (client *Client) TextGenerationWithSystem(ctx context.Context, system strin
 }
 
 func (client *Client) GetLLmModel(model ChatModel) (llms.Model, []llms.CallOption) {
-	// Get provider model ID from centralized registry
+	// Get provider and model ID from centralized registry
+	provider, ok := GetChatModelProvider(model)
+	if !ok {
+		return nil, nil
+	}
+
 	providerModelID, ok := GetProviderModelID(model)
 	if !ok {
 		return nil, nil
 	}
 
-	switch model {
-	case CHAT_MODEL_OPUS, CHAT_MODEL_SONNET:
+	// Route to correct API client based on provider
+	switch provider {
+	case ProviderAnthropic:
 		if client.AnthropicAPI == nil {
 			return nil, nil
 		}
 		return client.AnthropicAPI.GetModel(), []llms.CallOption{llms.WithModel(providerModelID)}
-	case CHAT_MODEL_META, CHAT_MODEL_QWEN, CHAT_MODEL_GPT_OSS, CHAT_MODEL_TRANSLATIONS:
+	case ProviderCloudflare:
 		if client.CloudflareApiClient == nil {
 			return nil, nil
 		}
 		return client.CloudflareApiClient.GetModel(), []llms.CallOption{llms.WithModel(providerModelID)}
-	case CHAT_MODEL_GEMINI:
+	case ProviderGemini:
 		if client.GeminiAPI == nil {
 			return nil, nil
 		}
 		return client.GeminiAPI.GetModel(), []llms.CallOption{llms.WithModel(providerModelID)}
-	default:
+	case ProviderOpenAI:
 		if client.GPTApi == nil {
 			return nil, nil
 		}
 		return client.GPTApi.GetModel(), []llms.CallOption{llms.WithModel(providerModelID), llms.WithTemperature(1)}
+	default:
+		return nil, nil
 	}
 }
 
 func (client *Client) GenerateImage(ctx context.Context, prompt string, model ImageModel) ([]byte, error) {
-	// Get provider model ID from centralized registry
+	// Get provider and model ID from centralized registry
+	provider, ok := GetImageModelProvider(model)
+	if !ok {
+		return nil, fmt.Errorf("image model %s is not configured", model)
+	}
+
 	providerModelID, ok := GetImageProviderModelID(model)
 	if !ok {
 		return nil, fmt.Errorf("image model %s is not configured", model)
 	}
 
-	switch model {
-	case IMAGE_MODEL_DALL_E_2, IMAGE_MODEL_DALL_E_3, IMAGE_MODEL_GPT:
+	// Route to correct API client based on provider
+	switch provider {
+	case ProviderOpenAI:
 		if client.GPTApi == nil {
 			return nil, fmt.Errorf("image model %s is not available: OpenAI client not configured", model)
 		}
 		return client.GPTApi.GenerateImage(ctx, prompt, providerModelID)
-	case IMAGE_MODEL_GEMINI, IMAGE_MODEL_GEMINI_BANANA_NANO:
+	case ProviderGemini:
 		if client.GeminiAPI == nil {
 			return nil, fmt.Errorf("image model %s is not available: Gemini client not configured", model)
 		}
 		return client.GeminiAPI.GenerateImage(ctx, prompt, providerModelID)
-	case IMAGE_MODEL_STABLE_DIFFUSION:
-		fallthrough
-	default:
-		// Both STABLE_DIFFUSION and default case use Cloudflare
+	case ProviderCloudflare:
 		if client.CloudflareApiClient == nil {
 			return nil, fmt.Errorf("image model %s is not available: Cloudflare client not configured", model)
 		}
 		return client.CloudflareApiClient.GenerateImage(ctx, prompt, providerModelID)
+	default:
+		return nil, fmt.Errorf("image model %s has unsupported provider %s", model, provider)
 	}
 }
 
