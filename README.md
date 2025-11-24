@@ -125,6 +125,9 @@ The skill uses an asynchronous architecture to handle the Alexa 8-second timeout
 | **Guess** | "guess {number}" | Play a number guessing game |
 | **Battleship** | "battleship {x} {y}" | Play battleship game |
 | **BattleshipStatus** | "battleship status" | Get current battleship game status |
+| **AnimalGuess** | "animal {animal}"<br>"guess animal {animal}" | Guess the animal in the animal guessing game. You have 10 guesses to identify the mystery animal! |
+| **AnimalHint** | "tell me a animal hint" | Request a hint about the mystery animal. You get 5 hints total, designed for 7+ year olds |
+| **AnimalStatus** | "status animal" | Check how many guesses and hints you have remaining |
 
 ### Utility Intents
 
@@ -303,6 +306,21 @@ Alexa: "I am using the text-model gpt and image-model dallas"
 
 User: "Model available"
 Alexa: "The available chat models are: gpt, gemini, opus, sonnet, llama, qwen, apache..."
+```
+
+### Animal Guessing Game
+```
+User: "Animal dog"
+Alexa: "Sorry, that's not it! You have 9 guesses left. Try again! Would you like a hint?"
+
+User: "Tell me a animal hint"
+Alexa: "Here's your first hint: This animal has a long trunk and big ears. It's the largest land animal!"
+
+User: "Animal elephant"
+Alexa: "That's correct! Great job! Here's what an elephant sounds like: trumpet trumpet"
+
+User: "Status animal"
+Alexa: "You have 10 guesses left and 5 hints remaining. Can you guess the animal?"
 ```
 
 ## API Integration Details

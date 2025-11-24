@@ -30,6 +30,7 @@ type Handler struct {
 	ImageModel      chatmodels.ImageModel
 	RandomNumberSvc *RandomNumberGame
 	BattleShips     *Battleships
+	AnimalGame      *AnimalGame
 	LastIntent      alexa.Request
 	SystemMessage   string
 }
@@ -186,6 +187,81 @@ func (h *Handler) DispatchIntents(ctx context.Context, req alexa.Request) (res a
 		case Invalid:
 			statement, _ = h.ChatGptService.TextGeneration(ctx, "playing battleships, tell the user they made an invalid move", h.Model)
 			res = alexa.NewResponse("BattleShips", statement, false)
+		}
+		h.lastResponse = &chatmodels.LastResponse{Response: statement, TimeDiff: fmt.Sprintf("%.0f", time.Since(execTime).Seconds()), Model: h.Model.String()}
+	case alexa.AnimalStatusIntent:
+		status := h.AnimalGame.GetStatus()
+
+		systemPrompt := "You are a friendly game host for children aged 7 and up. Be encouraging, enthusiastic, and use simple language."
+		statusStr := "The player has %d guesses left and %d hints remaining in the animal guessing game. Tell them this information."
+		statement, _ := h.ChatGptService.TextGenerationWithSystem(ctx, systemPrompt, fmt.Sprintf(statusStr, status.GuessesLeft, status.HintsLeft), h.Model)
+		res = alexa.NewResponse("Animal Game", statement, false)
+
+	case alexa.AnimalHintIntent:
+		execTime := time.Now().UTC()
+
+		hintResult := h.AnimalGame.RequestHint()
+		var statement string
+		systemPrompt := "You are a friendly game host for children aged 7 and up. Be encouraging, enthusiastic, and use simple language."
+
+		switch hintResult.Status {
+		case GameInactive:
+			statement, _ = h.ChatGptService.TextGenerationWithSystem(ctx, systemPrompt, "Tell the player there's no active animal guessing game. They need to start a new game by making a guess.", h.Model)
+			res = alexa.NewResponse("Animal Game", statement, false)
+		case NoHintsLeft:
+			statement, _ = h.ChatGptService.TextGenerationWithSystem(ctx, systemPrompt, "Tell the player they have no hints left. They need to keep guessing!", h.Model)
+			res = alexa.NewResponse("Animal Game", statement, false)
+		case HintAvailable:
+			// Use AI to generate a hint about the animal suitable for 7+ year olds
+			hintSystemPrompt := "You are a friendly game host helping children aged 7 and up guess animals. Give educational, age-appropriate hints without revealing the animal's name. Be fun and encouraging."
+			hintPrompt := fmt.Sprintf("Give hint number %d about a %s. The child has %d guesses left.",
+				hintResult.HintNumber, hintResult.Animal, hintResult.GuessesLeft)
+			statement, _ = h.ChatGptService.TextGenerationWithSystem(ctx, hintSystemPrompt, hintPrompt, h.Model)
+			res = alexa.NewResponse("Animal Game", statement, false)
+		}
+		h.lastResponse = &chatmodels.LastResponse{Response: statement, TimeDiff: fmt.Sprintf("%.0f", time.Since(execTime).Seconds()), Model: h.Model.String()}
+
+	case alexa.AnimalGuessIntent:
+		execTime := time.Now().UTC()
+
+		guessSlot, ok := req.Body.Intent.Slots["animal"]
+		if !ok || guessSlot.Value == "" || guessSlot.Value == "?" {
+			res = alexa.NewResponse(
+				"Try again!",
+				"Please say an animal name to make your guess!",
+				false,
+			)
+			return
+		}
+
+		guess := guessSlot.Value
+		result := h.AnimalGame.MakeGuess(guess)
+
+		var statement string
+		systemPrompt := "You are a friendly game host for children aged 7 and up. Be encouraging, enthusiastic, and use simple language."
+
+		switch result.Status {
+		case GameWon:
+			congratsPrompt := fmt.Sprintf("The player correctly guessed the animal '%s'! Congratulate them enthusiastically. Then say: Here's what a %s sounds like: %s",
+				result.Animal, result.Animal, result.Sound)
+			statement, _ = h.ChatGptService.TextGenerationWithSystem(ctx, systemPrompt, congratsPrompt, h.Model)
+			res = alexa.NewResponse("Animal Game", statement, false)
+			h.AnimalGame.ResetGame()
+		case GuessIncorrect:
+			incorrectPrompt := fmt.Sprintf("The player guessed '%s' but it's wrong. They have %d guesses left. Encourage them to try again and suggest they can ask for a hint!",
+				guess, result.GuessesLeft)
+			statement, _ = h.ChatGptService.TextGenerationWithSystem(ctx, systemPrompt, incorrectPrompt, h.Model)
+			res = alexa.NewResponse("Animal Game", statement, false)
+		case GameLost:
+			losePrompt := fmt.Sprintf("The player ran out of guesses! The correct animal was '%s'. Be supportive and encourage them to play again.",
+				result.Animal)
+			statement, _ = h.ChatGptService.TextGenerationWithSystem(ctx, systemPrompt, losePrompt, h.Model)
+			res = alexa.NewResponse("Animal Game", statement, false)
+			h.AnimalGame.ResetGame()
+		case GameInactive:
+			statement = "There's no active game! Say an animal name to start a new guessing game!"
+			res = alexa.NewResponse("Animal Game", statement, false)
+			h.AnimalGame.ResetGame()
 		}
 		h.lastResponse = &chatmodels.LastResponse{Response: statement, TimeDiff: fmt.Sprintf("%.0f", time.Since(execTime).Seconds()), Model: h.Model.String()}
 	case alexa.RandomNumberIntent:
