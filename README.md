@@ -313,13 +313,13 @@ Alexa: "The available chat models are: gpt, gemini, opus, sonnet, llama, qwen, a
 User: "Animal dog"
 Alexa: "Sorry, that's not it! You have 9 guesses left. Try again! Would you like a hint?"
 
-User: "Animal hint"
+User: "Tell me a animal hint"
 Alexa: "Here's your first hint: This animal has a long trunk and big ears. It's the largest land animal!"
 
 User: "Animal elephant"
 Alexa: "That's correct! Great job! Here's what an elephant sounds like: trumpet trumpet"
 
-User: "Animal status"
+User: "Status animal"
 Alexa: "You have 10 guesses left and 5 hints remaining. Can you guess the animal?"
 ```
 
