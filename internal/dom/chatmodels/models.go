@@ -12,6 +12,7 @@ type ImageModel string
 
 const (
 	CHAT_MODEL_GEMINI       ChatModel = "gemini"
+	CHAT_MODEL_GEMINI_FLASH ChatModel = "gemini flash"
 	CHAT_MODEL_GPT          ChatModel = "gpt"
 	CHAT_MODEL_META         ChatModel = "llama"
 	CHAT_MODEL_TRANSLATIONS ChatModel = "translate"
@@ -104,7 +105,7 @@ var allModelConfigs = []ModelConfig{
 		Type:            ModelTypeChat,
 		Provider:        ProviderOpenAI,
 		ProviderModelID: "gpt-5.1-2025-11-13",
-		Aliases:         []string{"gpt"},
+		Aliases:         []string{string(CHAT_MODEL_GPT)},
 		ErrorMessage:    "GPT model is not available - OpenAI API key not configured",
 	},
 	{
@@ -112,7 +113,7 @@ var allModelConfigs = []ModelConfig{
 		Type:            ModelTypeChat,
 		Provider:        ProviderOpenAI,
 		ProviderModelID: "gpt-4o",
-		Aliases:         []string{"g. p. t. version number four"},
+		Aliases:         []string{string(CHAT_MODEL_GPT_V4)},
 		ErrorMessage:    "GPT-4 model is not available - OpenAI API key not configured",
 	},
 
@@ -122,7 +123,7 @@ var allModelConfigs = []ModelConfig{
 		Type:            ModelTypeImage,
 		Provider:        ProviderOpenAI,
 		ProviderModelID: "dall-e-3",
-		Aliases:         []string{"dallas"},
+		Aliases:         []string{string(IMAGE_MODEL_DALL_E_3)},
 		ErrorMessage:    "DALL-E 3 model is not available - OpenAI API key not configured",
 	},
 	{
@@ -130,7 +131,7 @@ var allModelConfigs = []ModelConfig{
 		Type:            ModelTypeImage,
 		Provider:        ProviderOpenAI,
 		ProviderModelID: "dall-e-2",
-		Aliases:         []string{"dallas v2"},
+		Aliases:         []string{string(IMAGE_MODEL_DALL_E_2)},
 		ErrorMessage:    "DALL-E 2 model is not available - OpenAI API key not configured",
 	},
 	{
@@ -138,7 +139,7 @@ var allModelConfigs = []ModelConfig{
 		Type:            ModelTypeImage,
 		Provider:        ProviderOpenAI,
 		ProviderModelID: "gpt-image-1",
-		Aliases:         []string{"chatgpt image"},
+		Aliases:         []string{string(IMAGE_MODEL_GPT)},
 		ErrorMessage:    "GPT-Image model is not available - OpenAI API key not configured",
 	},
 
@@ -147,9 +148,17 @@ var allModelConfigs = []ModelConfig{
 		ChatModel:       CHAT_MODEL_GEMINI,
 		Type:            ModelTypeChat,
 		Provider:        ProviderGemini,
-		ProviderModelID: "gemini-2.5-flash",
-		Aliases:         []string{"gemini"},
+		ProviderModelID: "gemini-3-pro-preview",
+		Aliases:         []string{string(CHAT_MODEL_GEMINI)},
 		ErrorMessage:    "Gemini model is not available - Gemini API key not configured",
+	},
+	{
+		ChatModel:       CHAT_MODEL_GEMINI_FLASH,
+		Type:            ModelTypeChat,
+		Provider:        ProviderGemini,
+		ProviderModelID: "gemini-2.5-flash",
+		Aliases:         []string{string(CHAT_MODEL_GEMINI_FLASH)},
+		ErrorMessage:    "Gemini Flash model is not available - Gemini API key not configured",
 	},
 
 	// Gemini Image Models
@@ -158,7 +167,7 @@ var allModelConfigs = []ModelConfig{
 		Type:            ModelTypeImage,
 		Provider:        ProviderGemini,
 		ProviderModelID: "imagen-4.0-generate-001",
-		Aliases:         []string{"gemini image"},
+		Aliases:         []string{string(IMAGE_MODEL_GEMINI)},
 		ErrorMessage:    "Gemini imagen model is not available - Gemini API key not configured",
 	},
 	{
@@ -166,7 +175,7 @@ var allModelConfigs = []ModelConfig{
 		Type:            ModelTypeImage,
 		Provider:        ProviderGemini,
 		ProviderModelID: "gemini-2.5-flash-image-preview",
-		Aliases:         []string{"banana nano"},
+		Aliases:         []string{string(IMAGE_MODEL_GEMINI_BANANA_NANO)},
 		ErrorMessage:    "Gemini banana nano image model is not available - Gemini API key not configured",
 	},
 
@@ -176,7 +185,7 @@ var allModelConfigs = []ModelConfig{
 		Type:            ModelTypeChat,
 		Provider:        ProviderAnthropic,
 		ProviderModelID: "claude-opus-4-20250514",
-		Aliases:         []string{"opus"},
+		Aliases:         []string{string(CHAT_MODEL_OPUS)},
 		ErrorMessage:    "Opus model is not available - Anthropic API key not configured",
 	},
 	{
@@ -184,7 +193,7 @@ var allModelConfigs = []ModelConfig{
 		Type:            ModelTypeChat,
 		Provider:        ProviderAnthropic,
 		ProviderModelID: "claude-sonnet-4-20250514",
-		Aliases:         []string{"sonnet"},
+		Aliases:         []string{string(CHAT_MODEL_SONNET)},
 		ErrorMessage:    "Sonnet model is not available - Anthropic API key not configured",
 	},
 
@@ -194,7 +203,7 @@ var allModelConfigs = []ModelConfig{
 		Type:            ModelTypeChat,
 		Provider:        ProviderCloudflare,
 		ProviderModelID: "@cf/meta/llama-4-scout-17b-16e-instruct",
-		Aliases:         []string{"llama"},
+		Aliases:         []string{string(CHAT_MODEL_META)},
 		ErrorMessage:    "Meta model is not available - Cloudflare API key not configured",
 	},
 	{
@@ -202,7 +211,7 @@ var allModelConfigs = []ModelConfig{
 		Type:            ModelTypeChat,
 		Provider:        ProviderCloudflare,
 		ProviderModelID: "@cf/deepseek-ai/deepseek-r1-distill-qwen-32b",
-		Aliases:         []string{"qwen"},
+		Aliases:         []string{string(CHAT_MODEL_QWEN)},
 		ErrorMessage:    "Qwen model is not available - Cloudflare API key not configured",
 	},
 	{
@@ -210,7 +219,7 @@ var allModelConfigs = []ModelConfig{
 		Type:            ModelTypeChat,
 		Provider:        ProviderCloudflare,
 		ProviderModelID: "@cf/openai/gpt-oss-120b",
-		Aliases:         []string{"apache"},
+		Aliases:         []string{string(CHAT_MODEL_GPT_OSS)},
 		ErrorMessage:    "GPT-OSS model is not available - Cloudflare API key not configured",
 	},
 	{
@@ -218,7 +227,7 @@ var allModelConfigs = []ModelConfig{
 		Type:            ModelTypeChat,
 		Provider:        ProviderCloudflare,
 		ProviderModelID: "@cf/meta/m2m100-1.2b",
-		Aliases:         []string{"translate"},
+		Aliases:         []string{string(CHAT_MODEL_TRANSLATIONS)},
 		ErrorMessage:    "Translation model is not available - Cloudflare API key not configured",
 	},
 
@@ -228,7 +237,7 @@ var allModelConfigs = []ModelConfig{
 		Type:            ModelTypeImage,
 		Provider:        ProviderCloudflare,
 		ProviderModelID: "@cf/stabilityai/stable-diffusion-xl-base-1.0",
-		Aliases:         []string{"stable"},
+		Aliases:         []string{string(IMAGE_MODEL_STABLE_DIFFUSION)},
 		ErrorMessage:    "Stable Diffusion model is not available - Cloudflare API key not configured",
 	},
 }

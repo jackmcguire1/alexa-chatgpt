@@ -74,7 +74,8 @@ The skill uses an asynchronous architecture to handle the Alexa 8-second timeout
 |----------|-------|-------|-------------------|
 | **OpenAI** | gpt-5-mini | `gpt` | `CHAT_MODEL_GPT` |
 | **OpenAI** | gpt-4o | `g. p. t. version number four` | `CHAT_MODEL_GPT_V4` |
-| **Google** | gemini-2.5-flash | `gemini` | `CHAT_MODEL_GEMINI` |
+| **Google** | gemini-3-pro-preview | `gemini` | `CHAT_MODEL_GEMINI` |
+| **Google** | gemini-2.5-flash | `gemini flash` | `CHAT_MODEL_GEMINI_FLASH` |
 | **Anthropic** | claude-opus-4-20250514 | `opus` | `CHAT_MODEL_OPUS` |
 | **Anthropic** | claude-sonnet-4-20250514 | `sonnet` | `CHAT_MODEL_SONNET` |
 | **Cloudflare** | llama-4-scout-17b-16e-instruct | `llama` | `CHAT_MODEL_META` |
