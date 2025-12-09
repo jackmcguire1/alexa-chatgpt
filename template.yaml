@@ -13,6 +13,7 @@ Globals:
         REQUESTS_QUEUE_URI: !Ref RequestsQueue
         OPENAI_API_KEY: !Ref OpenAIApiKey
         GEMINI_API_KEY: !Ref GeminiApiKey
+        VERTEX_API_KEY: !Ref VertexApiKey
         POLL_DELAY: 7
         CLOUDFLARE_ACCOUNT_ID: !Ref CloudFlareAccountId
         CLOUDFLARE_API_KEY: !Ref CloudFlareAPIKey
@@ -29,6 +30,11 @@ Parameters:
     Default: ""
 
   GeminiApiKey:
+    Type: String
+    Description: Google API Token
+    Default: ""
+
+  VertexApiKey:
     Type: String
     Description: Google Service Account JSON B64
     Default: ""

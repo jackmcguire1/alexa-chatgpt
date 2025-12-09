@@ -8,15 +8,15 @@ import (
 
 // AnimalGame represents the state of the animal guessing game
 type AnimalGame struct {
-	animal        string
-	guessesLeft   int
-	hintsLeft     int
-	hintsGiven    []int
-	gameActive    bool
-	maxGuesses    int
-	maxHints      int
-	animalList    []Animal
-	animalSounds  map[string]string
+	animal       string
+	guessesLeft  int
+	hintsLeft    int
+	hintsGiven   []int
+	gameActive   bool
+	maxGuesses   int
+	maxHints     int
+	animalList   []Animal
+	animalSounds map[string]string
 }
 
 // Animal represents an animal with its properties
