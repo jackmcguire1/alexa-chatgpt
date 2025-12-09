@@ -2,6 +2,8 @@ package chatmodels
 
 import (
 	"errors"
+
+	"github.com/tmc/langchaingo/llms"
 )
 
 var MissingContentError = errors.New("Missing content")
@@ -174,7 +176,7 @@ var allModelConfigs = []ModelConfig{
 		ImageModel:      IMAGE_MODEL_GEMINI_BANANA_NANO,
 		Type:            ModelTypeImage,
 		Provider:        ProviderGemini,
-		ProviderModelID: "gemini-2.5-flash-image-preview",
+		ProviderModelID: "gemini-3-pro-image-preview",
 		Aliases:         []string{string(IMAGE_MODEL_GEMINI_BANANA_NANO)},
 		ErrorMessage:    "Gemini banana nano image model is not available - Gemini API key not configured",
 	},
@@ -419,3 +421,12 @@ func GetImageModelProvider(model ImageModel) (Provider, bool) {
 // Legacy compatibility exports - populated by RegisterAvailableClients
 var AvailableModels []string
 var ImageModels []string
+
+// extractModelFromOptions extracts the model from CallOptions
+func extractModelFromOptions(options ...llms.CallOption) string {
+	opts := &llms.CallOptions{}
+	for _, opt := range options {
+		opt(opts)
+	}
+	return opts.Model
+}

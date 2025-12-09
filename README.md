@@ -90,7 +90,7 @@ The skill uses an asynchronous architecture to handle the Alexa 8-second timeout
 | **OpenAI** | dall-e-2                       | `dallas v2` | `IMAGE_MODEL_DALL_E_2` |
 | **Cloudflare** | stable-diffusion-xl-base-1.0   | `stable` | `IMAGE_MODEL_STABLE_DIFFUSION` |
 | **Google** | imagen-4.0-generate-001        | `gemini image` | `IMAGE_MODEL_GEMINI` |
-| **Google** | gemini-2.5-flash-image-preview | `banana nano` | `IMAGE_MODEL_GEMINI_BANANA_NANO` |
+| **Google** | gemini-3-pro-image-preview | `banana nano` | `IMAGE_MODEL_GEMINI_BANANA_NANO` |
 
 ### Translation Model
 - Special model for translations: `CHAT_MODEL_TRANSLATIONS`

@@ -100,16 +100,39 @@ func (api *GeminiApiClient) GenerateContent(
 	messages []llms.MessageContent,
 	options ...llms.CallOption,
 ) (*llms.ContentResponse, error) {
-	return api.GeminiLlmClient.GenerateContent(ctx, messages, options...)
+	// Extract model from options to determine which client to use
+	model := extractModelFromOptions(options...)
+
+	// Use GeminiLlmClient for gemini-3-pro-preview (CHAT_MODEL_GEMINI)
+	// Otherwise use VertexLlmClient for other models
+	switch model {
+	case "gemini-3-pro-preview":
+		return api.GeminiLlmClient.GenerateContent(ctx, messages, options...)
+	default:
+		return api.VertexLlmClient.GenerateContent(ctx, messages, options...)
+	}
 }
 
 func (api *GeminiApiClient) GenerateImage(ctx context.Context, prompt string, model string) (res []byte, err error) {
-	resp, err := api.VertexLlmClient.GenerateImage(
-		ctx,
-		prompt,
-		llms.WithModel(model),
-		llms.WithResponseMIMEType("image/jpeg"),
-	)
+	// Use GeminiLlmClient for gemini-2.5-flash-image-preview (IMAGE_MODEL_GEMINI_BANANA_NANO)
+	// Otherwise use VertexLlmClient for other models (like imagen-4.0-generate-001)
+	var resp *llms.BinaryContent
+	switch model {
+	case "gemini-3-pro-image-preview":
+		resp, err = api.GeminiLlmClient.GenerateImage(
+			ctx,
+			prompt,
+			llms.WithModel(model),
+			llms.WithResponseMIMEType("image/jpeg"),
+		)
+	default:
+		resp, err = api.VertexLlmClient.GenerateImage(
+			ctx,
+			prompt,
+			llms.WithModel(model),
+			llms.WithResponseMIMEType("image/jpeg"),
+		)
+	}
 	if err != nil {
 		return nil, err
 	}
