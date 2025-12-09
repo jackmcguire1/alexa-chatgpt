@@ -8,7 +8,7 @@ import (
 )
 
 type LlmModel interface {
-	GetModel() llms.Model
+	GetModel(options ...llms.CallOption) llms.Model
 }
 
 type LlmContentGenerator interface {
@@ -86,7 +86,7 @@ func (api *mockAPI) GenerateTranslation(ctx context.Context, req *GenerateTransl
 	return args.String(0), args.Error(1)
 }
 
-func (api *mockAPI) GetModel() llms.Model {
-	args := api.Called()
+func (api *mockAPI) GetModel(options ...llms.CallOption) llms.Model {
+	args := api.Called(options)
 	return args.Get(0).(llms.Model)
 }

@@ -52,22 +52,26 @@ func (client *Client) GetLLmModel(model ChatModel) (llms.Model, []llms.CallOptio
 		if client.AnthropicAPI == nil {
 			return nil, nil
 		}
-		return client.AnthropicAPI.GetModel(), []llms.CallOption{llms.WithModel(providerModelID)}
+		opts := []llms.CallOption{llms.WithModel(providerModelID)}
+		return client.AnthropicAPI.GetModel(opts...), opts
 	case ProviderCloudflare:
 		if client.CloudflareApiClient == nil {
 			return nil, nil
 		}
-		return client.CloudflareApiClient.GetModel(), []llms.CallOption{llms.WithModel(providerModelID)}
+		opts := []llms.CallOption{llms.WithModel(providerModelID)}
+		return client.CloudflareApiClient.GetModel(opts...), opts
 	case ProviderGemini:
 		if client.GeminiAPI == nil {
 			return nil, nil
 		}
-		return client.GeminiAPI.GetModel(), []llms.CallOption{llms.WithModel(providerModelID)}
+		opts := []llms.CallOption{llms.WithModel(providerModelID)}
+		return client.GeminiAPI.GetModel(opts...), opts
 	case ProviderOpenAI:
 		if client.GPTApi == nil {
 			return nil, nil
 		}
-		return client.GPTApi.GetModel(), []llms.CallOption{llms.WithModel(providerModelID), llms.WithTemperature(1)}
+		opts := []llms.CallOption{llms.WithModel(providerModelID), llms.WithTemperature(1)}
+		return client.GPTApi.GetModel(opts...), opts
 	default:
 		return nil, nil
 	}

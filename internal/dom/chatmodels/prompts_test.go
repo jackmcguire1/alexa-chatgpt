@@ -18,7 +18,7 @@ func TestTextGenerationWithGPT(t *testing.T) {
 	}, nil)
 
 	api := &mockAPI{}
-	api.On("GetModel").Return(mockLlm, nil)
+	api.On("GetModel", mock.Anything).Return(mockLlm, nil)
 
 	c := Client{&Resources{GPTApi: api}}
 	resp, err := c.TextGeneration(context.Background(), "steve", CHAT_MODEL_GPT)
@@ -34,7 +34,7 @@ func TestTestTextGenerationWithGemini(t *testing.T) {
 	}, nil)
 
 	api := &mockAPI{}
-	api.On("GetModel").Return(mockLlm, nil)
+	api.On("GetModel", mock.Anything).Return(mockLlm, nil)
 
 	c := Client{&Resources{GeminiAPI: api}}
 	resp, err := c.TextGeneration(context.Background(), "steve", CHAT_MODEL_GEMINI)
@@ -50,7 +50,7 @@ func TestTextGenerationWithMetaModel(t *testing.T) {
 	}, nil)
 
 	api := &mockAPI{}
-	api.On("GetModel").Return(mockLlm, nil)
+	api.On("GetModel", mock.Anything).Return(mockLlm, nil)
 
 	c := Client{&Resources{CloudflareApiClient: api}}
 	resp, err := c.TextGeneration(context.Background(), "steve", CHAT_MODEL_META)
@@ -67,7 +67,7 @@ func TestTextGenerationWithMissingContent(t *testing.T) {
 		Choices: nil,
 	}, mockError)
 
-	api.On("GetModel").Return(mockLlm, nil)
+	api.On("GetModel", mock.Anything).Return(mockLlm, nil)
 
 	c := Client{&Resources{GPTApi: api}}
 	_, err := c.TextGeneration(context.Background(), "steve", CHAT_MODEL_GPT)

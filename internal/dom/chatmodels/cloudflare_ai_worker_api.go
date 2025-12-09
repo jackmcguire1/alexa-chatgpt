@@ -76,7 +76,7 @@ func (api *CloudflareApiClient) GenerateContent(
 	return api.LlmClient.GenerateContent(ctx, messages, options...)
 }
 
-func (api *CloudflareApiClient) GetModel() llms.Model {
+func (api *CloudflareApiClient) GetModel(options ...llms.CallOption) llms.Model {
 	return api.LlmClient
 }
 

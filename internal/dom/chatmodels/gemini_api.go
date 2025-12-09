@@ -91,7 +91,16 @@ func NewGeminiApiKeyClient(apiKey string) *googlegenai.GoogleAI {
 	return geminiClient
 }
 
-func (api *GeminiApiClient) GetModel() llms.Model {
+func (api *GeminiApiClient) GetModel(options ...llms.CallOption) llms.Model {
+	// Extract model from options to determine which client to use
+	model := extractModelFromOptions(options...)
+
+	// Use GeminiLlmClient for gemini-3-pro-preview (CHAT_MODEL_GEMINI)
+	// Otherwise use VertexLlmClient for other models
+	switch model {
+	case "gemini-3-pro-preview", "gemini-3-pro-image-preview":
+		return api.GeminiLlmClient
+	}
 	return api.VertexLlmClient
 }
 

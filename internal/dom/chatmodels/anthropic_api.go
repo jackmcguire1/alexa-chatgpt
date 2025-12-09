@@ -39,6 +39,6 @@ func (api *AnthropicApiClient) GenerateContent(
 	return api.LlmClient.GenerateContent(ctx, messages, options...)
 }
 
-func (api *AnthropicApiClient) GetModel() llms.Model {
+func (api *AnthropicApiClient) GetModel(options ...llms.CallOption) llms.Model {
 	return api.LlmClient
 }

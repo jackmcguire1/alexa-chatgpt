@@ -42,7 +42,7 @@ func (api *OpenAIApiClient) GenerateContent(
 	return api.LlmClient.GenerateContent(ctx, messages, options...)
 }
 
-func (api *OpenAIApiClient) GetModel() llms.Model {
+func (api *OpenAIApiClient) GetModel(options ...llms.CallOption) llms.Model {
 	return api.LlmClient
 }
 
