@@ -21,11 +21,13 @@ const (
 )
 
 type GeminiApiClient struct {
-	credentials *google.Credentials
-	LlmClient   *googlegenai.GoogleAI
+	apiKey          string
+	credentials     *google.Credentials
+	VertexLlmClient *googlegenai.GoogleAI
+	GeminiLlmClient *googlegenai.GoogleAI
 }
 
-func NewGeminiApiClient(credsToken string) *GeminiApiClient {
+func NewGeminiApiClient(credsToken string, apiKey string) *GeminiApiClient {
 	tkn, _ := base64.StdEncoding.DecodeString(credsToken)
 
 	creds, err := google.CredentialsFromJSON(context.Background(), tkn, "https://www.googleapis.com/auth/generative-language", "https://www.googleapis.com/auth/cloud-platform")
@@ -66,14 +68,31 @@ func NewGeminiApiClient(credsToken string) *GeminiApiClient {
 		panic(err)
 	}
 
+	geminiClient := NewGeminiApiKeyClient(apiKey)
 	return &GeminiApiClient{
-		credentials: creds,
-		LlmClient:   vertexClient,
+		apiKey:          apiKey,
+		credentials:     creds,
+		VertexLlmClient: vertexClient,
+		GeminiLlmClient: geminiClient,
 	}
 }
 
+func NewGeminiApiKeyClient(apiKey string) *googlegenai.GoogleAI {
+	geminiClient, err := googlegenai.NewFromApiKey(
+		context.Background(),
+		apiKey,
+		googlegenai.WithAPIBackend(googlegenai.APIGeminiBackend),
+	)
+	if err != nil {
+		slog.With("error", err).Error("failed to init vertex client")
+		panic(err)
+	}
+
+	return geminiClient
+}
+
 func (api *GeminiApiClient) GetModel() llms.Model {
-	return api.LlmClient
+	return api.VertexLlmClient
 }
 
 func (api *GeminiApiClient) GenerateContent(
@@ -81,11 +100,11 @@ func (api *GeminiApiClient) GenerateContent(
 	messages []llms.MessageContent,
 	options ...llms.CallOption,
 ) (*llms.ContentResponse, error) {
-	return api.LlmClient.GenerateContent(ctx, messages, options...)
+	return api.GeminiLlmClient.GenerateContent(ctx, messages, options...)
 }
 
 func (api *GeminiApiClient) GenerateImage(ctx context.Context, prompt string, model string) (res []byte, err error) {
-	resp, err := api.LlmClient.GenerateImage(
+	resp, err := api.VertexLlmClient.GenerateImage(
 		ctx,
 		prompt,
 		llms.WithModel(model),

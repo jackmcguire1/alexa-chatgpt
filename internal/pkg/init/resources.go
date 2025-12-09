@@ -15,9 +15,10 @@ func InitializeResources() *chatmodels.Resources {
 		resources.GPTApi = chatmodels.NewOpenAiApiClient(openAIKey)
 	}
 
+	vertexKey := os.Getenv("VERTEX_API_KEY")
 	geminiKey := os.Getenv("GEMINI_API_KEY")
-	if geminiKey != "" {
-		resources.GeminiAPI = chatmodels.NewGeminiApiClient(geminiKey)
+	if vertexKey != "" && geminiKey != "" {
+		resources.GeminiAPI = chatmodels.NewGeminiApiClient(vertexKey, geminiKey)
 	}
 
 	cloudflareAccountID := os.Getenv("CLOUDFLARE_ACCOUNT_ID")
