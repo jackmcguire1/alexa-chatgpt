@@ -98,7 +98,7 @@ func (api *GeminiApiClient) GetModel(options ...llms.CallOption) llms.Model {
 	// Use GeminiLlmClient for gemini-3-pro-preview (CHAT_MODEL_GEMINI)
 	// Otherwise use VertexLlmClient for other models
 	switch model {
-	case "gemini-3-pro-preview", "gemini-3-pro-image-preview":
+	case "gemini-3-pro-preview", "nano-banana-pro-preview":
 		return api.GeminiLlmClient
 	}
 	return api.VertexLlmClient
@@ -127,7 +127,7 @@ func (api *GeminiApiClient) GenerateImage(ctx context.Context, prompt string, mo
 	// Otherwise use VertexLlmClient for other models (like imagen-4.0-generate-001)
 	var resp *llms.BinaryContent
 	switch model {
-	case "gemini-3-pro-image-preview":
+	case "nano-banana-pro-preview":
 		resp, err = api.GeminiLlmClient.GenerateImage(
 			ctx,
 			prompt,

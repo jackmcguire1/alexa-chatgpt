@@ -176,7 +176,7 @@ var allModelConfigs = []ModelConfig{
 		ImageModel:      IMAGE_MODEL_GEMINI_BANANA_NANO,
 		Type:            ModelTypeImage,
 		Provider:        ProviderGemini,
-		ProviderModelID: "gemini-3-pro-image-preview",
+		ProviderModelID: "nano-banana-pro-preview",
 		Aliases:         []string{string(IMAGE_MODEL_GEMINI_BANANA_NANO)},
 		ErrorMessage:    "Gemini banana nano image model is not available - Gemini API key not configured",
 	},
