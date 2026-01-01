@@ -5,7 +5,7 @@ go 1.24.4
 toolchain go1.24.10
 
 require (
-	cloud.google.com/go/auth v0.17.0
+	cloud.google.com/go/auth v0.18.0
 	cloud.google.com/go/auth/oauth2adapt v0.2.8
 	github.com/aws/aws-lambda-go v1.51.0
 	github.com/aws/aws-sdk-go-v2 v1.41.0
