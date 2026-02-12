@@ -248,7 +248,7 @@ func (h *Handler) handleBattleships(ctx context.Context, req alexa.Request, _ st
 func (h *Handler) handleAnimalStatus(ctx context.Context, _ alexa.Request, _ string) (alexa.Response, error) {
 	status := h.AnimalGame.GetStatus()
 
-	systemPrompt := "You are a friendly game host for children aged 7 and up. Be encouraging, enthusiastic, and use simple language."
+	systemPrompt := "You are a friendly game host for players of all ages. Be encouraging, enthusiastic, and use simple language."
 	statusStr := "The player has %d guesses left and %d hints remaining in the animal guessing game. Tell them this information."
 	statement, _ := h.ChatGptService.TextGenerationWithSystem(ctx, systemPrompt, fmt.Sprintf(statusStr, status.GuessesLeft, status.HintsLeft), h.Model)
 	return alexa.NewResponse("Animal Game", statement, false), nil
@@ -259,7 +259,7 @@ func (h *Handler) handleAnimalHint(ctx context.Context, _ alexa.Request, _ strin
 
 	hintResult := h.AnimalGame.RequestHint()
 	var statement string
-	systemPrompt := "You are a friendly game host for children aged 7 and up. Be encouraging, enthusiastic, and use simple language."
+	systemPrompt := "You are a friendly game host for players of all ages. Be encouraging, enthusiastic, and use simple language."
 
 	switch hintResult.Status {
 	case GameInactive:
@@ -267,9 +267,9 @@ func (h *Handler) handleAnimalHint(ctx context.Context, _ alexa.Request, _ strin
 	case NoHintsLeft:
 		statement, _ = h.ChatGptService.TextGenerationWithSystem(ctx, systemPrompt, "Tell the player they have no hints left. They need to keep guessing!", h.Model)
 	case HintAvailable:
-		hintSystemPrompt := "You are a friendly game host helping children aged 7 and up guess animals. Give educational, age-appropriate hints without revealing the animal's name. Be fun and encouraging."
-		hintPrompt := fmt.Sprintf("Give hint number %d about a %s. The child has %d guesses left.",
-			hintResult.HintNumber, hintResult.Animal, hintResult.GuessesLeft)
+		hintSystemPrompt := "You are a friendly game host helping players of all ages guess animals. Give educational, age-appropriate hints without revealing the animal's name. Be fun and encouraging."
+		hintPrompt := fmt.Sprintf("Give hint number %d about a %s. The player has %d guesses left and %d hints remaining.",
+			hintResult.HintNumber, hintResult.Animal, hintResult.GuessesLeft, hintResult.HintsLeft)
 		statement, _ = h.ChatGptService.TextGenerationWithSystem(ctx, hintSystemPrompt, hintPrompt, h.Model)
 	}
 	h.lastResponse = &chatmodels.LastResponse{Response: statement, TimeDiff: fmt.Sprintf("%.0f", time.Since(execTime).Seconds()), Model: h.Model.String()}
@@ -288,7 +288,7 @@ func (h *Handler) handleAnimalGuess(ctx context.Context, req alexa.Request, _ st
 	result := h.AnimalGame.MakeGuess(guess)
 
 	var statement string
-	systemPrompt := "You are a friendly game host for children aged 7 and up. Be encouraging, enthusiastic, and use simple language."
+	systemPrompt := "You are a friendly game host for players of all ages. Be encouraging, enthusiastic, and use simple language."
 
 	switch result.Status {
 	case GameWon:
