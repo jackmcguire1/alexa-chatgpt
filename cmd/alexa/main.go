@@ -24,17 +24,17 @@ func main() {
 	svc := chatmodels.NewClient(resources)
 	pollDelay, _ := strconv.Atoi(os.Getenv("POLL_DELAY"))
 
-	h := api.Handler{
-		ChatGptService:  svc,
-		RequestsQueue:   queue.NewQueue(os.Getenv("REQUESTS_QUEUE_URI")),
-		ResponsesQueue:  queue.NewQueue(os.Getenv("RESPONSES_QUEUE_URI")),
-		PollDelay:       pollDelay,
-		Logger:          logger,
-		Model:           pkginit.GetDefaultChatModel(resources),
-		ImageModel:      pkginit.GetDefaultImageModel(resources),
-		RandomNumberSvc: api.NewRandomNumberGame(100),
-		BattleShips:     api.NewBattleShipSetup(),
-		AnimalGame:      api.NewAnimalGame(),
-	}
+	h := api.NewHandler(
+		logger,
+		svc,
+		queue.NewQueue(os.Getenv("RESPONSES_QUEUE_URI")),
+		queue.NewQueue(os.Getenv("REQUESTS_QUEUE_URI")),
+		pollDelay,
+		pkginit.GetDefaultChatModel(resources),
+		pkginit.GetDefaultImageModel(resources),
+		api.NewRandomNumberGame(100),
+		api.NewBattleShipSetup(),
+		api.NewAnimalGame(),
+	)
 	lambda.Start(otellambda.InstrumentHandler(h.Invoke, xrayconfig.WithRecommendedOptions(tracer)...))
 }

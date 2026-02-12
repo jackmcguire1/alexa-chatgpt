@@ -22,7 +22,7 @@ func TestNewAnimalGameSelectsRandomAnimal(t *testing.T) {
 	// Create multiple games and verify different animals are selected
 	animals := make(map[string]bool)
 
-	for i := 0; i < 20; i++ {
+	for range 20 {
 		game := NewAnimalGame()
 		animals[game.animal] = true
 	}
@@ -106,7 +106,7 @@ func TestMakeGuessGameLost(t *testing.T) {
 	correctAnimal := game.animal
 
 	// Use up all guesses with wrong answers
-	for i := 0; i < MaxGuesses; i++ {
+	for i := range MaxGuesses {
 		result := game.MakeGuess("wrong_animal")
 
 		if i < MaxGuesses-1 {
@@ -161,7 +161,7 @@ func TestRequestHintWhenNoHintsLeft(t *testing.T) {
 	game := NewAnimalGame()
 
 	// Use up all hints
-	for i := 0; i < MaxHints; i++ {
+	for range MaxHints {
 		game.RequestHint()
 	}
 
@@ -303,7 +303,7 @@ func TestGameFlowCompleteLoss(t *testing.T) {
 	correctAnimal := game.animal
 
 	// Use all hints
-	for i := 0; i < MaxHints; i++ {
+	for range MaxHints {
 		result := game.RequestHint()
 		assert.Equal(t, HintAvailable, result.Status)
 	}
@@ -313,7 +313,7 @@ func TestGameFlowCompleteLoss(t *testing.T) {
 	assert.Equal(t, NoHintsLeft, noHintResult.Status)
 
 	// Use all guesses incorrectly
-	for i := 0; i < MaxGuesses; i++ {
+	for i := range MaxGuesses {
 		result := game.MakeGuess("wrong_animal")
 		if i < MaxGuesses-1 {
 			assert.Equal(t, GuessIncorrect, result.Status)

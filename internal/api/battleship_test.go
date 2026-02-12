@@ -11,8 +11,8 @@ func TestNewBattleshipsCreatesEmptyBoard(t *testing.T) {
 	game := NewBattleships(size)
 
 	assert.Equal(t, size, game.size)
-	for i := 0; i < size; i++ {
-		for j := 0; j < size; j++ {
+	for i := range size {
+		for j := range size {
 			assert.Equal(t, Empty, game.board[i][j])
 		}
 	}

@@ -22,7 +22,7 @@ type Session struct {
 	Application struct {
 		ApplicationID string `json:"applicationId"`
 	} `json:"application"`
-	Attributes map[string]interface{} `json:"attributes"`
+	Attributes map[string]any `json:"attributes"`
 	User       struct {
 		UserID      string `json:"userId"`
 		AccessToken string `json:"accessToken,omitempty"`
@@ -35,11 +35,11 @@ type Context struct {
 		APIAccessToken string `json:"apiAccessToken"`
 		Device         struct {
 			DeviceID string `json:"deviceId,omitempty"`
-		} `json:"device,omitempty"`
+		} `json:"device"`
 		Application struct {
 			ApplicationID string `json:"applicationId,omitempty"`
-		} `json:"application,omitempty"`
-	} `json:"System,omitempty"`
+		} `json:"application"`
+	} `json:"System"`
 }
 
 // ReqBody is the request body from Alexa.
@@ -48,7 +48,7 @@ type ReqBody struct {
 	RequestID   string `json:"requestId"`
 	Timestamp   string `json:"timestamp"`
 	Locale      string `json:"locale"`
-	Intent      Intent `json:"intent,omitempty"`
+	Intent      Intent `json:"intent"`
 	Reason      string `json:"reason,omitempty"`
 	DialogState string `json:"dialogState,omitempty"`
 }

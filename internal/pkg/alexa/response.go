@@ -52,9 +52,9 @@ func NewImageResponse(title, text string, imageSmallUrl string, imageLargeUrl st
 
 // Response is the response back to the Alexa speech service.
 type Response struct {
-	Version           string                 `json:"version"`
-	SessionAttributes map[string]interface{} `json:"sessionAttributes,omitempty"`
-	Body              ResBody                `json:"response"`
+	Version           string         `json:"version"`
+	SessionAttributes map[string]any `json:"sessionAttributes,omitempty"`
+	Body              ResBody        `json:"response"`
 }
 
 // ResBody is the actual body of the response.
@@ -66,7 +66,7 @@ type ResBody struct {
 }
 
 type Reprompt struct {
-	OutputSpeech Payload `json:"outputSpeech,omitempty"`
+	OutputSpeech Payload `json:"outputSpeech"`
 }
 
 type Image struct {
@@ -80,5 +80,5 @@ type Payload struct {
 	Text    string `json:"text,omitempty"`
 	SSML    string `json:"ssml,omitempty"`
 	Content string `json:"content,omitempty"`
-	Image   Image  `json:"image,omitempty"`
+	Image   Image  `json:"image"`
 }
