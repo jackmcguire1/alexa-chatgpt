@@ -20,7 +20,7 @@ import (
 type Response struct {
 	Result struct {
 		Response string `json:"response"`
-	} `json:"result,omitempty"`
+	} `json:"result"`
 	Errors []struct {
 		Code    int    `json:"code"`
 		Message string `json:"message"`

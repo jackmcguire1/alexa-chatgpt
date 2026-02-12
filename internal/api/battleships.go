@@ -40,24 +40,24 @@ func (b *Battleships) PlaceShip(x, y, length int, horizontal bool) error {
 		if y+length > b.size {
 			return errors.New("ship placement out of bounds")
 		}
-		for i := 0; i < length; i++ {
+		for i := range length {
 			if b.board[x][y+i] != Empty {
 				return errors.New("ship placement overlaps another ship")
 			}
 		}
-		for i := 0; i < length; i++ {
+		for i := range length {
 			b.board[x][y+i] = IntShip
 		}
 	} else {
 		if x+length > b.size {
 			return errors.New("ship placement out of bounds")
 		}
-		for i := 0; i < length; i++ {
+		for i := range length {
 			if b.board[x+i][y] != Empty {
 				return errors.New("ship placement overlaps another ship")
 			}
 		}
-		for i := 0; i < length; i++ {
+		for i := range length {
 			b.board[x+i][y] = IntShip
 		}
 	}

@@ -28,10 +28,7 @@ func init() {
 
 func TestLaunchIntent(t *testing.T) {
 	mockChatGptService := &chatmodels.MockClient{}
-	h := &Handler{
-		ChatGptService: mockChatGptService,
-		Logger:         logger,
-	}
+	h := NewHandler(logger, mockChatGptService, nil, nil, 0, "", "", nil, nil, nil)
 
 	req := alexa.Request{
 		Version: "",
@@ -49,11 +46,7 @@ func TestLaunchIntent(t *testing.T) {
 
 func TestFallbackIntent(t *testing.T) {
 	mockChatGptService := &chatmodels.MockClient{}
-	h := &Handler{
-		ChatGptService: mockChatGptService,
-		Logger:         logger,
-		Model:          chatmodels.CHAT_MODEL_GPT,
-	}
+	h := NewHandler(logger, mockChatGptService, nil, nil, 0, chatmodels.CHAT_MODEL_GPT, "", nil, nil, nil)
 
 	req := alexa.Request{
 		Version: "",
@@ -90,13 +83,7 @@ func TestAutoCompleteIntent(t *testing.T) {
 	jsonResp := utils.ToJSON(queueResponse)
 	mockResponsesQueue.On("PullMessage", mock.Anything, mock.Anything).Return([]byte(jsonResp), nil)
 
-	h := &Handler{
-		ChatGptService: mockChatGptService,
-		ResponsesQueue: mockResponsesQueue,
-		RequestsQueue:  mockRequestsQueue,
-		Logger:         logger,
-		Model:          chatmodels.CHAT_MODEL_GPT,
-	}
+	h := NewHandler(logger, mockChatGptService, mockResponsesQueue, mockRequestsQueue, 0, chatmodels.CHAT_MODEL_GPT, "", nil, nil, nil)
 
 	req := alexa.Request{
 		Version: "",
@@ -139,13 +126,7 @@ func TestImageIntent(t *testing.T) {
 	jsonResp := utils.ToJSON(queueResponse)
 	mockResponsesQueue.On("PullMessage", mock.Anything, mock.Anything).Return([]byte(jsonResp), nil)
 
-	h := &Handler{
-		ChatGptService: mockChatGptService,
-		ResponsesQueue: mockResponsesQueue,
-		RequestsQueue:  mockRequestsQueue,
-		Logger:         logger,
-		Model:          chatmodels.CHAT_MODEL_GPT,
-	}
+	h := NewHandler(logger, mockChatGptService, mockResponsesQueue, mockRequestsQueue, 0, chatmodels.CHAT_MODEL_GPT, "", nil, nil, nil)
 
 	req := alexa.Request{
 		Version: "",
@@ -184,13 +165,7 @@ func TestImageIntentFailedToGenerateImagesResponse(t *testing.T) {
 	jsonResp := utils.ToJSON(queueResponse)
 	mockResponsesQueue.On("PullMessage", mock.Anything, mock.Anything).Return([]byte(jsonResp), nil)
 
-	h := &Handler{
-		ChatGptService: mockChatGptService,
-		ResponsesQueue: mockResponsesQueue,
-		RequestsQueue:  mockRequestsQueue,
-		Logger:         logger,
-		Model:          chatmodels.CHAT_MODEL_GPT,
-	}
+	h := NewHandler(logger, mockChatGptService, mockResponsesQueue, mockRequestsQueue, 0, chatmodels.CHAT_MODEL_GPT, "", nil, nil, nil)
 
 	req := alexa.Request{
 		Version: "",
@@ -221,11 +196,7 @@ func TestRandomIntent(t *testing.T) {
 
 	mockChatGptService.On("TextGeneration", mock.Anything, mock.Anything, mock.Anything).Return("santa fell down the chimney", nil)
 
-	h := &Handler{
-		ChatGptService: mockChatGptService,
-		Logger:         logger,
-		Model:          chatmodels.CHAT_MODEL_GPT,
-	}
+	h := NewHandler(logger, mockChatGptService, nil, nil, 0, chatmodels.CHAT_MODEL_GPT, "", nil, nil, nil)
 
 	req := alexa.Request{
 		Version: "",
@@ -264,12 +235,8 @@ func TestLastResponseIntent(t *testing.T) {
 	mockResponsesQueue.On("PullMessage", mock.Anything, mock.Anything).Return([]byte(jsonResp), nil)
 
 	mockChatGptService := &chatmodels.MockClient{}
-	h := &Handler{
-		lastResponse:   &queueResponse,
-		ChatGptService: mockChatGptService,
-		ResponsesQueue: mockResponsesQueue,
-		Logger:         logger,
-	}
+	h := NewHandler(logger, mockChatGptService, mockResponsesQueue, nil, 0, "", "", nil, nil, nil)
+	h.lastResponse = &queueResponse
 
 	req := alexa.Request{
 		Version: "",
@@ -297,11 +264,7 @@ func TestLastResponseIntent(t *testing.T) {
 
 func TestStopIntent(t *testing.T) {
 	mockChatGptService := &chatmodels.MockClient{}
-	h := &Handler{
-		ChatGptService: mockChatGptService,
-		Logger:         logger,
-		Model:          chatmodels.CHAT_MODEL_GPT,
-	}
+	h := NewHandler(logger, mockChatGptService, nil, nil, 0, chatmodels.CHAT_MODEL_GPT, "", nil, nil, nil)
 
 	req := alexa.Request{
 		Version: "",
@@ -323,11 +286,7 @@ func TestStopIntent(t *testing.T) {
 
 func TestCancelIntent(t *testing.T) {
 	mockChatGptService := &chatmodels.MockClient{}
-	h := &Handler{
-		ChatGptService: mockChatGptService,
-		Logger:         logger,
-		Model:          chatmodels.CHAT_MODEL_GPT,
-	}
+	h := NewHandler(logger, mockChatGptService, nil, nil, 0, chatmodels.CHAT_MODEL_GPT, "", nil, nil, nil)
 
 	req := alexa.Request{
 		Version: "",
@@ -349,11 +308,7 @@ func TestCancelIntent(t *testing.T) {
 
 func TestHelpIntent(t *testing.T) {
 	mockChatGptService := &chatmodels.MockClient{}
-	h := &Handler{
-		ChatGptService: mockChatGptService,
-		Logger:         logger,
-		Model:          chatmodels.CHAT_MODEL_GPT,
-	}
+	h := NewHandler(logger, mockChatGptService, nil, nil, 0, chatmodels.CHAT_MODEL_GPT, "", nil, nil, nil)
 
 	req := alexa.Request{
 		Version: "",
@@ -382,11 +337,7 @@ func TestModelIntentGPT(t *testing.T) {
 	chatmodels.RegisterAvailableClients(true, true, true, true)
 
 	mockChatGptService := &chatmodels.MockClient{}
-	h := &Handler{
-		ChatGptService: mockChatGptService,
-		Logger:         logger,
-		Model:          chatmodels.CHAT_MODEL_GPT,
-	}
+	h := NewHandler(logger, mockChatGptService, nil, nil, 0, chatmodels.CHAT_MODEL_GPT, "", nil, nil, nil)
 
 	req := alexa.Request{
 		Version: "",
@@ -422,11 +373,7 @@ func TestModelIntentGemini(t *testing.T) {
 	chatmodels.RegisterAvailableClients(true, true, true, true)
 
 	mockChatGptService := &chatmodels.MockClient{}
-	h := &Handler{
-		ChatGptService: mockChatGptService,
-		Logger:         logger,
-		Model:          chatmodels.CHAT_MODEL_GEMINI,
-	}
+	h := NewHandler(logger, mockChatGptService, nil, nil, 0, chatmodels.CHAT_MODEL_GEMINI, "", nil, nil, nil)
 
 	req := alexa.Request{
 		Version: "",
@@ -459,11 +406,7 @@ func TestModelIntentGemini(t *testing.T) {
 
 func TestUnsupportedIntent(t *testing.T) {
 	mockChatGptService := &chatmodels.MockClient{}
-	h := &Handler{
-		ChatGptService: mockChatGptService,
-		Logger:         logger,
-		Model:          chatmodels.CHAT_MODEL_GPT,
-	}
+	h := NewHandler(logger, mockChatGptService, nil, nil, 0, chatmodels.CHAT_MODEL_GPT, "", nil, nil, nil)
 
 	req := alexa.Request{
 		Version: "",
@@ -489,12 +432,7 @@ func TestPurgeIntent(t *testing.T) {
 	mockQueue.On("Purge", mock.Anything).Return(nil)
 
 	mockChatGptService := &chatmodels.MockClient{}
-	h := &Handler{
-		ChatGptService: mockChatGptService,
-		Logger:         logger,
-		Model:          chatmodels.CHAT_MODEL_GEMINI,
-		ResponsesQueue: mockQueue,
-	}
+	h := NewHandler(logger, mockChatGptService, mockQueue, nil, 0, chatmodels.CHAT_MODEL_GEMINI, "", nil, nil, nil)
 
 	req := alexa.Request{
 		Version: "",
