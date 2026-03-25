@@ -1,0 +1,6 @@
+name: alexa-chatgpt
+description: Alexa ChatGPT Skill - AWS Infrastructure
+runtime:
+  name: nodejs
+  options:
+    typescript: true

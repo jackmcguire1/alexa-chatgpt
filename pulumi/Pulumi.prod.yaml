@@ -1,0 +1,19 @@
+# Stack config for the "prod" stack.
+# Secret values (API keys) are NOT stored here.
+# Set them once with:
+#   pulumi config set --secret openAIApiKey <value>
+#   pulumi config set --secret geminiApiKey <value>
+#   pulumi config set --secret vertexApiKey <value>
+#   pulumi config set --secret cloudFlareAccountId <value>
+#   pulumi config set --secret cloudFlareAPIKey <value>
+#   pulumi config set --secret anthropicAPIKey <value>
+
+environment:
+  - jack-personal
+
+config:
+  aws-native:region: us-east-1
+  aws:region: us-east-1
+  alexa-chatgpt:runtime: provided.al2023
+  alexa-chatgpt:architecture: arm64
+  alexa-chatgpt:handler: bootstrap

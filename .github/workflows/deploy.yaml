@@ -3,12 +3,6 @@ on:
     branches:
       - main
 
-env:
-  ARCH: GOARCH=arm64
-  LAMBDA_RUNTIME: provided.al2023
-  LAMBDA_HANDLER: bootstrap
-  LAMBDA_ARCH: arm64
-
 concurrency: deploy
 
 jobs:
@@ -20,18 +14,44 @@ jobs:
         with:
           go-version: '^1.26.0'
           check-latest: true
-      - uses: aws-actions/setup-sam@v2
+      - uses: actions/setup-node@v4
         with:
-          use-installer: true
-      - uses: aws-actions/configure-aws-credentials@v6
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
-      - run: go test ./... -race -coverprofile=coverage.out -covermode=atomic
+          node-version: '20'
+
+      - name: Run tests
+        run: go test ./... -race -coverprofile=coverage.out -covermode=atomic
+
       - uses: codecov/codecov-action@v5
         with:
-            token: ${{ secrets.CODECOV_TOKEN }}
-            verbose: true
-      - run: sam build --parameter-overrides Runtime=${{ env.LAMBDA_RUNTIME }} Handler=${{ env.LAMBDA_HANDLER }} Architecture=${{ env.LAMBDA_ARCH }}
-      - run: sam deploy --stack-name chat-gpt --s3-bucket ${{ secrets.S3_BUCKET }} --parameter-overrides Runtime=${{ env.LAMBDA_RUNTIME }} Handler=${{ env.LAMBDA_HANDLER }} Architecture=${{ env.LAMBDA_ARCH }} OpenAIApiKey=${{ secrets.OPENAI_API_KEY }} GeminiApiKey=${{ secrets.GEMINI_API_KEY }} VertexApiKey=${{ secrets.VERTEX_API_KEY }} CloudFlareAccountId=${{ secrets.CLOUDFLARE_ACCOUNT_ID }} CloudFlareAPIKey=${{ secrets.CLOUDFLARE_API_KEY }} AnthropicAPIKey=${{ secrets.ANTHROPIC_API_KEY }} --capabilities CAPABILITY_IAM
+          token: ${{ secrets.CODECOV_TOKEN }}
+          verbose: true
+
+      - name: Build Lambda binaries
+        run: |
+          mkdir -p dist/alexa dist/sqs
+          GOOS=linux GOARCH=arm64 go build -o dist/alexa/bootstrap ./cmd/alexa
+          GOOS=linux GOARCH=arm64 go build -o dist/sqs/bootstrap ./cmd/sqs
+
+      - name: Install Pulumi dependencies
+        run: npm install
+        working-directory: ./pulumi
+
+      - name: Set Pulumi secrets from GitHub secrets
+        run: |
+          pulumi config set --secret openAIApiKey        "${{ secrets.OPENAI_API_KEY }}"       --stack prod
+          pulumi config set --secret geminiApiKey        "${{ secrets.GEMINI_API_KEY }}"        --stack prod
+          pulumi config set --secret vertexApiKey        "${{ secrets.VERTEX_API_KEY }}"        --stack prod
+          pulumi config set --secret cloudFlareAccountId "${{ secrets.CLOUDFLARE_ACCOUNT_ID }}" --stack prod
+          pulumi config set --secret cloudFlareAPIKey    "${{ secrets.CLOUDFLARE_API_KEY }}"    --stack prod
+          pulumi config set --secret anthropicAPIKey     "${{ secrets.ANTHROPIC_API_KEY }}"     --stack prod
+        working-directory: ./pulumi
+        env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+
+      - uses: pulumi/actions@v6
+        with:
+          command: up
+          stack-name: prod
+          work-dir: ./pulumi
+        env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}

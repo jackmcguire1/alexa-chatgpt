@@ -3,14 +3,8 @@ on:
     branches:
       - main
 
-env:
-  ARCH: GOARCH=arm64
-  LAMBDA_RUNTIME: provided.al2023
-  LAMBDA_HANDLER: bootstrap
-  LAMBDA_ARCH: arm64
-
 jobs:
-  build:
+  preview:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -18,8 +12,27 @@ jobs:
         with:
           go-version: '^1.26.0'
           check-latest: true
-      - uses: aws-actions/setup-sam@v2
+      - uses: actions/setup-node@v4
         with:
-          use-installer: true
-      - run: go test ./... -race -coverprofile=coverage.out -covermode=atomic
-      - run: sam build --parameter-overrides Runtime=${{ env.LAMBDA_RUNTIME }} Handler=${{ env.LAMBDA_HANDLER }} Architecture=${{ env.LAMBDA_ARCH }}
+          node-version: '20'
+
+      - name: Run tests
+        run: go test ./... -race -coverprofile=coverage.out -covermode=atomic
+
+      - name: Build Lambda binaries
+        run: |
+          mkdir -p dist/alexa dist/sqs
+          GOOS=linux GOARCH=arm64 go build -o dist/alexa/bootstrap ./cmd/alexa
+          GOOS=linux GOARCH=arm64 go build -o dist/sqs/bootstrap ./cmd/sqs
+
+      - name: Install Pulumi dependencies
+        run: npm install
+        working-directory: ./pulumi
+
+      - uses: pulumi/actions@v6
+        with:
+          command: preview
+          stack-name: prod
+          work-dir: ./pulumi
+        env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
