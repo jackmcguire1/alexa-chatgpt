@@ -72,7 +72,7 @@ The skill uses an asynchronous architecture to handle the Alexa 8-second timeout
 
 | Provider | Model | Alias | Internal Reference |
 |----------|-------|-------|-------------------|
-| **OpenAI** | gpt-5-mini | `gpt` | `CHAT_MODEL_GPT` |
+| **OpenAI** | gpt-5.4-nano-2026-03-17 | `gpt` | `CHAT_MODEL_GPT` |
 | **OpenAI** | gpt-4o | `g. p. t. version number four` | `CHAT_MODEL_GPT_V4` |
 | **Google** | gemini-3-pro-preview | `gemini` | `CHAT_MODEL_GEMINI` |
 | **Google** | gemini-2.5-flash | `gemini flash` | `CHAT_MODEL_GEMINI_FLASH` |
@@ -326,7 +326,7 @@ Alexa: "You have 10 guesses left and 5 hints remaining. Can you guess the animal
 ## API Integration Details
 
 ### OpenAI Integration
-- Models: gpt-5-mini, gpt-4o
+- Models: gpt-5.4-nano-2026-03-17, gpt-4o
 - Used for general conversation and DALL-E image generation
 - Requires `OPENAI_API_KEY`
 

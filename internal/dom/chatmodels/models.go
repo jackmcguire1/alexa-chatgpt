@@ -106,7 +106,7 @@ var allModelConfigs = []ModelConfig{
 		ChatModel:       CHAT_MODEL_GPT,
 		Type:            ModelTypeChat,
 		Provider:        ProviderOpenAI,
-		ProviderModelID: "gpt-5.1-2025-11-13",
+		ProviderModelID: "gpt-5.4-nano-2026-03-17",
 		Aliases:         []string{string(CHAT_MODEL_GPT)},
 		ErrorMessage:    "GPT model is not available - OpenAI API key not configured",
 	},
