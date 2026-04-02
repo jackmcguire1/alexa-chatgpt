@@ -39,6 +39,7 @@ type AnthropicAPI interface {
 type BedrockAPI interface {
 	LlmModel
 	LlmContentGenerator
+	GenerateImage(ctx context.Context, prompt string, model string) ([]byte, error)
 }
 
 type CloudFlareAiWorkerAPI interface {

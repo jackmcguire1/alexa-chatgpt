@@ -94,6 +94,8 @@ The skill uses an asynchronous architecture to handle the Alexa 8-second timeout
 | **Cloudflare** | stable-diffusion-xl-base-1.0   | `stable` | `IMAGE_MODEL_STABLE_DIFFUSION` |
 | **Google** | imagen-4.0-generate-001        | `gemini image` | `IMAGE_MODEL_GEMINI` |
 | **Google** | gemini-3-pro-image-preview | `banana nano` | `IMAGE_MODEL_GEMINI_BANANA_NANO` |
+| **AWS Bedrock** | amazon.nova-canvas-v1:0 | `nova canvas` | `IMAGE_MODEL_NOVA_CANVAS` |
+| **AWS Bedrock** | amazon.titan-image-generator-v2:0 | `titan` | `IMAGE_MODEL_TITAN` |
 
 ### Translation Model
 - Special model for translations: `CHAT_MODEL_TRANSLATIONS`

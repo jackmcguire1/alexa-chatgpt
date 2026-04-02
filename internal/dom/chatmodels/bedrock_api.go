@@ -2,6 +2,8 @@ package chatmodels
 
 import (
 	"context"
+	"encoding/base64"
+	"encoding/json"
 	"fmt"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -138,4 +140,54 @@ func (api *BedrockApiClient) GenerateContent(
 			{Content: responseText},
 		},
 	}, nil
+}
+
+// GenerateImage implements BedrockAPI using the InvokeModel API.
+// Supports Nova Canvas and Titan Image Generator (both share the same request format).
+func (api *BedrockApiClient) GenerateImage(ctx context.Context, prompt string, model string) ([]byte, error) {
+	body, err := json.Marshal(map[string]any{
+		"taskType": "TEXT_IMAGE",
+		"textToImageParams": map[string]string{
+			"text": prompt,
+		},
+		"imageGenerationConfig": map[string]any{
+			"numberOfImages": 1,
+			"width":          1024,
+			"height":         1024,
+			"quality":        "standard",
+		},
+	})
+	if err != nil {
+		return nil, fmt.Errorf("bedrock image: failed to marshal request: %w", err)
+	}
+
+	resp, err := api.Client.InvokeModel(ctx, &bedrockruntime.InvokeModelInput{
+		ModelId:     aws.String(model),
+		Body:        body,
+		ContentType: aws.String("application/json"),
+		Accept:      aws.String("application/json"),
+	})
+	if err != nil {
+		return nil, fmt.Errorf("bedrock image invoke error: %w", err)
+	}
+
+	var result struct {
+		Images []string `json:"images"`
+		Error  string   `json:"error"`
+	}
+	if err := json.Unmarshal(resp.Body, &result); err != nil {
+		return nil, fmt.Errorf("bedrock image: failed to unmarshal response: %w", err)
+	}
+	if result.Error != "" {
+		return nil, fmt.Errorf("bedrock image error: %s", result.Error)
+	}
+	if len(result.Images) == 0 {
+		return nil, fmt.Errorf("bedrock image: no images in response")
+	}
+
+	imgBytes, err := base64.StdEncoding.DecodeString(result.Images[0])
+	if err != nil {
+		return nil, fmt.Errorf("bedrock image: failed to decode base64 image: %w", err)
+	}
+	return imgBytes, nil
 }

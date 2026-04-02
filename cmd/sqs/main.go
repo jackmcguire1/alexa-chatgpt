@@ -66,7 +66,9 @@ func (handler *SqsHandler) ProcessGenerationRequest(ctx context.Context, req *ch
 			chatmodels.IMAGE_MODEL_DALL_E_3,
 			chatmodels.IMAGE_MODEL_GEMINI,
 			chatmodels.IMAGE_MODEL_GEMINI_BANANA_NANO,
-			chatmodels.IMAGE_MODEL_GPT:
+			chatmodels.IMAGE_MODEL_GPT,
+			chatmodels.IMAGE_MODEL_NOVA_CANVAS,
+			chatmodels.IMAGE_MODEL_TITAN:
 			span.SetAttributes(
 				attribute.String("image-model", string(*req.ImageModel)),
 			)

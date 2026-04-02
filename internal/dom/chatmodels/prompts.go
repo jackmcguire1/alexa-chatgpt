@@ -112,6 +112,11 @@ func (client *Client) GenerateImage(ctx context.Context, prompt string, model Im
 			return nil, fmt.Errorf("image model %s is not available: Cloudflare client not configured", model)
 		}
 		return client.CloudflareApiClient.GenerateImage(ctx, prompt, providerModelID)
+	case ProviderBedrock:
+		if client.BedrockAPI == nil {
+			return nil, fmt.Errorf("image model %s is not available: Bedrock client not configured", model)
+		}
+		return client.BedrockAPI.GenerateImage(ctx, prompt, providerModelID)
 	default:
 		return nil, fmt.Errorf("image model %s has unsupported provider %s", model, provider)
 	}

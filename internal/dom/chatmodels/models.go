@@ -35,6 +35,8 @@ const (
 	IMAGE_MODEL_GEMINI             ImageModel = "gemini image"
 	IMAGE_MODEL_GEMINI_BANANA_NANO ImageModel = "banana nano"
 	IMAGE_MODEL_GPT                ImageModel = "gpt-image"
+	IMAGE_MODEL_NOVA_CANVAS        ImageModel = "nova canvas"
+	IMAGE_MODEL_TITAN              ImageModel = "titan"
 )
 
 func (c ChatModel) String() string {
@@ -274,6 +276,24 @@ var allModelConfigs = []ModelConfig{
 		ProviderModelID: "us.amazon.nova-pro-v1:0",
 		Aliases:         []string{string(CHAT_MODEL_BEDROCK_NOVA_PRO)},
 		ErrorMessage:    "Bedrock Nova Pro model is not available - AWS IAM role lacks bedrock:InvokeModel permission",
+	},
+
+	// Bedrock Image Models
+	{
+		ImageModel:      IMAGE_MODEL_NOVA_CANVAS,
+		Type:            ModelTypeImage,
+		Provider:        ProviderBedrock,
+		ProviderModelID: "amazon.nova-canvas-v1:0",
+		Aliases:         []string{string(IMAGE_MODEL_NOVA_CANVAS)},
+		ErrorMessage:    "Nova Canvas model is not available - AWS IAM role lacks bedrock:InvokeModel permission",
+	},
+	{
+		ImageModel:      IMAGE_MODEL_TITAN,
+		Type:            ModelTypeImage,
+		Provider:        ProviderBedrock,
+		ProviderModelID: "amazon.titan-image-generator-v2:0",
+		Aliases:         []string{string(IMAGE_MODEL_TITAN)},
+		ErrorMessage:    "Titan Image Generator model is not available - AWS IAM role lacks bedrock:InvokeModel permission",
 	},
 }
 
