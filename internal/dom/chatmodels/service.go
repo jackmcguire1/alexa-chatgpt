@@ -7,6 +7,7 @@ type Resources struct {
 	GeminiAPI           GeminiAPI
 	CloudflareApiClient CloudFlareAiWorkerAPI
 	AnthropicAPI        AnthropicAPI
+	BedrockAPI          BedrockAPI
 }
 
 type Service interface {

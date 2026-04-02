@@ -23,7 +23,7 @@ var (
 
 func init() {
 	// Register all clients as available for tests
-	chatmodels.RegisterAvailableClients(true, true, true, true)
+	chatmodels.RegisterAvailableClients(true, true, true, true, true)
 }
 
 func TestLaunchIntent(t *testing.T) {
@@ -334,7 +334,7 @@ func TestHelpIntent(t *testing.T) {
 
 func TestModelIntentGPT(t *testing.T) {
 	// Temporarily register all clients as available
-	chatmodels.RegisterAvailableClients(true, true, true, true)
+	chatmodels.RegisterAvailableClients(true, true, true, true, true)
 
 	mockChatGptService := &chatmodels.MockClient{}
 	h := NewHandler(logger, mockChatGptService, nil, nil, 0, chatmodels.CHAT_MODEL_GPT, "", nil, nil, nil)
@@ -370,7 +370,7 @@ func TestModelIntentGPT(t *testing.T) {
 
 func TestModelIntentGemini(t *testing.T) {
 	// Temporarily register all clients as available
-	chatmodels.RegisterAvailableClients(true, true, true, true)
+	chatmodels.RegisterAvailableClients(true, true, true, true, true)
 
 	mockChatGptService := &chatmodels.MockClient{}
 	h := NewHandler(logger, mockChatGptService, nil, nil, 0, chatmodels.CHAT_MODEL_GEMINI, "", nil, nil, nil)

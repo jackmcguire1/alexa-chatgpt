@@ -33,6 +33,7 @@ func main() {
 		false, // Gemini not used in this example
 		false, // Anthropic not used in this example
 		resources.CloudflareApiClient != nil,
+		false, // Bedrock not used in this example
 	)
 
 	logger.With("available_models", chatmodels.AvailableModels).Info("Available models")

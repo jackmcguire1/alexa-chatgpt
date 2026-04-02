@@ -32,11 +32,16 @@ func InitializeResources() *chatmodels.Resources {
 		resources.AnthropicAPI = chatmodels.NewAnthropicApiClient(anthropicKey)
 	}
 
+	if os.Getenv("BEDROCK_ENABLED") == "true" {
+		resources.BedrockAPI = chatmodels.NewBedrockApiClient()
+	}
+
 	chatmodels.RegisterAvailableClients(
 		resources.GPTApi != nil,
 		resources.GeminiAPI != nil,
 		resources.AnthropicAPI != nil,
 		resources.CloudflareApiClient != nil,
+		resources.BedrockAPI != nil,
 	)
 
 	return resources

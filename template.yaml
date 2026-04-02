@@ -20,6 +20,7 @@ Globals:
         S3_BUCKET: !Ref Bucket
         OPENAI_BASE_URL: "https://api.openai.com/v1"
         ANTHROPIC_API_KEY: !Ref AnthropicAPIKey
+        BEDROCK_ENABLED: !Ref BedrockEnabled
     Layers:
       - !Sub arn:aws:lambda:${AWS::Region}:901920570463:layer:aws-otel-collector-arm64-ver-0-115-0:3
     Tracing: Active
@@ -53,6 +54,14 @@ Parameters:
     Type: String
     Description: Anthropic API Key
     Default: ""
+
+  BedrockEnabled:
+    Type: String
+    Description: Set to 'true' to enable AWS Bedrock models
+    Default: "false"
+    AllowedValues:
+      - "true"
+      - "false"
 
   Runtime:
     Type: String
@@ -129,6 +138,11 @@ Resources:
               Resource:
                 - !GetAtt RequestsQueue.Arn
                 - !GetAtt ResponsesQueue.Arn
+            - Effect: Allow
+              Action:
+                - bedrock:InvokeModel
+                - bedrock:InvokeModelWithResponseStream
+              Resource: "*"
     Metadata:
       BuildMethod: go1.x
 
@@ -155,6 +169,13 @@ Resources:
               !GetAtt ResponsesQueue.QueueName
         - S3CrudPolicy:
             BucketName: !Ref Bucket
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - bedrock:InvokeModel
+                - bedrock:InvokeModelWithResponseStream
+              Resource: "*"
     Metadata:
       BuildMethod: go1.x
 

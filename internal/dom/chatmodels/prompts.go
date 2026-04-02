@@ -72,6 +72,12 @@ func (client *Client) GetLLmModel(model ChatModel) (llms.Model, []llms.CallOptio
 		}
 		opts := []llms.CallOption{llms.WithModel(providerModelID), llms.WithTemperature(1)}
 		return client.GPTApi.GetModel(opts...), opts
+	case ProviderBedrock:
+		if client.BedrockAPI == nil {
+			return nil, nil
+		}
+		opts := []llms.CallOption{llms.WithModel(providerModelID)}
+		return client.BedrockAPI.GetModel(opts...), opts
 	default:
 		return nil, nil
 	}
