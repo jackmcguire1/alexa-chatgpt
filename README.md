@@ -82,6 +82,7 @@ The skill uses an asynchronous architecture to handle the Alexa 8-second timeout
 | **Cloudflare** | deepseek-r1-distill-qwen-32b | `qwen` | `CHAT_MODEL_QWEN` |
 | **Cloudflare** | gpt-oss-120b | `apache` | `CHAT_MODEL_GPT_OSS` |
 | **AWS Bedrock** | us.anthropic.claude-sonnet-4-6 | `bedrock sonnet` | `CHAT_MODEL_BEDROCK_SONNET` |
+| **AWS Bedrock** | us.anthropic.claude-opus-4-6-v1 | `bedrock opus` | `CHAT_MODEL_BEDROCK_OPUS` |
 | **AWS Bedrock** | us.amazon.nova-lite-v1:0 | `nova` | `CHAT_MODEL_BEDROCK_NOVA_LITE` |
 | **AWS Bedrock** | us.amazon.nova-pro-v1:0 | `nova pro` | `CHAT_MODEL_BEDROCK_NOVA_PRO` |
 

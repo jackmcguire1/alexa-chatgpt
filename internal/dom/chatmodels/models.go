@@ -24,6 +24,7 @@ const (
 	CHAT_MODEL_GPT_V4       ChatModel = "g. p. t. version number four"
 	CHAT_MODEL_GPT_OSS           ChatModel = "apache"
 	CHAT_MODEL_BEDROCK_SONNET    ChatModel = "bedrock sonnet"
+	CHAT_MODEL_BEDROCK_OPUS      ChatModel = "bedrock opus"
 	CHAT_MODEL_BEDROCK_NOVA_LITE ChatModel = "nova"
 	CHAT_MODEL_BEDROCK_NOVA_PRO  ChatModel = "nova pro"
 )
@@ -260,6 +261,14 @@ var allModelConfigs = []ModelConfig{
 		ProviderModelID: "us.anthropic.claude-sonnet-4-6",
 		Aliases:         []string{string(CHAT_MODEL_BEDROCK_SONNET)},
 		ErrorMessage:    "Bedrock Sonnet model is not available - AWS IAM role lacks bedrock:InvokeModel permission",
+	},
+	{
+		ChatModel:       CHAT_MODEL_BEDROCK_OPUS,
+		Type:            ModelTypeChat,
+		Provider:        ProviderBedrock,
+		ProviderModelID: "us.anthropic.claude-opus-4-6-v1",
+		Aliases:         []string{string(CHAT_MODEL_BEDROCK_OPUS)},
+		ErrorMessage:    "Bedrock Opus model is not available - AWS IAM role lacks bedrock:InvokeModel permission",
 	},
 	{
 		ChatModel:       CHAT_MODEL_BEDROCK_NOVA_LITE,
