@@ -255,7 +255,7 @@ var allModelConfigs = []ModelConfig{
 		ChatModel:       CHAT_MODEL_BEDROCK_SONNET,
 		Type:            ModelTypeChat,
 		Provider:        ProviderBedrock,
-		ProviderModelID: "us.anthropic.claude-sonnet-4-5-20251101-v1:0",
+		ProviderModelID: "us.anthropic.claude-sonnet-4-6",
 		Aliases:         []string{string(CHAT_MODEL_BEDROCK_SONNET)},
 		ErrorMessage:    "Bedrock Sonnet model is not available - AWS IAM role lacks bedrock:InvokeModel permission",
 	},
