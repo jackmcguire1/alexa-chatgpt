@@ -1,6 +1,6 @@
 # Alexa-ChatGPT
 
-> 🎤 A production-ready serverless Alexa skill backend that seamlessly integrates with multiple generative AI providers, enabling natural conversations with OpenAI GPT, Google Gemini, Anthropic Claude, Cloudflare AI, and more through your Alexa device.
+> 🎤 A production-ready serverless Alexa skill backend that seamlessly integrates with multiple generative AI providers, enabling natural conversations with OpenAI GPT, Google Gemini, Anthropic Claude, Cloudflare AI, AWS Bedrock, and more through your Alexa device.
 
 [git]: https://git-scm.com/
 [golang]: https://golang.org/
@@ -17,7 +17,7 @@
 
 ## 🌟 Key Features
 
-- **Multi-Provider AI Support**: Seamlessly switch between OpenAI, Google, Anthropic, and Cloudflare models
+- **Multi-Provider AI Support**: Seamlessly switch between OpenAI, Google, Anthropic, Cloudflare, and AWS Bedrock models
 - **Optional Client Initialization**: Only configured providers are initialized - no need to set up all API keys
 - **Asynchronous Processing**: Handles Alexa's timeout constraints with intelligent queue management
 - **Image Generation**: Create images with DALL-E, Stable Diffusion, and Google Imagen
@@ -81,6 +81,9 @@ The skill uses an asynchronous architecture to handle the Alexa 8-second timeout
 | **Cloudflare** | llama-4-scout-17b-16e-instruct | `llama` | `CHAT_MODEL_META` |
 | **Cloudflare** | deepseek-r1-distill-qwen-32b | `qwen` | `CHAT_MODEL_QWEN` |
 | **Cloudflare** | gpt-oss-120b | `apache` | `CHAT_MODEL_GPT_OSS` |
+| **AWS Bedrock** | us.anthropic.claude-sonnet-4-5-20251101-v1:0 | `bedrock sonnet` | `CHAT_MODEL_BEDROCK_SONNET` |
+| **AWS Bedrock** | us.amazon.nova-lite-v1:0 | `nova` | `CHAT_MODEL_BEDROCK_NOVA_LITE` |
+| **AWS Bedrock** | us.amazon.nova-pro-v1:0 | `nova pro` | `CHAT_MODEL_BEDROCK_NOVA_PRO` |
 
 ### Image Generation Models
 
@@ -184,10 +187,11 @@ The skill uses an asynchronous architecture to handle the Alexa 8-second timeout
 - [AWS CLI][aws-cli]
 - [AWS SAM CLI][aws-sam-cli]
 - AWS Account
-- OpenAI API Account
-- Google Cloud Account (for Gemini)
-- Anthropic API Account (for Claude)
-- Cloudflare Account (for Workers AI)
+- OpenAI API Account (optional)
+- Google Cloud Account (optional, for Gemini)
+- Anthropic API Account (optional, for Claude direct API)
+- Cloudflare Account (optional, for Workers AI)
+- AWS Bedrock model access enabled (optional, no extra account needed — uses existing AWS account)
 
 ### Environment Variables
 
@@ -200,6 +204,7 @@ export ANTHROPIC_API_KEY=your_anthropic_api_key     # For Claude models
 export CLOUDFLARE_ACCOUNT_ID=your_cloudflare_id     # For Cloudflare AI models
 export CLOUDFLARE_API_KEY=your_cloudflare_api_key   # For Cloudflare AI models
 export GEMINI_API_KEY=base64_encoded_service_json   # For Gemini models (Google Service Account)
+export BEDROCK_ENABLED=true                         # Set to 'true' to enable AWS Bedrock models (uses Lambda IAM role - no API key needed)
 
 # Required for deployment
 export HANDLER=main
@@ -256,6 +261,7 @@ aws configure
        AnthropicApiKey=$ANTHROPIC_API_KEY \
        CloudflareAccountId=$CLOUDFLARE_ACCOUNT_ID \
        CloudflareApiKey=$CLOUDFLARE_API_KEY \
+       BedrockEnabled=true \
      --capabilities CAPABILITY_IAM
    ```
 
@@ -344,6 +350,15 @@ Alexa: "You have 10 guesses left and 5 hints remaining. Can you guess the animal
 - Models: Llama 4 Scout, DeepSeek Qwen, GPT-OSS
 - Cost-effective AI inference
 - Requires `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_KEY`
+
+### AWS Bedrock Integration
+- Models: Claude Sonnet (Anthropic), Amazon Nova Lite, Amazon Nova Pro
+- Uses the Bedrock [Converse API](https://docs.aws.amazon.com/bedrock/latest/userguide/conversation-inference.html) — compatible with all Bedrock-hosted models
+- **No API key required** — authentication is handled automatically via the Lambda IAM execution role
+- Enable with `BEDROCK_ENABLED=true` (or `BedrockEnabled=true` SAM parameter)
+- Requires `bedrock:InvokeModel` permission on the Lambda role (added automatically by the SAM template)
+- **Important:** Enable model access for each model in the [AWS Bedrock console](https://console.aws.amazon.com/bedrock/) under **Model access** before deploying
+- Model IDs use [cross-region inference profiles](https://docs.aws.amazon.com/bedrock/latest/userguide/inference-profiles-support.html) (e.g. `us.anthropic.claude-sonnet-4-5-20251101-v1:0`) — update IDs in `internal/dom/chatmodels/models.go` if needed
 
 ## Troubleshooting
 
@@ -452,5 +467,5 @@ All donations are appreciated!
 - Google for Gemini and Vertex AI
 - Anthropic for Claude models
 - Cloudflare for Workers AI platform
-- AWS for serverless infrastructure
+- AWS for serverless infrastructure and Bedrock
 - The open-source community for continuous support

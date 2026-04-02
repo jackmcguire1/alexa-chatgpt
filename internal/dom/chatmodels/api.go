@@ -36,6 +36,11 @@ type AnthropicAPI interface {
 	LlmContentGenerator
 }
 
+type BedrockAPI interface {
+	LlmModel
+	LlmContentGenerator
+}
+
 type CloudFlareAiWorkerAPI interface {
 	LlmModel
 	LlmContentGenerator

@@ -22,7 +22,10 @@ const (
 	CHAT_MODEL_OPUS         ChatModel = "opus"
 	CHAT_MODEL_SONNET       ChatModel = "sonnet"
 	CHAT_MODEL_GPT_V4       ChatModel = "g. p. t. version number four"
-	CHAT_MODEL_GPT_OSS      ChatModel = "apache"
+	CHAT_MODEL_GPT_OSS           ChatModel = "apache"
+	CHAT_MODEL_BEDROCK_SONNET    ChatModel = "bedrock sonnet"
+	CHAT_MODEL_BEDROCK_NOVA_LITE ChatModel = "nova"
+	CHAT_MODEL_BEDROCK_NOVA_PRO  ChatModel = "nova pro"
 )
 
 const (
@@ -50,6 +53,7 @@ const (
 	ProviderGemini     Provider = "gemini"
 	ProviderAnthropic  Provider = "anthropic"
 	ProviderCloudflare Provider = "cloudflare"
+	ProviderBedrock    Provider = "bedrock"
 )
 
 // ModelType distinguishes between chat and image models
@@ -91,6 +95,7 @@ type ModelRegistry struct {
 	hasGemini     bool
 	hasAnthropic  bool
 	hasCloudflare bool
+	hasBedrock    bool
 
 	// Cached lookups
 	chatModelByAlias  map[string]ModelConfig
@@ -242,14 +247,43 @@ var allModelConfigs = []ModelConfig{
 		Aliases:         []string{string(IMAGE_MODEL_STABLE_DIFFUSION)},
 		ErrorMessage:    "Stable Diffusion model is not available - Cloudflare API key not configured",
 	},
+
+	// Bedrock Chat Models
+	// Note: Bedrock uses cross-region inference profile IDs. Verify these IDs are enabled
+	// in your AWS account under Bedrock > Model access before deploying.
+	{
+		ChatModel:       CHAT_MODEL_BEDROCK_SONNET,
+		Type:            ModelTypeChat,
+		Provider:        ProviderBedrock,
+		ProviderModelID: "us.anthropic.claude-sonnet-4-5-20251101-v1:0",
+		Aliases:         []string{string(CHAT_MODEL_BEDROCK_SONNET)},
+		ErrorMessage:    "Bedrock Sonnet model is not available - AWS IAM role lacks bedrock:InvokeModel permission",
+	},
+	{
+		ChatModel:       CHAT_MODEL_BEDROCK_NOVA_LITE,
+		Type:            ModelTypeChat,
+		Provider:        ProviderBedrock,
+		ProviderModelID: "us.amazon.nova-lite-v1:0",
+		Aliases:         []string{string(CHAT_MODEL_BEDROCK_NOVA_LITE)},
+		ErrorMessage:    "Bedrock Nova Lite model is not available - AWS IAM role lacks bedrock:InvokeModel permission",
+	},
+	{
+		ChatModel:       CHAT_MODEL_BEDROCK_NOVA_PRO,
+		Type:            ModelTypeChat,
+		Provider:        ProviderBedrock,
+		ProviderModelID: "us.amazon.nova-pro-v1:0",
+		Aliases:         []string{string(CHAT_MODEL_BEDROCK_NOVA_PRO)},
+		ErrorMessage:    "Bedrock Nova Pro model is not available - AWS IAM role lacks bedrock:InvokeModel permission",
+	},
 }
 
 // RegisterAvailableClients initializes the registry with provider availability
-func RegisterAvailableClients(openAI, gemini, anthropic, cloudflare bool) {
+func RegisterAvailableClients(openAI, gemini, anthropic, cloudflare, bedrock bool) {
 	registry.hasOpenAI = openAI
 	registry.hasGemini = gemini
 	registry.hasAnthropic = anthropic
 	registry.hasCloudflare = cloudflare
+	registry.hasBedrock = bedrock
 	registry.configs = allModelConfigs
 
 	// Build alias lookup maps
@@ -309,6 +343,8 @@ func (r *ModelRegistry) isProviderAvailable(provider Provider) bool {
 		return r.hasAnthropic
 	case ProviderCloudflare:
 		return r.hasCloudflare
+	case ProviderBedrock:
+		return r.hasBedrock
 	default:
 		return false
 	}
