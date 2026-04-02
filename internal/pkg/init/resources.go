@@ -65,6 +65,9 @@ func GetDefaultChatModel(resources *chatmodels.Resources) chatmodels.ChatModel {
 	if resources.CloudflareApiClient != nil {
 		return chatmodels.CHAT_MODEL_META
 	}
+	if resources.BedrockAPI != nil {
+		return chatmodels.CHAT_MODEL_BEDROCK_SONNET
+	}
 
 	return chatmodels.CHAT_MODEL_GPT
 }
