@@ -11,7 +11,7 @@ func (client *Client) generateContent(ctx context.Context, messages []Message, m
 	if !ok {
 		return "", fmt.Errorf("model %s is not configured", model)
 	}
-	opts := GenerateOptions{Model: cfg.ProviderModelID}
+	opts := GenerateOptions{Model: cfg.ProviderModelID, MantleRegion: cfg.MantleRegion}
 
 	switch cfg.Provider {
 	case ProviderBedrockMantle:

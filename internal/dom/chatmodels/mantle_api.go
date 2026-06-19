@@ -21,9 +21,10 @@ import (
 )
 
 // MantleApiClient calls the AWS Bedrock Mantle endpoint using the OpenAI-compatible
-// Responses API. Requests are signed with AWS SigV4.
+// Responses API. Each mantle model may only be available in a specific region, so
+// a separate signed client is held per region.
 type MantleApiClient struct {
-	client openai.Client
+	clients map[string]openai.Client // keyed by AWS region
 }
 
 // sigV4Transport signs each outbound HTTP request with AWS SigV4 before forwarding.
@@ -69,17 +70,12 @@ func (t *sigV4Transport) RoundTrip(req *http.Request) (*http.Response, error) {
 	return t.inner.RoundTrip(reqToSign)
 }
 
-func NewMantleApiClient() *MantleApiClient {
-	cfg, err := config.LoadDefaultConfig(context.Background())
-	if err != nil {
-		panic(fmt.Sprintf("mantle: failed to load AWS config: %v", err))
-	}
-
+func newRegionalMantleClient(region string, creds aws.CredentialsProvider) openai.Client {
 	signingTransport := &sigV4Transport{
 		inner:  http.DefaultTransport,
 		signer: v4.NewSigner(),
-		creds:  cfg.Credentials,
-		region: cfg.Region,
+		creds:  creds,
+		region: region,
 	}
 
 	httpClient := &http.Client{
@@ -89,18 +85,39 @@ func NewMantleApiClient() *MantleApiClient {
 		),
 	}
 
-	baseURL := fmt.Sprintf("https://bedrock-mantle.%s.api.aws/openai/v1", cfg.Region)
-
-	cl := openai.NewClient(
-		option.WithBaseURL(baseURL),
+	return openai.NewClient(
+		option.WithBaseURL(fmt.Sprintf("https://bedrock-mantle.%s.api.aws/openai/v1", region)),
 		option.WithHTTPClient(httpClient),
-		option.WithAPIKey("x"), // auth is handled by SigV4; SDK requires a non-empty value
+		option.WithAPIKey("x"), // auth is via SigV4; SDK requires a non-empty value
 	)
+}
 
-	return &MantleApiClient{client: cl}
+// NewMantleApiClient builds one signed OpenAI client per distinct region required
+// by the mantle models registered in allModelConfigs.
+func NewMantleApiClient() *MantleApiClient {
+	cfg, err := config.LoadDefaultConfig(context.Background())
+	if err != nil {
+		panic(fmt.Sprintf("mantle: failed to load AWS config: %v", err))
+	}
+
+	clients := make(map[string]openai.Client)
+	for _, mc := range allModelConfigs {
+		if mc.Provider == ProviderBedrockMantle && mc.MantleRegion != "" {
+			if _, exists := clients[mc.MantleRegion]; !exists {
+				clients[mc.MantleRegion] = newRegionalMantleClient(mc.MantleRegion, cfg.Credentials)
+			}
+		}
+	}
+
+	return &MantleApiClient{clients: clients}
 }
 
 func (api *MantleApiClient) GenerateContent(ctx context.Context, messages []Message, opts GenerateOptions) (*GenerateResponse, error) {
+	cl, ok := api.clients[opts.MantleRegion]
+	if !ok {
+		return nil, fmt.Errorf("mantle: no client configured for region %q", opts.MantleRegion)
+	}
+
 	params := responses.ResponseNewParams{
 		Model: opts.Model,
 	}
@@ -126,7 +143,7 @@ func (api *MantleApiClient) GenerateContent(ctx context.Context, messages []Mess
 		params.MaxOutputTokens = openai.Int(int64(opts.MaxTokens))
 	}
 
-	resp, err := api.client.Responses.New(ctx, params)
+	resp, err := cl.Responses.New(ctx, params)
 	if err != nil {
 		return nil, fmt.Errorf("mantle: responses API error: %w", err)
 	}

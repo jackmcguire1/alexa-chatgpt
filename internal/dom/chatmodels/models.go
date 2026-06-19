@@ -56,8 +56,12 @@ type ModelConfig struct {
 	Type     ModelType
 	Provider Provider
 
-	// Provider-specific model identifier used in the Bedrock API call.
+	// Provider-specific model identifier used in the API call.
 	ProviderModelID string
+
+	// MantleRegion is the AWS region for ProviderBedrockMantle models.
+	// Each mantle model may only be available in a specific region.
+	MantleRegion string
 
 	// Alexa voice command aliases (what users say to select this model).
 	Aliases []string
@@ -139,6 +143,7 @@ var allModelConfigs = []ModelConfig{
 		Type:            ModelTypeChat,
 		Provider:        ProviderBedrockMantle,
 		ProviderModelID: "xai.grok-4.3",
+		MantleRegion:    "us-west-2",
 		Aliases:         []string{string(CHAT_MODEL_GROK)},
 		ErrorMessage:    "Grok model is not available - Bedrock not configured",
 	},
@@ -147,6 +152,7 @@ var allModelConfigs = []ModelConfig{
 		Type:            ModelTypeChat,
 		Provider:        ProviderBedrockMantle,
 		ProviderModelID: "openai.gpt-5.5",
+		MantleRegion:    "us-east-1",
 		Aliases:         []string{string(CHAT_MODEL_GPT)},
 		ErrorMessage:    "GPT model is not available - Bedrock not configured",
 	},

@@ -23,9 +23,10 @@ type Message struct {
 
 // GenerateOptions configures a content generation call.
 type GenerateOptions struct {
-	Model       string
-	Temperature float64
-	MaxTokens   int
+	Model        string
+	Temperature  float64
+	MaxTokens    int
+	MantleRegion string // only used for ProviderBedrockMantle models
 }
 
 // GenerateResponse holds the result of a generation call.
