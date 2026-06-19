@@ -63,12 +63,8 @@ response:
 	}
 
 	switch response.Model {
-	case chatmodels.IMAGE_MODEL_STABLE_DIFFUSION.String(),
-		chatmodels.IMAGE_MODEL_DALL_E_2.String(),
-		chatmodels.IMAGE_MODEL_DALL_E_3.String(),
-		chatmodels.IMAGE_MODEL_GEMINI.String(),
-		chatmodels.IMAGE_MODEL_GEMINI_BANANA_NANO.String(),
-		chatmodels.IMAGE_MODEL_GPT.String():
+	case chatmodels.IMAGE_MODEL_NOVA_CANVAS.String(),
+		chatmodels.IMAGE_MODEL_TITAN.String():
 
 		res = alexa.NewImageResponse(
 			"Response",

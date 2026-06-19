@@ -2,74 +2,48 @@ package chatmodels
 
 import (
 	"context"
-	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"github.com/tmc/langchaingo/llms"
 )
 
-func TestTextGenerationWithGPT(t *testing.T) {
+func TestTextGenerationWithBedrock(t *testing.T) {
 	mockResponse := "hello world"
-	mockLlm := &mockLlmModel{}
-	mockLlm.On("GenerateContent", mock.Anything, mock.Anything, mock.Anything).Return(&llms.ContentResponse{
-		Choices: []*llms.ContentChoice{{Content: mockResponse}},
-	}, nil)
+	mockBedrock := &mockBedrockAPI{}
+	mockBedrock.On("GenerateContent", mock.Anything, mock.Anything, mock.Anything).
+		Return(&GenerateResponse{Content: mockResponse}, nil)
 
-	api := &mockAPI{}
-	api.On("GetModel", mock.Anything).Return(mockLlm, nil)
-
-	c := Client{&Resources{GPTApi: api}}
-	resp, err := c.TextGeneration(context.Background(), "steve", CHAT_MODEL_GPT)
+	c := Client{&Resources{BedrockAPI: mockBedrock}}
+	resp, err := c.TextGeneration(context.Background(), "steve", CHAT_MODEL_SONNET)
 	assert.NoError(t, err)
 	assert.EqualValues(t, mockResponse, resp)
 }
 
-func TestTestTextGenerationWithGemini(t *testing.T) {
+func TestTextGenerationWithSystem(t *testing.T) {
 	mockResponse := "hello world"
-	mockLlm := &mockLlmModel{}
-	mockLlm.On("GenerateContent", mock.Anything, mock.Anything, mock.Anything).Return(&llms.ContentResponse{
-		Choices: []*llms.ContentChoice{{Content: mockResponse}},
-	}, nil)
+	mockBedrock := &mockBedrockAPI{}
+	mockBedrock.On("GenerateContent", mock.Anything, mock.Anything, mock.Anything).
+		Return(&GenerateResponse{Content: mockResponse}, nil)
 
-	api := &mockAPI{}
-	api.On("GetModel", mock.Anything).Return(mockLlm, nil)
-
-	c := Client{&Resources{GeminiAPI: api}}
-	resp, err := c.TextGeneration(context.Background(), "steve", CHAT_MODEL_GEMINI)
-	assert.NoError(t, err)
-	assert.EqualValues(t, mockResponse, resp)
-}
-
-func TestTextGenerationWithMetaModel(t *testing.T) {
-	mockResponse := "hello world"
-	mockLlm := &mockLlmModel{}
-	mockLlm.On("GenerateContent", mock.Anything, mock.Anything, mock.Anything).Return(&llms.ContentResponse{
-		Choices: []*llms.ContentChoice{{Content: mockResponse}},
-	}, nil)
-
-	api := &mockAPI{}
-	api.On("GetModel", mock.Anything).Return(mockLlm, nil)
-
-	c := Client{&Resources{CloudflareApiClient: api}}
-	resp, err := c.TextGeneration(context.Background(), "steve", CHAT_MODEL_META)
+	c := Client{&Resources{BedrockAPI: mockBedrock}}
+	resp, err := c.TextGenerationWithSystem(context.Background(), "you are helpful", "steve", CHAT_MODEL_OPUS)
 	assert.NoError(t, err)
 	assert.EqualValues(t, mockResponse, resp)
 }
 
 func TestTextGenerationWithMissingContent(t *testing.T) {
-	api := &mockAPI{}
-	mockLlm := &mockLlmModel{}
+	mockBedrock := &mockBedrockAPI{}
+	mockBedrock.On("GenerateContent", mock.Anything, mock.Anything, mock.Anything).
+		Return((*GenerateResponse)(nil), MissingContentError)
 
-	mockError := fmt.Errorf("missing choice %w", MissingContentError)
-	mockLlm.On("GenerateContent", mock.Anything, mock.Anything, mock.Anything).Return(&llms.ContentResponse{
-		Choices: nil,
-	}, mockError)
+	c := Client{&Resources{BedrockAPI: mockBedrock}}
+	_, err := c.TextGeneration(context.Background(), "steve", CHAT_MODEL_SONNET)
+	assert.Error(t, err)
+}
 
-	api.On("GetModel", mock.Anything).Return(mockLlm, nil)
-
-	c := Client{&Resources{GPTApi: api}}
-	_, err := c.TextGeneration(context.Background(), "steve", CHAT_MODEL_GPT)
+func TestTextGenerationNilBedrock(t *testing.T) {
+	c := Client{&Resources{}}
+	_, err := c.TextGeneration(context.Background(), "steve", CHAT_MODEL_SONNET)
 	assert.Error(t, err)
 }

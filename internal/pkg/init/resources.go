@@ -1,92 +1,25 @@
 package init
 
 import (
-	"os"
-
 	"github.com/jackmcguire1/alexa-chatgpt/internal/dom/chatmodels"
 )
 
-// InitializeResources creates and configures all AI provider clients based on environment variables
+// InitializeResources creates and configures all AI provider clients based on environment variables.
 func InitializeResources() *chatmodels.Resources {
 	resources := &chatmodels.Resources{}
 
-	openAIKey := os.Getenv("OPENAI_API_KEY")
-	if openAIKey != "" {
-		resources.GPTApi = chatmodels.NewOpenAiApiClient(openAIKey)
-	}
-
-	vertexKey := os.Getenv("VERTEX_API_KEY")
-	geminiKey := os.Getenv("GEMINI_API_KEY")
-	if vertexKey != "" && geminiKey != "" {
-		resources.GeminiAPI = chatmodels.NewGeminiApiClient(vertexKey, geminiKey)
-	}
-
-	cloudflareAccountID := os.Getenv("CLOUDFLARE_ACCOUNT_ID")
-	cloudflareAPIKey := os.Getenv("CLOUDFLARE_API_KEY")
-	if cloudflareAccountID != "" && cloudflareAPIKey != "" {
-		resources.CloudflareApiClient = chatmodels.NewCloudflareApiClient(cloudflareAccountID, cloudflareAPIKey)
-	}
-
-	anthropicKey := os.Getenv("ANTHROPIC_API_KEY")
-	if anthropicKey != "" {
-		resources.AnthropicAPI = chatmodels.NewAnthropicApiClient(anthropicKey)
-	}
-
-	if os.Getenv("BEDROCK_ENABLED") == "true" {
-		resources.BedrockAPI = chatmodels.NewBedrockApiClient()
-	}
-
-	chatmodels.RegisterAvailableClients(
-		resources.GPTApi != nil,
-		resources.GeminiAPI != nil,
-		resources.AnthropicAPI != nil,
-		resources.CloudflareApiClient != nil,
-		resources.BedrockAPI != nil,
-	)
+	resources.BedrockAPI = chatmodels.NewBedrockApiClient()
+	resources.MantleAPI = chatmodels.NewMantleApiClient()
 
 	return resources
 }
 
-// GetDefaultChatModel returns the default chat model based on available clients
-func GetDefaultChatModel(resources *chatmodels.Resources) chatmodels.ChatModel {
-	if len(chatmodels.AvailableModels) == 0 {
-		return chatmodels.CHAT_MODEL_GPT
-	}
-
-	if resources.GPTApi != nil {
-		return chatmodels.CHAT_MODEL_GPT
-	}
-	if resources.GeminiAPI != nil {
-		return chatmodels.CHAT_MODEL_GEMINI
-	}
-	if resources.AnthropicAPI != nil {
-		return chatmodels.CHAT_MODEL_OPUS
-	}
-	if resources.CloudflareApiClient != nil {
-		return chatmodels.CHAT_MODEL_META
-	}
-	if resources.BedrockAPI != nil {
-		return chatmodels.CHAT_MODEL_BEDROCK_SONNET
-	}
-
-	return chatmodels.CHAT_MODEL_GPT
+// GetDefaultChatModel returns the default chat model.
+func GetDefaultChatModel() chatmodels.ChatModel {
+	return chatmodels.CHAT_MODEL_SONNET
 }
 
-// GetDefaultImageModel returns the default image model based on available clients
-func GetDefaultImageModel(resources *chatmodels.Resources) chatmodels.ImageModel {
-	if len(chatmodels.ImageModels) == 0 {
-		return chatmodels.IMAGE_MODEL_STABLE_DIFFUSION
-	}
-
-	if resources.CloudflareApiClient != nil {
-		return chatmodels.IMAGE_MODEL_STABLE_DIFFUSION
-	}
-	if resources.GPTApi != nil {
-		return chatmodels.IMAGE_MODEL_DALL_E_3
-	}
-	if resources.GeminiAPI != nil {
-		return chatmodels.IMAGE_MODEL_GEMINI
-	}
-
-	return chatmodels.IMAGE_MODEL_STABLE_DIFFUSION
+// GetDefaultImageModel returns the default image model.
+func GetDefaultImageModel() chatmodels.ImageModel {
+	return chatmodels.IMAGE_MODEL_NOVA_CANVAS
 }

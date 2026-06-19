@@ -3,11 +3,8 @@ package chatmodels
 import "context"
 
 type Resources struct {
-	GPTApi              GptAPI
-	GeminiAPI           GeminiAPI
-	CloudflareApiClient CloudFlareAiWorkerAPI
-	AnthropicAPI        AnthropicAPI
-	BedrockAPI          BedrockAPI
+	BedrockAPI BedrockAPI
+	MantleAPI  MantleAPI
 }
 
 type Service interface {
@@ -28,7 +25,6 @@ type Client struct {
 }
 
 func NewClient(r *Resources) *Client {
-	return &Client{
-		r,
-	}
+	RegisterAvailableClients()
+	return &Client{r}
 }

@@ -18,7 +18,7 @@ func TestRandomNumberGameCorrectGuess(t *testing.T) {
 		ChatGptService:  mockChatGptService,
 		Logger:          logger,
 		RandomNumberSvc: NewRandomNumberGame(10),
-		Model:           chatmodels.CHAT_MODEL_GPT,
+		Model:           chatmodels.CHAT_MODEL_SONNET,
 	}
 
 	h.RandomNumberSvc.Number = 5
