@@ -11,58 +11,13 @@ Globals:
       Variables:
         RESPONSES_QUEUE_URI: !Ref ResponsesQueue
         REQUESTS_QUEUE_URI: !Ref RequestsQueue
-        OPENAI_API_KEY: !Ref OpenAIApiKey
-        GEMINI_API_KEY: !Ref GeminiApiKey
-        VERTEX_API_KEY: !Ref VertexApiKey
         POLL_DELAY: 7
-        CLOUDFLARE_ACCOUNT_ID: !Ref CloudFlareAccountId
-        CLOUDFLARE_API_KEY: !Ref CloudFlareAPIKey
         S3_BUCKET: !Ref Bucket
-        OPENAI_BASE_URL: "https://api.openai.com/v1"
-        ANTHROPIC_API_KEY: !Ref AnthropicAPIKey
-        BEDROCK_ENABLED: !Ref BedrockEnabled
     Layers:
       - !Sub arn:aws:lambda:${AWS::Region}:901920570463:layer:aws-otel-collector-arm64-ver-0-115-0:3
     Tracing: Active
+
 Parameters:
-  OpenAIApiKey:
-    Type: String
-    Description: OpenAI API Key
-    Default: ""
-
-  GeminiApiKey:
-    Type: String
-    Description: Google API Token
-    Default: ""
-
-  VertexApiKey:
-    Type: String
-    Description: Google Service Account JSON B64
-    Default: ""
-
-  CloudFlareAccountId:
-    Type: String
-    Description: Cloudflare Account Id
-    Default: ""
-
-  CloudFlareAPIKey:
-    Type: String
-    Description: Cloudflare API key
-    Default: ""
-
-  AnthropicAPIKey:
-    Type: String
-    Description: Anthropic API Key
-    Default: ""
-
-  BedrockEnabled:
-    Type: String
-    Description: Set to 'true' to enable AWS Bedrock models
-    Default: "false"
-    AllowedValues:
-      - "true"
-      - "false"
-
   Runtime:
     Type: String
     Default: go1.x
@@ -90,6 +45,7 @@ Resources:
             AllowedOrigins:
               - "http://ask-ifr-download.s3.amazonaws.com"
               - "https://ask-ifr-download.s3.amazonaws.com"
+
   RequestsQueue:
     Type: 'AWS::SQS::Queue'
     Properties:
@@ -142,6 +98,9 @@ Resources:
               Action:
                 - bedrock:InvokeModel
                 - bedrock:InvokeModelWithResponseStream
+                - bedrock:Converse
+                - bedrock:ConverseStream
+                - bedrock-mantle:CreateInference
               Resource: "*"
     Metadata:
       BuildMethod: go1.x
@@ -175,6 +134,9 @@ Resources:
               Action:
                 - bedrock:InvokeModel
                 - bedrock:InvokeModelWithResponseStream
+                - bedrock:Converse
+                - bedrock:ConverseStream
+                - bedrock-mantle:CreateInference
               Resource: "*"
     Metadata:
       BuildMethod: go1.x

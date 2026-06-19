@@ -1,6 +1,6 @@
 # Alexa-ChatGPT
 
-> 🎤 A production-ready serverless Alexa skill backend that seamlessly integrates with multiple generative AI providers, enabling natural conversations with OpenAI GPT, Google Gemini, Anthropic Claude, Cloudflare AI, AWS Bedrock, and more through your Alexa device.
+> 🎤 A production-ready serverless Alexa skill backend powered entirely by **AWS Bedrock**, giving you access to Claude, Nova, Grok, and GPT models through your Alexa device — no third-party API keys required.
 
 [git]: https://git-scm.com/
 [golang]: https://golang.org/
@@ -17,14 +17,14 @@
 
 ## 🌟 Key Features
 
-- **Multi-Provider AI Support**: Seamlessly switch between OpenAI, Google, Anthropic, Cloudflare, and AWS Bedrock models
-- **Optional Client Initialization**: Only configured providers are initialized - no need to set up all API keys
-- **Asynchronous Processing**: Handles Alexa's timeout constraints with intelligent queue management
-- **Image Generation**: Create images with DALL-E, Stable Diffusion, and Google Imagen
-- **Interactive Games**: Built-in number guessing and battleship games
-- **Translation Support**: Real-time language translation capabilities
-- **Production Ready**: Complete with observability, error handling, and retry mechanisms
-- **Cost Effective**: Leverage Cloudflare Workers AI for budget-friendly inference
+- **AWS Bedrock Only**: All models accessed via Bedrock — authentication uses the Lambda IAM role, no API keys needed
+- **Broad Model Support**: Claude (Sonnet, Opus, Fable), Amazon Nova, xAI Grok, and OpenAI GPT
+- **Two Bedrock Backends**: Converse API for Claude/Nova; OpenAI-compatible Responses API (bedrock-mantle) for Grok/GPT
+- **Asynchronous Processing**: Handles Alexa's timeout constraints with SQS queue management
+- **Image Generation**: Create images with Nova Canvas and Titan Image Generator
+- **Interactive Games**: Built-in number guessing, battleship, and animal guessing games
+- **Translation Support**: Real-time language translation via Claude Sonnet
+- **Production Ready**: OpenTelemetry tracing, AWS X-Ray, error handling, and retry mechanisms
 
 ## Table of Contents
 - [Architecture Overview](#architecture-overview)
@@ -34,7 +34,6 @@
 - [Detailed Setup Guide](#detailed-setup-guide)
 - [Examples](#examples)
 - [Troubleshooting](#troubleshooting)
-- [API Integration Details](#api-integration-details)
 - [Contributing](#contributing)
 
 ## Architecture Overview
@@ -63,43 +62,34 @@ The skill uses an asynchronous architecture to handle the Alexa 8-second timeout
 
 <img src="./images/infra.png">
 
-
-> 💡 The architecture uses AWS Lambda functions with SQS queues to handle Alexa's timeout constraints while providing access to multiple AI providers. [View/Edit Diagram](images/alexa-chatgpt-infra-v2.drawio)
-
 ## Supported Models
+
+All models are accessed via **AWS Bedrock**. Enable model access in the [AWS Bedrock console](https://console.aws.amazon.com/bedrock/) under **Model access** before deploying.
 
 ### Chat Models
 
-| Provider | Model | Alias | Internal Reference |
-|----------|-------|-------|-------------------|
-| **OpenAI** | gpt-5.4-nano-2026-03-17 | `gpt` | `CHAT_MODEL_GPT` |
-| **OpenAI** | gpt-4o | `g. p. t. version number four` | `CHAT_MODEL_GPT_V4` |
-| **Google** | gemini-3-pro-preview | `gemini` | `CHAT_MODEL_GEMINI` |
-| **Google** | gemini-2.5-flash | `gemini flash` | `CHAT_MODEL_GEMINI_FLASH` |
-| **Anthropic** | claude-opus-4-20250514 | `opus` | `CHAT_MODEL_OPUS` |
-| **Anthropic** | claude-sonnet-4-20250514 | `sonnet` | `CHAT_MODEL_SONNET` |
-| **Cloudflare** | llama-4-scout-17b-16e-instruct | `llama` | `CHAT_MODEL_META` |
-| **Cloudflare** | deepseek-r1-distill-qwen-32b | `qwen` | `CHAT_MODEL_QWEN` |
-| **Cloudflare** | gpt-oss-120b | `apache` | `CHAT_MODEL_GPT_OSS` |
-| **AWS Bedrock** | us.anthropic.claude-sonnet-4-6 | `bedrock sonnet` | `CHAT_MODEL_BEDROCK_SONNET` |
-| **AWS Bedrock** | us.anthropic.claude-opus-4-6-v1 | `bedrock opus` | `CHAT_MODEL_BEDROCK_OPUS` |
-| **AWS Bedrock** | us.amazon.nova-lite-v1:0 | `nova` | `CHAT_MODEL_BEDROCK_NOVA_LITE` |
-| **AWS Bedrock** | us.amazon.nova-pro-v1:0 | `nova pro` | `CHAT_MODEL_BEDROCK_NOVA_PRO` |
+| Provider | Bedrock Model ID | Alias | Notes |
+|----------|-----------------|-------|-------|
+| **Anthropic** | `us.anthropic.claude-sonnet-4-6` | `sonnet` | Default model |
+| **Anthropic** | `us.anthropic.claude-opus-4-8` | `opus` | |
+| **Anthropic** | `us.anthropic.claude-fable-5` | `fable` | |
+| **Amazon** | `us.amazon.nova-lite-v1:0` | `nova` | |
+| **Amazon** | `us.amazon.nova-pro-v1:0` | `nova pro` | |
+| **xAI** | `xai.grok-4.3` | `grok` | Via bedrock-mantle endpoint |
+| **OpenAI** | `openai.gpt-5.5` | `gpt` | Via bedrock-mantle endpoint |
+
+Claude, Fable, and Nova models use the [Bedrock Converse API](https://docs.aws.amazon.com/bedrock/latest/userguide/conversation-inference.html).
+Grok and GPT use the [Bedrock Mantle](https://docs.aws.amazon.com/bedrock/latest/userguide/apis.html) OpenAI-compatible Responses API.
 
 ### Image Generation Models
 
-| Provider | Model                          | Alias | Internal Reference |
-|----------|--------------------------------|-------|-------------------|
-| **OpenAI** | dall-e-3                       | `dallas` | `IMAGE_MODEL_DALL_E_3` |
-| **OpenAI** | dall-e-2                       | `dallas v2` | `IMAGE_MODEL_DALL_E_2` |
-| **Cloudflare** | stable-diffusion-xl-base-1.0   | `stable` | `IMAGE_MODEL_STABLE_DIFFUSION` |
-| **Google** | imagen-4.0-generate-001        | `gemini image` | `IMAGE_MODEL_GEMINI` |
-| **Google** | gemini-3-pro-image-preview | `banana nano` | `IMAGE_MODEL_GEMINI_BANANA_NANO` |
-| **AWS Bedrock** | amazon.nova-canvas-v1:0 | `nova canvas` | `IMAGE_MODEL_NOVA_CANVAS` |
-| **AWS Bedrock** | amazon.titan-image-generator-v2:0 | `titan` | `IMAGE_MODEL_TITAN` |
+| Provider | Bedrock Model ID | Alias |
+|----------|-----------------|-------|
+| **Amazon** | `amazon.nova-canvas-v1:0` | `nova canvas` |
+| **Amazon** | `amazon.titan-image-generator-v2:0` | `titan` |
 
-### Translation Model
-- Special model for translations: `CHAT_MODEL_TRANSLATIONS`
+### Translation
+Translation uses Claude Sonnet via a system prompt — no separate model alias needed.
 
 ## Alexa Intents & Phrases
 
@@ -108,20 +98,20 @@ The skill uses an asynchronous architecture to handle the Alexa 8-second timeout
 | Intent | Example Phrases | Description |
 |--------|----------------|-------------|
 | **AutoCompleteIntent** | "question {prompt}" | Main intent for asking questions to the AI |
-| **SystemAutoCompleteIntent** | "system {prompt}" | Set a system message context for the AI |
+| **SystemAutoCompleteIntent** | "system {prompt}" | Send a prompt with a system message context |
 | **LastResponseIntent** | "last response" | Retrieve delayed responses from previous queries |
 
 ### Model Management
 
 | Intent | Example Phrases | Description |
 |--------|----------------|-------------|
-| **Model** | "model <MODEL_ALIAS_HERE>"| Switch to the desired LLM |
+| **Model** | "model sonnet"<br>"model grok"<br>"model nova pro" | Switch to any supported model alias |
 
 ### Image Generation
 
 | Intent | Example Phrases | Description |
 |--------|----------------|-------------|
-| **ImageIntent** | "image {prompt}" | Generate images using AI models |
+| **ImageIntent** | "image {prompt}" | Generate images using Nova Canvas or Titan |
 
 ### Games & Entertainment
 
@@ -131,17 +121,16 @@ The skill uses an asynchronous architecture to handle the Alexa 8-second timeout
 | **Guess** | "guess {number}" | Play a number guessing game |
 | **Battleship** | "battleship {x} {y}" | Play battleship game |
 | **BattleshipStatus** | "battleship status" | Get current battleship game status |
-| **AnimalGuess** | "animal {animal}"<br>"guess animal {animal}" | Guess the animal in the animal guessing game. You have 10 guesses to identify the mystery animal! |
-| **AnimalHint** | "tell me a animal hint" | Request a hint about the mystery animal. You get 5 hints total, designed for 7+ year olds |
-| **AnimalStatus** | "status animal" | Check how many guesses and hints you have remaining |
+| **AnimalGuess** | "animal {animal}"<br>"guess animal {animal}" | Guess the mystery animal (10 guesses) |
+| **AnimalHint** | "tell me a animal hint" | Request a hint (5 total) |
+| **AnimalStatus** | "status animal" | Check remaining guesses and hints |
 
 ### Utility Intents
 
 | Intent | Example Phrases | Description |
 |--------|----------------|-------------|
-| **TranslateIntent** | "translate {source_lang} to {target_lang} {text}" | Translate between two ISO 639-1 language codes.<br><br> uses model ```m2m100-1.2b``` from Meta provided by Cloudflare |
-| **SystemMessageIntent** | "system {prompt}" | Get a prompt with combined system role message |
-| **SystemContextIntent** | "set system message {prompt}" | Set the message added as context for the role of the model subsequent queries |
+| **TranslateIntent** | "translate {source_lang} to {target_lang} {text}" | Translate between ISO 639-1 language codes |
+| **SystemContextIntent** | "set system message {prompt}" | Set a persistent system context for subsequent queries |
 | **Purge** | "purge" | Clear the response queue |
 
 ### Built-in Alexa Intents
@@ -163,22 +152,28 @@ The skill uses an asynchronous architecture to handle the Alexa 8-second timeout
    cd alexa-chatgpt
    ```
 
-2. **Set up minimal environment variables**
+2. **Set required environment variables**
    ```bash
-   export OPENAI_API_KEY=your_openai_api_key
    export S3_BUCKET_NAME=your_deployment_bucket
    ```
 
-3. **Deploy to AWS**
+3. **Enable Bedrock model access**
+   - Go to the [AWS Bedrock console](https://console.aws.amazon.com/bedrock/) → **Model access**
+   - Enable the models you want to use
+
+4. **Deploy to AWS**
    ```bash
-   sam build && sam deploy --guided
+   sam build --parameter-overrides Runtime=provided.al2023 Handler=bootstrap Architecture=arm64
+   sam deploy --stack-name alexa-chatgpt \
+     --s3-bucket $S3_BUCKET_NAME \
+     --parameter-overrides Runtime=provided.al2023 Handler=bootstrap Architecture=arm64 \
+     --capabilities CAPABILITY_IAM
    ```
 
-4. **Create Alexa Skill**
+5. **Create Alexa Skill**
    - Go to [Alexa Developer Console](https://developer.amazon.com/alexa/console/ask)
    - Create new skill with "Custom" model
-   - Copy the Lambda ARN from deployment output
-   - Set as endpoint in Alexa skill
+   - Copy the Lambda ARN from deployment output and set as endpoint
 
 ## Detailed Setup Guide
 
@@ -189,34 +184,18 @@ The skill uses an asynchronous architecture to handle the Alexa 8-second timeout
 - [golangCI-Lint][golint]
 - [AWS CLI][aws-cli]
 - [AWS SAM CLI][aws-sam-cli]
-- AWS Account
-- OpenAI API Account (optional)
-- Google Cloud Account (optional, for Gemini)
-- Anthropic API Account (optional, for Claude direct API)
-- Cloudflare Account (optional, for Workers AI)
-- AWS Bedrock model access enabled (optional, no extra account needed — uses existing AWS account)
+- AWS Account with Bedrock model access enabled
 
 ### Environment Variables
 
-All API provider credentials are optional. The skill will automatically detect which providers are configured and only make those models available.
+Only AWS infrastructure variables are needed — no third-party API keys.
 
 ```bash
-# Optional API Provider Credentials (configure only the ones you need)
-export OPENAI_API_KEY=your_openai_api_key           # For GPT and DALL-E models
-export ANTHROPIC_API_KEY=your_anthropic_api_key     # For Claude models
-export CLOUDFLARE_ACCOUNT_ID=your_cloudflare_id     # For Cloudflare AI models
-export CLOUDFLARE_API_KEY=your_cloudflare_api_key   # For Cloudflare AI models
-export GEMINI_API_KEY=base64_encoded_service_json   # For Gemini models (Google Service Account)
-export BEDROCK_ENABLED=true                         # Set to 'true' to enable AWS Bedrock models (uses Lambda IAM role - no API key needed)
-
-# Required for deployment
-export HANDLER=main
-export S3_BUCKET_NAME=your_s3_bucket_name           # AWS S3 Bucket for SAM deployment
+export S3_BUCKET_NAME=your_s3_bucket_name   # AWS S3 Bucket for SAM deployment
+# REQUESTS_QUEUE_URI and RESPONSES_QUEUE_URI are auto-configured by SAM
 ```
 
 ### AWS CLI Configuration
-
-Configure AWS CLI with your credentials:
 
 ```bash
 aws configure
@@ -232,45 +211,29 @@ aws configure
    - Create a new Alexa skill in the Alexa Developer Console
    - Set invocation name (e.g., "my assistant")
 
-2. **Configure Intents**
-   - Add all custom intents from the [Alexa Intents section](#alexa-intents--phrases)
-   - For AutoCompleteIntent, add a slot named `prompt` with type `AMAZON.SearchQuery`
-   - Configure sample utterances for each intent
+2. **Enable Bedrock Model Access**
+   - In the AWS Console, go to Bedrock → Model access
+   - Enable: Claude Sonnet/Opus/Fable, Nova Lite/Pro/Canvas, Titan, Grok, GPT
 
-3. **Build and Deploy Backend**
+3. **Build and Deploy**
 
    ```bash
-   # Set architecture variables
-   export ARCH=GOARCH=arm64
-   export LAMBDA_RUNTIME=provided.al2023
-   export LAMBDA_HANDLER=bootstrap
-   export LAMBDA_ARCH=arm64
-
-   # Build the SAM application
    sam build --parameter-overrides \
-     Runtime=$LAMBDA_RUNTIME \
-     Handler=$LAMBDA_HANDLER \
-     Architecture=$LAMBDA_ARCH
+     Runtime=provided.al2023 \
+     Handler=bootstrap \
+     Architecture=arm64
 
-   # Deploy to AWS
    sam deploy --stack-name alexa-chatgpt \
      --s3-bucket $S3_BUCKET_NAME \
      --parameter-overrides \
-       Runtime=$LAMBDA_RUNTIME \
-       Handler=$LAMBDA_HANDLER \
-       Architecture=$LAMBDA_ARCH \
-       OpenAIApiKey=$OPENAI_API_KEY \
-       GeminiApiKey=$GEMINI_API_KEY \
-       AnthropicApiKey=$ANTHROPIC_API_KEY \
-       CloudflareAccountId=$CLOUDFLARE_ACCOUNT_ID \
-       CloudflareApiKey=$CLOUDFLARE_API_KEY \
-       BedrockEnabled=true \
+       Runtime=provided.al2023 \
+       Handler=bootstrap \
+       Architecture=arm64 \
      --capabilities CAPABILITY_IAM
    ```
 
 4. **Connect Lambda to Alexa**
    ```bash
-   # Get the Lambda ARN
    sam list stack-outputs --stack-name alexa-chatgpt
    ```
    - Copy the `ChatGPTLambdaArn` value
@@ -278,8 +241,8 @@ aws configure
 
 5. **Test Your Skill**
    - "Alexa, open [your invocation name]"
-   - "Question what is the weather today?"
-   - "Model gemini" (to switch models)
+   - "Question what is machine learning?"
+   - "Model grok" (to switch to Grok)
    - "Last response" (to get delayed responses)
 
 ## Examples
@@ -290,13 +253,13 @@ User: "Alexa, open my assistant"
 Alexa: "Hi, let's begin our conversation!"
 
 User: "Question what is machine learning?"
-Alexa: [AI responds with explanation]
+Alexa: [Claude Sonnet responds]
 
-User: "Model gemini"
+User: "Model grok"
 Alexa: "Ok"
 
 User: "Question explain quantum computing"
-Alexa: [Gemini responds]
+Alexa: [Grok 4.3 responds]
 ```
 
 ### Image Generation
@@ -311,83 +274,39 @@ Alexa: "Image generated and uploaded to S3"
 ### Model Management
 ```
 User: "Model which"
-Alexa: "I am using the text-model gpt and image-model dallas"
+Alexa: "I am using the text-model sonnet and image-model nova canvas"
 
 User: "Model available"
-Alexa: "The available chat models are: gpt, gemini, opus, sonnet, llama, qwen, apache..."
+Alexa: "The available chat models are: sonnet, opus, fable, nova, nova pro, grok, gpt"
 ```
 
 ### Animal Guessing Game
 ```
-User: "Animal dog"
-Alexa: "Sorry, that's not it! You have 9 guesses left. Try again! Would you like a hint?"
+User: "Animal elephant"
+Alexa: "That's correct! Great job!"
 
 User: "Tell me a animal hint"
-Alexa: "Here's your first hint: This animal has a long trunk and big ears. It's the largest land animal!"
-
-User: "Animal elephant"
-Alexa: "That's correct! Great job! Here's what an elephant sounds like: trumpet trumpet"
-
-User: "Status animal"
-Alexa: "You have 10 guesses left and 5 hints remaining. Can you guess the animal?"
+Alexa: "Here's your hint: This animal has a long trunk..."
 ```
-
-## API Integration Details
-
-### OpenAI Integration
-- Models: gpt-5.4-nano-2026-03-17, gpt-4o
-- Used for general conversation and DALL-E image generation
-- Requires `OPENAI_API_KEY`
-
-### Google Vertex AI / Gemini Integration
-- Model: Gemini Pro
-- GOOGLE Service account JSON must be base64 encoded
-- Requires `GEMINI_API_KEY`
-
-### Anthropic Integration
-- Models: Claude 3 Opus, Claude 3 Sonnet
-- Premium conversational AI models
-- Requires `ANTHROPIC_API_KEY`
-
-### Cloudflare Workers AI Integration
-- Models: Llama 4 Scout, DeepSeek Qwen, GPT-OSS
-- Cost-effective AI inference
-- Requires `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_KEY`
-
-### AWS Bedrock Integration
-- Models: Claude Sonnet (Anthropic), Amazon Nova Lite, Amazon Nova Pro
-- Uses the Bedrock [Converse API](https://docs.aws.amazon.com/bedrock/latest/userguide/conversation-inference.html) — compatible with all Bedrock-hosted models
-- **No API key required** — authentication is handled automatically via the Lambda IAM execution role
-- Enable with `BEDROCK_ENABLED=true` (or `BedrockEnabled=true` SAM parameter)
-- Requires `bedrock:InvokeModel` permission on the Lambda role (added automatically by the SAM template)
-- **Important:** Enable model access for each model in the [AWS Bedrock console](https://console.aws.amazon.com/bedrock/) under **Model access** before deploying
-- Model IDs use [cross-region inference profiles](https://docs.aws.amazon.com/bedrock/latest/userguide/inference-profiles-support.html) (e.g. `us.anthropic.claude-sonnet-4-5-20251101-v1:0`) — update IDs in `internal/dom/chatmodels/models.go` if needed
 
 ## Troubleshooting
 
 ### Common Issues
 
 #### "Your response will be available shortly!"
-This occurs when the AI takes longer than 7 seconds to respond. Simply say "last response" to retrieve it.
+The AI took longer than 7 seconds. Say "last response" to retrieve it.
 
-#### Model not responding
-- Check API key configuration in environment variables
-- Verify the model name in your voice command
+#### Model not available
+- Check that model access is enabled in the AWS Bedrock console
+- Verify the alias in your voice command matches the table above
 - Check CloudWatch logs for detailed error messages
 
 #### Deployment failures
 ```bash
-# Clean and rebuild
 sam delete --stack-name alexa-chatgpt
 sam build --use-container
 sam deploy --guided
 ```
-
-#### API Rate Limits
-If you encounter rate limits:
-- Switch to a different model temporarily
-- Implement request throttling in your usage
-- Consider upgrading your API plan
 
 ### Debug Commands
 
@@ -402,57 +321,38 @@ aws sqs get-queue-attributes --queue-url <your-queue-url> --attribute-names All
 sam local start-lambda
 ```
 
-## Performance Optimization
-
-### Response Time Improvements
-
-1. **Use Cloudflare Workers AI** for faster response times
-2. **Enable Lambda Reserved Concurrency** to reduce cold starts
-3. **Optimize prompt length** to reduce processing time
-4. **Pre-warm Lambda functions** for consistent performance
-
 ## Contributing
 
-This project welcomes contributions! Please feel free to submit pull requests or open issues for bugs and feature requests.
+Contributions are welcome! Please submit pull requests or open issues for bugs and feature requests.
 
 ### Development Setup
 
 ```bash
-# Install dependencies
 go mod download
-
-# Run tests
-go test ./...
-
-# Build locally
-ARCH=arm64 make build
+go test ./... -race
+GOOS=linux GOARCH=arm64 go build -o bootstrap cmd/alexa/main.go
 ```
 
 ### Adding New Models
 
-The codebase uses a centralized model registry for easy model management. To add a new model:
-
-1. **Add model constant** in `internal/dom/chatmodels/models.go`:
+1. Add a constant in `internal/dom/chatmodels/models.go`:
 ```go
-const (
-   CHAT_MODEL_NEW_MODEL ChatModel = "new-model"
-)
+CHAT_MODEL_NEW ChatModel = "new"
 ```
 
-2. **Add model configuration** to the `allModelConfigs` array in `internal/dom/chatmodels/models.go`:
+2. Add a `ModelConfig` entry to `allModelConfigs`:
 ```go
-// OpenAI Chat Models
 {
-    ChatModel:       CHAT_MODEL_GPT_TURBO,
+    ChatModel:       CHAT_MODEL_NEW,
     Type:            ModelTypeChat,
-    Provider:        ProviderOpenAI,
-    ProviderModelID: "gpt-4-turbo-2024-04-09",
-    Aliases:         []string{"turbo""},
-    ErrorMessage:    "GPT Turbo is not available - OpenAI API key not configured",
-}
+    Provider:        ProviderBedrock,          // or ProviderBedrockMantle
+    ProviderModelID: "provider.model-id-here",
+    Aliases:         []string{"new"},
+    ErrorMessage:    "New model is not available",
+},
 ```
 
-Now users can say: "model turbo" to use GPT-4 Turbo!
+Users can then say: "model new" to switch to it.
 
 ## License
 
@@ -466,9 +366,8 @@ All donations are appreciated!
 
 ## Acknowledgments
 
-- OpenAI for GPT models and DALL-E
-- Google for Gemini and Vertex AI
 - Anthropic for Claude models
-- Cloudflare for Workers AI platform
-- AWS for serverless infrastructure and Bedrock
-- The open-source community for continuous support
+- Amazon for Nova models and the Bedrock platform
+- xAI for Grok
+- OpenAI for GPT
+- AWS for serverless infrastructure

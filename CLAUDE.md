@@ -4,14 +4,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is an Alexa skill backend that integrates with multiple AI providers (OpenAI, Google Gemini, Anthropic Claude, Cloudflare AI) to enable natural conversations through Alexa devices. The architecture uses AWS Lambda functions with SQS queues to handle Alexa's 8-second timeout constraint.
+This is an Alexa skill backend that uses **AWS Bedrock exclusively** for all AI inference. All chat and image models are accessed via Bedrock — no third-party API keys are required. The architecture uses AWS Lambda functions with SQS queues to handle Alexa's 8-second timeout constraint.
 
 ## Key Architecture Components
 
 - **Alexa Lambda Handler** (`cmd/alexa/main.go`): Receives Alexa requests, queues them, and polls for responses
 - **SQS Request Processor** (`cmd/sqs/main.go`): Processes queued requests using AI providers
 - **Queue-based Architecture**: Uses SQS for asynchronous processing to handle Alexa's timeout
-- **Multi-Provider Support**: Abstracts different AI providers through a common interface in `internal/dom/chatmodels/`
+- **Single-Provider Design**: All models go through AWS Bedrock via two clients in `internal/dom/chatmodels/`
+  - `BedrockApiClient` — Converse API for Claude and Nova models
+  - `MantleApiClient` — OpenAI-compatible Responses API (bedrock-mantle endpoint) for Grok and GPT models
 
 ## Essential Commands
 
@@ -45,18 +47,10 @@ sam logs -n ChatGPTLambda --stack-name alexa-chatgpt --tail
 
 ### Deployment
 ```bash
-# Deploy to AWS (requires configured environment variables)
+# Deploy to AWS — no external API keys required, Bedrock uses the Lambda IAM role
 sam deploy --stack-name alexa-chatgpt \
   --s3-bucket $S3_BUCKET_NAME \
-  --parameter-overrides \
-    Runtime=provided.al2023 \
-    Handler=bootstrap \
-    Architecture=arm64 \
-    OpenAIApiKey=$OPENAI_API_KEY \
-    GeminiApiKey=$GEMINI_API_KEY \
-    AnthropicApiKey=$ANTHROPIC_API_KEY \
-    CloudflareAccountId=$CLOUDFLARE_ACCOUNT_ID \
-    CloudflareApiKey=$CLOUDFLARE_API_KEY \
+  --parameter-overrides Runtime=provided.al2023 Handler=bootstrap Architecture=arm64 \
   --capabilities CAPABILITY_IAM
 
 # Delete stack
@@ -68,18 +62,27 @@ sam delete --stack-name alexa-chatgpt
 - **cmd/**: Entry points for Lambda functions
   - `alexa/`: Main Alexa skill handler
   - `sqs/`: Background processor for AI requests
+  - `example/`: Local smoke-test binary
 - **internal/api/**: Core Alexa request/response handling, game logic
-- **internal/dom/chatmodels/**: AI provider abstractions and implementations
+- **internal/dom/chatmodels/**: Bedrock client implementations and model registry
 - **internal/pkg/queue/**: SQS queue utilities
 - **internal/otel/**: OpenTelemetry instrumentation setup
 
 ## Key Implementation Details
 
+### Model Routing
+
+Models are registered in `internal/dom/chatmodels/models.go` with a `Provider` field:
+
+- `ProviderBedrock` → `BedrockApiClient` (Converse API)
+- `ProviderBedrockMantle` → `MantleApiClient` (OpenAI Responses API via bedrock-mantle endpoint)
+
+`prompts.go` dispatches to the correct client based on the model's provider. `RegisterAvailableClients()` is called automatically by `NewClient()` — no caller setup needed.
+
 ### Adding New AI Models
-1. Define model constants in `internal/dom/chatmodels/models.go`
-2. Implement provider client if needed in `internal/dom/chatmodels/`
-3. Add model handling in `internal/api/model.go`
-4. Update model selection logic in handler
+1. Add model constant in `internal/dom/chatmodels/models.go`
+2. Add a `ModelConfig` entry to `allModelConfigs` with the correct `Provider` and `ProviderModelID`
+3. If the model uses a new provider, add a client and update the dispatch switch in `prompts.go`
 
 ### Alexa Intent Processing Flow
 1. Intent received in `internal/api/handler.go:Invoke()`
@@ -88,19 +91,16 @@ sam delete --stack-name alexa-chatgpt
 4. Fallback to "response will be available shortly" if timeout
 
 ### Environment Variables Required
-- `OPENAI_API_KEY`: OpenAI API key
-- `ANTHROPIC_API_KEY`: Anthropic API key  
-- `CLOUDFLARE_ACCOUNT_ID`: Cloudflare account ID
-- `CLOUDFLARE_API_KEY`: Cloudflare API key
-- `GEMINI_API_KEY`: Base64 encoded Google service account JSON
 - `S3_BUCKET_NAME`: S3 bucket for SAM deployments
 - `REQUESTS_QUEUE_URI`: SQS queue for requests (auto-configured by SAM)
 - `RESPONSES_QUEUE_URI`: SQS queue for responses (auto-configured by SAM)
 
+No external AI API keys are needed. Bedrock auth uses the Lambda IAM execution role.
+
 ## Testing Approach
 
 - Unit tests exist for core components (handlers, games, utilities)
-- Mock interfaces are generated for testing (e.g., `mock_service.go`)
+- Mock interfaces (`mockBedrockAPI`, `mockMantleAPI`) are defined in `api.go` for testing
 - Test events are in `events/` directory for local Lambda testing
 - Use `-race` flag to detect race conditions in concurrent code
 
@@ -109,3 +109,4 @@ sam delete --stack-name alexa-chatgpt
 - **Alexa Timeout**: Responses taking >7 seconds trigger async handling via "LastResponseIntent"
 - **Model Switching**: Use "Model <alias>" intent to switch between AI providers
 - **Image Generation**: Uses S3 for storing generated images, returns pre-signed URLs
+- **Bedrock Model Access**: Enable each model in the AWS Bedrock console under **Model access** before deploying
