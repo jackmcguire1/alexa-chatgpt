@@ -5,12 +5,15 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/bedrockruntime"
 	bedrocktypes "github.com/aws/aws-sdk-go-v2/service/bedrockruntime/types"
-	"github.com/tmc/langchaingo/llms"
+	localOtel "github.com/jackmcguire1/alexa-chatgpt/internal/otel"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 )
 
 type BedrockApiClient struct {
@@ -18,7 +21,16 @@ type BedrockApiClient struct {
 }
 
 func NewBedrockApiClient() *BedrockApiClient {
-	cfg, err := config.LoadDefaultConfig(context.Background())
+	httpClient := &http.Client{
+		Transport: otelhttp.NewTransport(
+			http.DefaultTransport,
+			otelhttp.WithSpanNameFormatter(localOtel.DefaultTransportFormatter),
+		),
+	}
+
+	cfg, err := config.LoadDefaultConfig(context.Background(),
+		config.WithHTTPClient(httpClient),
+	)
 	if err != nil {
 		panic(fmt.Sprintf("failed to load AWS config for Bedrock: %v", err))
 	}
@@ -27,74 +39,34 @@ func NewBedrockApiClient() *BedrockApiClient {
 	}
 }
 
-// GetModel returns itself as it implements llms.Model
-func (api *BedrockApiClient) GetModel(options ...llms.CallOption) llms.Model {
-	return api
-}
-
-// Call implements llms.Model interface
-func (api *BedrockApiClient) Call(ctx context.Context, prompt string, options ...llms.CallOption) (string, error) {
-	r, err := api.GenerateContent(ctx, []llms.MessageContent{
-		llms.TextParts(llms.ChatMessageTypeHuman, prompt),
-	}, options...)
-	if err != nil {
-		return "", err
-	}
-	if len(r.Choices) == 0 {
-		return "", fmt.Errorf("no response from Bedrock")
-	}
-	return r.Choices[0].Content, nil
-}
-
-// GenerateContent implements llms.Model and LlmContentGenerator using the Bedrock Converse API
+// GenerateContent calls the Bedrock Converse API.
 func (api *BedrockApiClient) GenerateContent(
 	ctx context.Context,
-	messages []llms.MessageContent,
-	options ...llms.CallOption,
-) (*llms.ContentResponse, error) {
-	opts := &llms.CallOptions{}
-	for _, opt := range options {
-		opt(opts)
-	}
-
+	messages []Message,
+	opts GenerateOptions,
+) (*GenerateResponse, error) {
 	var bedrockMessages []bedrocktypes.Message
 	var systemPrompts []bedrocktypes.SystemContentBlock
 
 	for _, msg := range messages {
 		switch msg.Role {
-		case llms.ChatMessageTypeSystem:
-			for _, part := range msg.Parts {
-				if textPart, ok := part.(llms.TextContent); ok {
-					systemPrompts = append(systemPrompts, &bedrocktypes.SystemContentBlockMemberText{
-						Value: textPart.Text,
-					})
-				}
-			}
-		case llms.ChatMessageTypeHuman:
-			var content []bedrocktypes.ContentBlock
-			for _, part := range msg.Parts {
-				if textPart, ok := part.(llms.TextContent); ok {
-					content = append(content, &bedrocktypes.ContentBlockMemberText{
-						Value: textPart.Text,
-					})
-				}
-			}
-			bedrockMessages = append(bedrockMessages, bedrocktypes.Message{
-				Role:    bedrocktypes.ConversationRoleUser,
-				Content: content,
+		case RoleSystem:
+			systemPrompts = append(systemPrompts, &bedrocktypes.SystemContentBlockMemberText{
+				Value: msg.Content,
 			})
-		case llms.ChatMessageTypeAI:
-			var content []bedrocktypes.ContentBlock
-			for _, part := range msg.Parts {
-				if textPart, ok := part.(llms.TextContent); ok {
-					content = append(content, &bedrocktypes.ContentBlockMemberText{
-						Value: textPart.Text,
-					})
-				}
-			}
+		case RoleUser:
 			bedrockMessages = append(bedrockMessages, bedrocktypes.Message{
-				Role:    bedrocktypes.ConversationRoleAssistant,
-				Content: content,
+				Role: bedrocktypes.ConversationRoleUser,
+				Content: []bedrocktypes.ContentBlock{
+					&bedrocktypes.ContentBlockMemberText{Value: msg.Content},
+				},
+			})
+		case RoleAssistant:
+			bedrockMessages = append(bedrockMessages, bedrocktypes.Message{
+				Role: bedrocktypes.ConversationRoleAssistant,
+				Content: []bedrocktypes.ContentBlock{
+					&bedrocktypes.ContentBlockMemberText{Value: msg.Content},
+				},
 			})
 		}
 	}
@@ -126,24 +98,20 @@ func (api *BedrockApiClient) GenerateContent(
 		return nil, fmt.Errorf("bedrock converse error: %w", err)
 	}
 
-	var responseText string
+	var responseText strings.Builder
 	if outputMsg, ok := resp.Output.(*bedrocktypes.ConverseOutputMemberMessage); ok {
 		for _, block := range outputMsg.Value.Content {
 			if textBlock, ok := block.(*bedrocktypes.ContentBlockMemberText); ok {
-				responseText += textBlock.Value
+				responseText.WriteString(textBlock.Value)
 			}
 		}
 	}
 
-	return &llms.ContentResponse{
-		Choices: []*llms.ContentChoice{
-			{Content: responseText},
-		},
-	}, nil
+	return &GenerateResponse{Content: responseText.String()}, nil
 }
 
-// GenerateImage implements BedrockAPI using the InvokeModel API.
-// Supports Nova Canvas and Titan Image Generator (both share the same request format).
+// GenerateImage calls the Bedrock InvokeModel API.
+// Supports Nova Canvas and Titan Image Generator.
 func (api *BedrockApiClient) GenerateImage(ctx context.Context, prompt string, model string) ([]byte, error) {
 	body, err := json.Marshal(map[string]any{
 		"taskType": "TEXT_IMAGE",

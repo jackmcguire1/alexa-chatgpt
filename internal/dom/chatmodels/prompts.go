@@ -3,123 +3,60 @@ package chatmodels
 import (
 	"context"
 	"fmt"
-
-	"github.com/tmc/langchaingo/llms"
 )
 
-func (client *Client) TextGeneration(ctx context.Context, prompt string, model ChatModel) (string, error) {
-	modelSvc, opts := client.GetLLmModel(model)
-	if modelSvc == nil {
-		return "", fmt.Errorf("model %s is not available: required client not configured", model)
-	}
-	return llms.GenerateFromSinglePrompt(ctx, modelSvc, prompt, opts...)
-}
-
-func (client *Client) TextGenerationWithSystem(ctx context.Context, system string, prompt string, model ChatModel) (result string, err error) {
-	content := []llms.MessageContent{
-		llms.TextParts(llms.ChatMessageTypeSystem, system),
-		llms.TextParts(llms.ChatMessageTypeHuman, prompt),
-	}
-	llmModel, opts := client.GetLLmModel(model)
-	if llmModel == nil {
-		return "", fmt.Errorf("model %s is not available: required client not configured", model)
-	}
-	res, err := llmModel.GenerateContent(ctx, content, opts...)
-	if err != nil {
-		return "", err
-	}
-	if len(res.Choices) == 0 {
-		return "", fmt.Errorf("no choices in response from llm model %v", llmModel)
-	}
-	return res.Choices[0].Content, nil
-}
-
-func (client *Client) GetLLmModel(model ChatModel) (llms.Model, []llms.CallOption) {
-	// Get provider and model ID from centralized registry
-	provider, ok := GetChatModelProvider(model)
+// generateContent routes to the appropriate backend based on the model's provider.
+func (client *Client) generateContent(ctx context.Context, messages []Message, model ChatModel) (string, error) {
+	cfg, ok := GetChatModelConfig(model)
 	if !ok {
-		return nil, nil
+		return "", fmt.Errorf("model %s is not configured", model)
 	}
+	opts := GenerateOptions{Model: cfg.ProviderModelID}
 
-	providerModelID, ok := GetProviderModelID(model)
-	if !ok {
-		return nil, nil
-	}
-
-	// Route to correct API client based on provider
-	switch provider {
-	case ProviderAnthropic:
-		if client.AnthropicAPI == nil {
-			return nil, nil
+	switch cfg.Provider {
+	case ProviderBedrockMantle:
+		if client.MantleAPI == nil {
+			return "", fmt.Errorf("model %s is not available: Mantle client not configured", model)
 		}
-		opts := []llms.CallOption{llms.WithModel(providerModelID)}
-		return client.AnthropicAPI.GetModel(opts...), opts
-	case ProviderCloudflare:
-		if client.CloudflareApiClient == nil {
-			return nil, nil
+		resp, err := client.MantleAPI.GenerateContent(ctx, messages, opts)
+		if err != nil {
+			return "", err
 		}
-		opts := []llms.CallOption{llms.WithModel(providerModelID)}
-		return client.CloudflareApiClient.GetModel(opts...), opts
-	case ProviderGemini:
-		if client.GeminiAPI == nil {
-			return nil, nil
-		}
-		opts := []llms.CallOption{llms.WithModel(providerModelID)}
-		return client.GeminiAPI.GetModel(opts...), opts
-	case ProviderOpenAI:
-		if client.GPTApi == nil {
-			return nil, nil
-		}
-		opts := []llms.CallOption{llms.WithModel(providerModelID), llms.WithTemperature(1)}
-		return client.GPTApi.GetModel(opts...), opts
-	case ProviderBedrock:
-		if client.BedrockAPI == nil {
-			return nil, nil
-		}
-		opts := []llms.CallOption{llms.WithModel(providerModelID)}
-		return client.BedrockAPI.GetModel(opts...), opts
+		return resp.Content, nil
 	default:
-		return nil, nil
+		if client.BedrockAPI == nil {
+			return "", fmt.Errorf("model %s is not available: Bedrock client not configured", model)
+		}
+		resp, err := client.BedrockAPI.GenerateContent(ctx, messages, opts)
+		if err != nil {
+			return "", err
+		}
+		return resp.Content, nil
 	}
+}
+
+func (client *Client) TextGeneration(ctx context.Context, prompt string, model ChatModel) (string, error) {
+	return client.generateContent(ctx, []Message{
+		{Role: RoleUser, Content: prompt},
+	}, model)
+}
+
+func (client *Client) TextGenerationWithSystem(ctx context.Context, system string, prompt string, model ChatModel) (string, error) {
+	return client.generateContent(ctx, []Message{
+		{Role: RoleSystem, Content: system},
+		{Role: RoleUser, Content: prompt},
+	}, model)
 }
 
 func (client *Client) GenerateImage(ctx context.Context, prompt string, model ImageModel) ([]byte, error) {
-	// Get provider and model ID from centralized registry
-	provider, ok := GetImageModelProvider(model)
-	if !ok {
-		return nil, fmt.Errorf("image model %s is not configured", model)
+	if client.BedrockAPI == nil {
+		return nil, fmt.Errorf("image model %s is not available: Bedrock client not configured", model)
 	}
-
 	providerModelID, ok := GetImageProviderModelID(model)
 	if !ok {
 		return nil, fmt.Errorf("image model %s is not configured", model)
 	}
-
-	// Route to correct API client based on provider
-	switch provider {
-	case ProviderOpenAI:
-		if client.GPTApi == nil {
-			return nil, fmt.Errorf("image model %s is not available: OpenAI client not configured", model)
-		}
-		return client.GPTApi.GenerateImage(ctx, prompt, providerModelID)
-	case ProviderGemini:
-		if client.GeminiAPI == nil {
-			return nil, fmt.Errorf("image model %s is not available: Gemini client not configured", model)
-		}
-		return client.GeminiAPI.GenerateImage(ctx, prompt, providerModelID)
-	case ProviderCloudflare:
-		if client.CloudflareApiClient == nil {
-			return nil, fmt.Errorf("image model %s is not available: Cloudflare client not configured", model)
-		}
-		return client.CloudflareApiClient.GenerateImage(ctx, prompt, providerModelID)
-	case ProviderBedrock:
-		if client.BedrockAPI == nil {
-			return nil, fmt.Errorf("image model %s is not available: Bedrock client not configured", model)
-		}
-		return client.BedrockAPI.GenerateImage(ctx, prompt, providerModelID)
-	default:
-		return nil, fmt.Errorf("image model %s has unsupported provider %s", model, provider)
-	}
+	return client.BedrockAPI.GenerateImage(ctx, prompt, providerModelID)
 }
 
 func (client *Client) Translate(
@@ -127,7 +64,7 @@ func (client *Client) Translate(
 	prompt string,
 	sourceLang string,
 	targetLang string,
-	model ChatModel,
+	_ ChatModel,
 ) (string, error) {
 	if sourceLang == "" {
 		sourceLang = "en"
@@ -135,23 +72,9 @@ func (client *Client) Translate(
 	if targetLang == "" {
 		targetLang = "jp"
 	}
-	if model == "" {
-		model = CHAT_MODEL_TRANSLATIONS
-	}
-	if client.CloudflareApiClient == nil {
-		return "", fmt.Errorf("translation model is not available: Cloudflare client not configured")
-	}
-
-	// Get provider model ID from centralized registry
-	providerModelID, ok := GetProviderModelID(model)
-	if !ok {
-		return "", fmt.Errorf("translation model %s is not configured", model)
-	}
-
-	return client.CloudflareApiClient.GenerateTranslation(ctx, &GenerateTranslationRequest{
-		SourceLanguage: sourceLang,
-		TargetLanguage: targetLang,
-		Prompt:         prompt,
-		Model:          providerModelID,
-	})
+	systemPrompt := fmt.Sprintf(
+		"You are a translator. Translate the following text from %s to %s. Output only the translated text, nothing else.",
+		sourceLang, targetLang,
+	)
+	return client.TextGenerationWithSystem(ctx, systemPrompt, prompt, CHAT_MODEL_SONNET)
 }
