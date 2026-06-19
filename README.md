@@ -68,18 +68,18 @@ All models are accessed via **AWS Bedrock**. Enable model access in the [AWS Bed
 
 ### Chat Models
 
-| Provider | Bedrock Model ID | Alias | Notes |
-|----------|-----------------|-------|-------|
-| **Anthropic** | `us.anthropic.claude-sonnet-4-6` | `sonnet` | Default model |
-| **Anthropic** | `us.anthropic.claude-opus-4-8` | `opus` | |
-| **Anthropic** | `us.anthropic.claude-fable-5` | `fable` | |
-| **Amazon** | `us.amazon.nova-lite-v1:0` | `nova` | |
-| **Amazon** | `us.amazon.nova-pro-v1:0` | `nova pro` | |
-| **xAI** | `xai.grok-4.3` | `grok` | Via bedrock-mantle endpoint |
-| **OpenAI** | `openai.gpt-5.5` | `gpt` | Via bedrock-mantle endpoint |
+| Provider | Bedrock Model ID | Alias | Region | API |
+|----------|-----------------|-------|--------|-----|
+| **Anthropic** | `us.anthropic.claude-sonnet-4-6` | `sonnet` | cross-region | Converse |
+| **Anthropic** | `us.anthropic.claude-opus-4-8` | `opus` | cross-region | Converse |
+| **Anthropic** | `us.anthropic.claude-fable-5` | `fable` | cross-region | Converse |
+| **Amazon** | `us.amazon.nova-lite-v1:0` | `nova` | cross-region | Converse |
+| **Amazon** | `us.amazon.nova-pro-v1:0` | `nova pro` | cross-region | Converse |
+| **xAI** | `xai.grok-4.3` | `grok` | `us-west-2` only | bedrock-mantle |
+| **OpenAI** | `openai.gpt-5.5` | `gpt` | `us-east-1` only | bedrock-mantle |
 
-Claude, Fable, and Nova models use the [Bedrock Converse API](https://docs.aws.amazon.com/bedrock/latest/userguide/conversation-inference.html).
-Grok and GPT use the [Bedrock Mantle](https://docs.aws.amazon.com/bedrock/latest/userguide/apis.html) OpenAI-compatible Responses API.
+Claude, Fable, and Nova models use the [Bedrock Converse API](https://docs.aws.amazon.com/bedrock/latest/userguide/conversation-inference.html) with cross-region inference profiles.
+Grok and GPT use the [Bedrock Mantle](https://docs.aws.amazon.com/bedrock/latest/userguide/apis.html) OpenAI-compatible Responses API — each model is only available in its specific region, so the client maintains a separate signed connection per region.
 
 ### Image Generation Models
 
@@ -347,10 +347,13 @@ CHAT_MODEL_NEW ChatModel = "new"
     Type:            ModelTypeChat,
     Provider:        ProviderBedrock,          // or ProviderBedrockMantle
     ProviderModelID: "provider.model-id-here",
+    MantleRegion:    "us-west-2",              // required for ProviderBedrockMantle models
     Aliases:         []string{"new"},
     ErrorMessage:    "New model is not available",
 },
 ```
+
+For `ProviderBedrockMantle` models, `MantleRegion` must be set — it controls which regional endpoint is used. `NewMantleApiClient` automatically builds a signed client for each distinct region found in `allModelConfigs`.
 
 Users can then say: "model new" to switch to it.
 

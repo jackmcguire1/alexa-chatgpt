@@ -13,7 +13,7 @@ This is an Alexa skill backend that uses **AWS Bedrock exclusively** for all AI 
 - **Queue-based Architecture**: Uses SQS for asynchronous processing to handle Alexa's timeout
 - **Single-Provider Design**: All models go through AWS Bedrock via two clients in `internal/dom/chatmodels/`
   - `BedrockApiClient` — Converse API for Claude and Nova models
-  - `MantleApiClient` — OpenAI-compatible Responses API (bedrock-mantle endpoint) for Grok and GPT models
+  - `MantleApiClient` — OpenAI-compatible Responses API (bedrock-mantle endpoint) for Grok and GPT models; holds one signed client per region since each mantle model is only available in a specific region (Grok: `us-west-2`, GPT-5.5: `us-east-1`)
 
 ## Essential Commands
 
@@ -81,8 +81,9 @@ Models are registered in `internal/dom/chatmodels/models.go` with a `Provider` f
 
 ### Adding New AI Models
 1. Add model constant in `internal/dom/chatmodels/models.go`
-2. Add a `ModelConfig` entry to `allModelConfigs` with the correct `Provider` and `ProviderModelID`
-3. If the model uses a new provider, add a client and update the dispatch switch in `prompts.go`
+2. Add a `ModelConfig` entry to `allModelConfigs` with the correct `Provider`, `ProviderModelID`, and (for `ProviderBedrockMantle`) `MantleRegion`
+3. `NewMantleApiClient` automatically picks up any new `MantleRegion` values — no code changes needed unless a genuinely new provider is added
+4. If the model uses a new provider, add a client and update the dispatch switch in `prompts.go`
 
 ### Alexa Intent Processing Flow
 1. Intent received in `internal/api/handler.go:Invoke()`
