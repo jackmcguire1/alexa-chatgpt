@@ -63,8 +63,7 @@ response:
 	}
 
 	switch response.Model {
-	case chatmodels.IMAGE_MODEL_NOVA_CANVAS.String(),
-		chatmodels.IMAGE_MODEL_TITAN.String():
+	case chatmodels.IMAGE_MODEL_FLUX.String():
 
 		res = alexa.NewImageResponse(
 			"Response",

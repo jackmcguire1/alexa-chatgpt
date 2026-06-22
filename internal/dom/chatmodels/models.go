@@ -23,9 +23,7 @@ const (
 )
 
 const (
-	IMAGE_MODEL_NOVA_CANVAS ImageModel = "nova canvas"
-	IMAGE_MODEL_TITAN       ImageModel = "titan"
-	IMAGE_MODEL_FLUX        ImageModel = "flux"
+	IMAGE_MODEL_FLUX ImageModel = "flux"
 )
 
 func (c ChatModel) String() string {
@@ -161,24 +159,6 @@ var allModelConfigs = []ModelConfig{
 		MantleRegion:    "us-east-1",
 		Aliases:         []string{string(CHAT_MODEL_GPT)},
 		ErrorMessage:    "GPT model is not available - Bedrock not configured",
-	},
-
-	// Image models
-	{
-		ImageModel:      IMAGE_MODEL_NOVA_CANVAS,
-		Type:            ModelTypeImage,
-		Provider:        ProviderBedrock,
-		ProviderModelID: "amazon.nova-canvas-v1:0",
-		Aliases:         []string{string(IMAGE_MODEL_NOVA_CANVAS)},
-		ErrorMessage:    "Nova Canvas model is not available - Bedrock not configured",
-	},
-	{
-		ImageModel:      IMAGE_MODEL_TITAN,
-		Type:            ModelTypeImage,
-		Provider:        ProviderBedrock,
-		ProviderModelID: "amazon.titan-image-generator-v2:0",
-		Aliases:         []string{string(IMAGE_MODEL_TITAN)},
-		ErrorMessage:    "Titan Image Generator model is not available - Bedrock not configured",
 	},
 
 	// Cloudflare Workers AI models

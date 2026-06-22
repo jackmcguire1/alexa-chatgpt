@@ -12,7 +12,7 @@ This is an Alexa skill backend that uses **AWS Bedrock** and **Cloudflare Worker
 - **SQS Request Processor** (`cmd/sqs/main.go`): Processes queued requests using AI providers
 - **Queue-based Architecture**: Uses SQS for asynchronous processing to handle Alexa's timeout
 - **Three-Provider Design**: Models go through three clients in `internal/dom/chatmodels/`
-  - `BedrockApiClient` — Converse API for Claude and Nova models; also handles Bedrock image generation (Nova Canvas, Titan)
+  - `BedrockApiClient` — Converse API for Claude and Nova models
   - `MantleApiClient` — OpenAI-compatible Responses API (bedrock-mantle endpoint) for Grok and GPT models; holds one SigV4-signed client per region (Grok: `us-west-2`, GPT-5.5: `us-east-1`)
   - `CloudflareApiClient` — OpenAI-compatible Chat Completions API for Llama, Gemma, and Kimi; direct HTTP for Flux image generation; only initialised when `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_KEY` env vars are set
 
@@ -76,7 +76,7 @@ sam delete --stack-name alexa-chatgpt
 
 Models are registered in `internal/dom/chatmodels/models.go` with a `Provider` field:
 
-- `ProviderBedrock` → `BedrockApiClient` (Converse API for chat; InvokeModel for images)
+- `ProviderBedrock` → `BedrockApiClient` (Converse API for chat)
 - `ProviderBedrockMantle` → `MantleApiClient` (OpenAI Responses API via bedrock-mantle endpoint)
 - `ProviderCloudflare` → `CloudflareApiClient` (OpenAI Chat Completions API for chat; direct HTTP for images)
 
@@ -114,6 +114,6 @@ Bedrock auth uses the Lambda IAM execution role (no keys needed). Cloudflare mod
 
 - **Alexa Timeout**: Responses taking >7 seconds trigger async handling via "LastResponseIntent"
 - **Model Switching**: Use "Model <alias>" intent to switch between AI providers
-- **Image Generation**: Uses S3 for storing generated images, returns pre-signed URLs
+- **Image Generation**: Uses Cloudflare Flux Schnell; output is base64 JPEG decoded from the REST response, resized to two resolutions, and stored in S3
 - **Bedrock Model Access**: Enable each model in the AWS Bedrock console under **Model access** before deploying
 - **Cloudflare Models Absent**: If `CLOUDFLARE_ACCOUNT_ID`/`CLOUDFLARE_API_KEY` are not set at Lambda startup, all Cloudflare models (llama, gemma, kimi, flux) are excluded — check Lambda env vars if they don't appear in "model available"

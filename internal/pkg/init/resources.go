@@ -27,5 +27,5 @@ func GetDefaultChatModel() chatmodels.ChatModel {
 
 // GetDefaultImageModel returns the default image model.
 func GetDefaultImageModel() chatmodels.ImageModel {
-	return chatmodels.IMAGE_MODEL_NOVA_CANVAS
+	return chatmodels.IMAGE_MODEL_FLUX
 }

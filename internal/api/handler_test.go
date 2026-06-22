@@ -118,7 +118,7 @@ func TestImageIntent(t *testing.T) {
 	mockRequestsQueue.On("PushMessage", mock.Anything, mock.Anything).Return(nil)
 
 	mockResponsesQueue := &queue.MockQueue{}
-	queueResponse := chatmodels.LastResponse{Response: "", Model: chatmodels.IMAGE_MODEL_NOVA_CANVAS.String(), TimeDiff: "1", ImagesResponse: []string{
+	queueResponse := chatmodels.LastResponse{Response: "", Model: chatmodels.IMAGE_MODEL_FLUX.String(), TimeDiff: "1", ImagesResponse: []string{
 		smallImageUrl,
 		largeImageUrl,
 	}}
@@ -160,7 +160,7 @@ func TestImageIntentFailedToGenerateImagesResponse(t *testing.T) {
 	mockRequestsQueue.On("PushMessage", mock.Anything, mock.Anything).Return(nil)
 
 	mockResponsesQueue := &queue.MockQueue{}
-	queueResponse := chatmodels.LastResponse{Error: "image API failed", Model: chatmodels.IMAGE_MODEL_NOVA_CANVAS.String(), TimeDiff: "1", ImagesResponse: []string{}}
+	queueResponse := chatmodels.LastResponse{Error: "image API failed", Model: chatmodels.IMAGE_MODEL_FLUX.String(), TimeDiff: "1", ImagesResponse: []string{}}
 	jsonResp := utils.ToJSON(queueResponse)
 	mockResponsesQueue.On("PullMessage", mock.Anything, mock.Anything).Return([]byte(jsonResp), nil)
 

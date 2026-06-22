@@ -21,7 +21,7 @@
 - **Broad Model Support**: Claude (Sonnet, Opus, Fable), Amazon Nova, xAI Grok, OpenAI GPT, Meta Llama, Google Gemma, Moonshot Kimi
 - **Three Backends**: Bedrock Converse API, Bedrock Mantle (OpenAI Responses API), Cloudflare Workers AI (OpenAI Chat Completions API)
 - **Asynchronous Processing**: Handles Alexa's timeout constraints with SQS queue management
-- **Image Generation**: Create images with Nova Canvas, Titan Image Generator, or Cloudflare Flux Schnell
+- **Image Generation**: Create images with Cloudflare Flux Schnell
 - **Interactive Games**: Built-in number guessing, battleship, and animal guessing games
 - **Translation Support**: Real-time language translation via Claude Sonnet
 - **Production Ready**: OpenTelemetry tracing, AWS X-Ray, error handling, and retry mechanisms
@@ -96,8 +96,6 @@ Cloudflare models use the OpenAI-compatible Chat Completions endpoint. They are 
 
 | Provider | Model ID | Alias | Backend |
 |----------|----------|-------|---------|
-| **Amazon** | `amazon.nova-canvas-v1:0` | `nova canvas` | Bedrock |
-| **Amazon** | `amazon.titan-image-generator-v2:0` | `titan` | Bedrock |
 | **Black Forest Labs** | `@cf/black-forest-labs/flux-1-schnell` | `flux` | Cloudflare |
 
 ### Translation
@@ -123,7 +121,7 @@ Translation uses Claude Sonnet via a system prompt — no separate model alias n
 
 | Intent | Example Phrases | Description |
 |--------|----------------|-------------|
-| **ImageIntent** | "image {prompt}" | Generate images using Nova Canvas, Titan, or Flux |
+| **ImageIntent** | "image {prompt}" | Generate images using Flux |
 
 ### Games & Entertainment
 
@@ -235,7 +233,7 @@ aws configure
 
 2. **Enable Bedrock Model Access**
    - In the AWS Console, go to Bedrock → Model access
-   - Enable: Claude Sonnet/Opus/Fable, Nova Lite/Pro/Canvas, Titan, Grok, GPT
+   - Enable: Claude Sonnet/Opus/Fable, Nova Lite/Pro, Grok, GPT
 
 3. **Build and Deploy**
 
@@ -404,6 +402,6 @@ All donations are appreciated!
 - Meta for Llama
 - Google for Gemma
 - Moonshot AI for Kimi
-- Black Forest Labs for Flux
+- Black Forest Labs for Flux Schnell
 - Cloudflare for Workers AI
 - AWS for serverless infrastructure
