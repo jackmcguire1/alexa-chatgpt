@@ -4,16 +4,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is an Alexa skill backend that uses **AWS Bedrock exclusively** for all AI inference. All chat and image models are accessed via Bedrock — no third-party API keys are required. The architecture uses AWS Lambda functions with SQS queues to handle Alexa's 8-second timeout constraint.
+This is an Alexa skill backend that uses **AWS Bedrock** and **Cloudflare Workers AI** for all AI inference. The architecture uses AWS Lambda functions with SQS queues to handle Alexa's 8-second timeout constraint.
 
 ## Key Architecture Components
 
 - **Alexa Lambda Handler** (`cmd/alexa/main.go`): Receives Alexa requests, queues them, and polls for responses
 - **SQS Request Processor** (`cmd/sqs/main.go`): Processes queued requests using AI providers
 - **Queue-based Architecture**: Uses SQS for asynchronous processing to handle Alexa's timeout
-- **Single-Provider Design**: All models go through AWS Bedrock via two clients in `internal/dom/chatmodels/`
-  - `BedrockApiClient` — Converse API for Claude and Nova models
-  - `MantleApiClient` — OpenAI-compatible Responses API (bedrock-mantle endpoint) for Grok and GPT models; holds one signed client per region since each mantle model is only available in a specific region (Grok: `us-west-2`, GPT-5.5: `us-east-1`)
+- **Three-Provider Design**: Models go through three clients in `internal/dom/chatmodels/`
+  - `BedrockApiClient` — Converse API for Claude and Nova models; also handles Bedrock image generation (Nova Canvas, Titan)
+  - `MantleApiClient` — OpenAI-compatible Responses API (bedrock-mantle endpoint) for Grok and GPT models; holds one SigV4-signed client per region (Grok: `us-west-2`, GPT-5.5: `us-east-1`)
+  - `CloudflareApiClient` — OpenAI-compatible Chat Completions API for Llama, Gemma, and Kimi; direct HTTP for Flux image generation; only initialised when `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_KEY` env vars are set
 
 ## Essential Commands
 
@@ -47,10 +48,11 @@ sam logs -n ChatGPTLambda --stack-name alexa-chatgpt --tail
 
 ### Deployment
 ```bash
-# Deploy to AWS — no external API keys required, Bedrock uses the Lambda IAM role
+# Deploy to AWS — Bedrock uses the Lambda IAM role; Cloudflare params are optional
 sam deploy --stack-name alexa-chatgpt \
   --s3-bucket $S3_BUCKET_NAME \
   --parameter-overrides Runtime=provided.al2023 Handler=bootstrap Architecture=arm64 \
+    CloudFlareAccountId=$CLOUDFLARE_ACCOUNT_ID CloudFlareAPIKey=$CLOUDFLARE_API_KEY \
   --capabilities CAPABILITY_IAM
 
 # Delete stack
@@ -74,16 +76,17 @@ sam delete --stack-name alexa-chatgpt
 
 Models are registered in `internal/dom/chatmodels/models.go` with a `Provider` field:
 
-- `ProviderBedrock` → `BedrockApiClient` (Converse API)
+- `ProviderBedrock` → `BedrockApiClient` (Converse API for chat; InvokeModel for images)
 - `ProviderBedrockMantle` → `MantleApiClient` (OpenAI Responses API via bedrock-mantle endpoint)
+- `ProviderCloudflare` → `CloudflareApiClient` (OpenAI Chat Completions API for chat; direct HTTP for images)
 
-`prompts.go` dispatches to the correct client based on the model's provider. `RegisterAvailableClients()` is called automatically by `NewClient()` — no caller setup needed.
+`prompts.go` dispatches to the correct client based on the model's provider. `RegisterAvailableClients(cloudflareAvailable bool)` is called automatically by `NewClient()` — it gates Cloudflare models on whether `CloudflareAPI` is non-nil in the `Resources` struct.
 
 ### Adding New AI Models
 1. Add model constant in `internal/dom/chatmodels/models.go`
 2. Add a `ModelConfig` entry to `allModelConfigs` with the correct `Provider`, `ProviderModelID`, and (for `ProviderBedrockMantle`) `MantleRegion`
-3. `NewMantleApiClient` automatically picks up any new `MantleRegion` values — no code changes needed unless a genuinely new provider is added
-4. If the model uses a new provider, add a client and update the dispatch switch in `prompts.go`
+3. `NewMantleApiClient` automatically picks up any new `MantleRegion` values; `CloudflareApiClient` needs no changes for new Cloudflare models
+4. If the model uses a genuinely new provider, add a client interface in `api.go`, implement it, add it to `Resources` in `service.go`, initialise it in `internal/pkg/init/resources.go`, and add a dispatch case in `prompts.go`
 
 ### Alexa Intent Processing Flow
 1. Intent received in `internal/api/handler.go:Invoke()`
@@ -95,13 +98,15 @@ Models are registered in `internal/dom/chatmodels/models.go` with a `Provider` f
 - `S3_BUCKET_NAME`: S3 bucket for SAM deployments
 - `REQUESTS_QUEUE_URI`: SQS queue for requests (auto-configured by SAM)
 - `RESPONSES_QUEUE_URI`: SQS queue for responses (auto-configured by SAM)
+- `CLOUDFLARE_ACCOUNT_ID`: *(optional)* Cloudflare account ID — enables llama, gemma, kimi, flux
+- `CLOUDFLARE_API_KEY`: *(optional)* Cloudflare API key — required alongside `CLOUDFLARE_ACCOUNT_ID`
 
-No external AI API keys are needed. Bedrock auth uses the Lambda IAM execution role.
+Bedrock auth uses the Lambda IAM execution role (no keys needed). Cloudflare models are silently excluded from the registry if the env vars are absent.
 
 ## Testing Approach
 
 - Unit tests exist for core components (handlers, games, utilities)
-- Mock interfaces (`mockBedrockAPI`, `mockMantleAPI`) are defined in `api.go` for testing
+- Mock interfaces (`mockBedrockAPI`, `mockMantleAPI`, `mockCloudflareAPI`) are defined in `api.go` for testing
 - Test events are in `events/` directory for local Lambda testing
 - Use `-race` flag to detect race conditions in concurrent code
 
@@ -111,3 +116,4 @@ No external AI API keys are needed. Bedrock auth uses the Lambda IAM execution r
 - **Model Switching**: Use "Model <alias>" intent to switch between AI providers
 - **Image Generation**: Uses S3 for storing generated images, returns pre-signed URLs
 - **Bedrock Model Access**: Enable each model in the AWS Bedrock console under **Model access** before deploying
+- **Cloudflare Models Absent**: If `CLOUDFLARE_ACCOUNT_ID`/`CLOUDFLARE_API_KEY` are not set at Lambda startup, all Cloudflare models (llama, gemma, kimi, flux) are excluded — check Lambda env vars if they don't appear in "model available"

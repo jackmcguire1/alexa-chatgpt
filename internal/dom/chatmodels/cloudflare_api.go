@@ -3,6 +3,7 @@ package chatmodels
 import (
 	"bytes"
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -76,8 +77,8 @@ func (api *CloudflareApiClient) GenerateContent(ctx context.Context, messages []
 	return &GenerateResponse{Content: resp.Choices[0].Message.Content}, nil
 }
 
-// GenerateImage calls the Cloudflare Workers AI image generation endpoint directly.
-// Flux Schnell returns raw binary PNG data.
+// GenerateImage calls the Cloudflare Workers AI image generation endpoint.
+// The REST API returns JSON: {"result":{"image":"<base64_jpeg>"},"success":true,...}
 func (api *CloudflareApiClient) GenerateImage(ctx context.Context, prompt string, model string) ([]byte, error) {
 	url := fmt.Sprintf("https://api.cloudflare.com/client/v4/accounts/%s/ai/run/%s", api.accountID, model)
 
@@ -99,14 +100,32 @@ func (api *CloudflareApiClient) GenerateImage(ctx context.Context, prompt string
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
-		errBody, _ := io.ReadAll(resp.Body)
-		return nil, fmt.Errorf("cloudflare image: HTTP %d: %s", resp.StatusCode, string(errBody))
-	}
-
-	imgBytes, err := io.ReadAll(resp.Body)
+	respBody, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, fmt.Errorf("cloudflare image: failed to read response body: %w", err)
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("cloudflare image: HTTP %d: %s", resp.StatusCode, string(respBody))
+	}
+
+	var apiResp struct {
+		Result struct {
+			Image string `json:"image"`
+		} `json:"result"`
+		Success bool     `json:"success"`
+		Errors  []string `json:"errors"`
+	}
+	if err := json.Unmarshal(respBody, &apiResp); err != nil {
+		return nil, fmt.Errorf("cloudflare image: failed to unmarshal response: %w", err)
+	}
+	if !apiResp.Success || apiResp.Result.Image == "" {
+		return nil, fmt.Errorf("cloudflare image: no image in response (errors: %v)", apiResp.Errors)
+	}
+
+	imgBytes, err := base64.StdEncoding.DecodeString(apiResp.Result.Image)
+	if err != nil {
+		return nil, fmt.Errorf("cloudflare image: failed to decode base64 image: %w", err)
 	}
 	return imgBytes, nil
 }

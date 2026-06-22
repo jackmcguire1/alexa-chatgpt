@@ -202,7 +202,7 @@ var allModelConfigs = []ModelConfig{
 		ChatModel:       CHAT_MODEL_KIMI,
 		Type:            ModelTypeChat,
 		Provider:        ProviderCloudflare,
-		ProviderModelID: "@cf/moonshot/kimi-k2.7-code",
+		ProviderModelID: "@cf/moonshotai/kimi-k2.7-code",
 		Aliases:         []string{string(CHAT_MODEL_KIMI)},
 		ErrorMessage:    "Kimi model is not available - Cloudflare not configured",
 	},
