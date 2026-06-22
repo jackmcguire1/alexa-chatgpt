@@ -49,7 +49,7 @@ var animalDatabase = []Animal{
 
 	// Wild Animals
 	{Name: "lion", Sound: "roar roar"},
-	{Name: "tiger", Sound: "roar roar"},
+	{Name: "tiger", Sound: "chuff chuff"},
 	{Name: "elephant", Sound: "trumpet trumpet"},
 	{Name: "monkey", Sound: "ooh ooh ah ah"},
 	{Name: "bear", Sound: "growl growl"},
@@ -72,13 +72,13 @@ var animalDatabase = []Animal{
 	{Name: "bird", Sound: "tweet tweet"},
 	{Name: "owl", Sound: "hoot hoot"},
 	{Name: "crow", Sound: "caw caw"},
-	{Name: "parrot", Sound: "squawk squawk"},
+	{Name: "parrot", Sound: "squawk hello"},
 	{Name: "eagle", Sound: "screech screech"},
 	{Name: "penguin", Sound: "honk honk trumpet"},
 	{Name: "flamingo", Sound: "honk grunt"},
-	{Name: "peacock", Sound: "meow meow"},
+	{Name: "peacock", Sound: "aow aow screech"},
 	{Name: "woodpecker", Sound: "tap tap tap"},
-	{Name: "seagull", Sound: "screech screech"},
+	{Name: "seagull", Sound: "squawk squawk"},
 	{Name: "pigeon", Sound: "coo coo"},
 
 	// Small Animals & Insects
@@ -86,10 +86,10 @@ var animalDatabase = []Animal{
 	{Name: "snake", Sound: "hiss hiss"},
 	{Name: "bee", Sound: "buzz buzz"},
 	{Name: "cricket", Sound: "chirp chirp"},
-	{Name: "mosquito", Sound: "buzz buzz"},
+	{Name: "mosquito", Sound: "whine buzz"},
 	{Name: "mouse", Sound: "squeak squeak"},
-	{Name: "rat", Sound: "squeak squeak"},
-	{Name: "hamster", Sound: "squeak squeak"},
+	{Name: "rat", Sound: "squeak chitter"},
+	{Name: "hamster", Sound: "squeak chirp"},
 	{Name: "rabbit", Sound: "thump thump"},
 	{Name: "squirrel", Sound: "chatter chatter"},
 
@@ -112,7 +112,7 @@ var animalDatabase = []Animal{
 	{Name: "deer", Sound: "bleat grunt"},
 	{Name: "moose", Sound: "bellow grunt"},
 	{Name: "camel", Sound: "grunt groan"},
-	{Name: "llama", Sound: "hum hum"},
+	{Name: "llama", Sound: "orgle mrrr"},
 	{Name: "armadillo", Sound: "grunt squeak"},
 	{Name: "hedgehog", Sound: "snuffle grunt"},
 	{Name: "porcupine", Sound: "chatter whine"},
