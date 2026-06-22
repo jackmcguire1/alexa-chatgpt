@@ -23,6 +23,15 @@ func (client *Client) generateContent(ctx context.Context, messages []Message, m
 			return "", err
 		}
 		return resp.Content, nil
+	case ProviderCloudflare:
+		if client.CloudflareAPI == nil {
+			return "", fmt.Errorf("model %s is not available: Cloudflare client not configured", model)
+		}
+		resp, err := client.CloudflareAPI.GenerateContent(ctx, messages, opts)
+		if err != nil {
+			return "", err
+		}
+		return resp.Content, nil
 	default:
 		if client.BedrockAPI == nil {
 			return "", fmt.Errorf("model %s is not available: Bedrock client not configured", model)
@@ -49,14 +58,23 @@ func (client *Client) TextGenerationWithSystem(ctx context.Context, system strin
 }
 
 func (client *Client) GenerateImage(ctx context.Context, prompt string, model ImageModel) ([]byte, error) {
-	if client.BedrockAPI == nil {
-		return nil, fmt.Errorf("image model %s is not available: Bedrock client not configured", model)
-	}
-	providerModelID, ok := GetImageProviderModelID(model)
+	cfg, ok := GetImageModelConfig(model)
 	if !ok {
 		return nil, fmt.Errorf("image model %s is not configured", model)
 	}
-	return client.BedrockAPI.GenerateImage(ctx, prompt, providerModelID)
+
+	switch cfg.Provider {
+	case ProviderCloudflare:
+		if client.CloudflareAPI == nil {
+			return nil, fmt.Errorf("image model %s is not available: Cloudflare client not configured", model)
+		}
+		return client.CloudflareAPI.GenerateImage(ctx, prompt, cfg.ProviderModelID)
+	default:
+		if client.BedrockAPI == nil {
+			return nil, fmt.Errorf("image model %s is not available: Bedrock client not configured", model)
+		}
+		return client.BedrockAPI.GenerateImage(ctx, prompt, cfg.ProviderModelID)
+	}
 }
 
 func (client *Client) Translate(

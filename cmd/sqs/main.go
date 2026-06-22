@@ -62,7 +62,8 @@ func (handler *SqsHandler) ProcessGenerationRequest(ctx context.Context, req *ch
 	if req.ImageModel != nil {
 		switch *req.ImageModel {
 		case chatmodels.IMAGE_MODEL_NOVA_CANVAS,
-			chatmodels.IMAGE_MODEL_TITAN:
+			chatmodels.IMAGE_MODEL_TITAN,
+			chatmodels.IMAGE_MODEL_FLUX:
 			span.SetAttributes(
 				attribute.String("image-model", string(*req.ImageModel)),
 			)

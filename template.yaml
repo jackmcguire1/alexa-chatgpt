@@ -13,6 +13,8 @@ Globals:
         REQUESTS_QUEUE_URI: !Ref RequestsQueue
         POLL_DELAY: 7
         S3_BUCKET: !Ref Bucket
+        CLOUDFLARE_ACCOUNT_ID: !Ref CloudFlareAccountId
+        CLOUDFLARE_API_KEY: !Ref CloudFlareAPIKey
     Layers:
       - !Sub arn:aws:lambda:${AWS::Region}:901920570463:layer:aws-otel-collector-arm64-ver-0-115-0:3
     Tracing: Active
@@ -29,6 +31,15 @@ Parameters:
   Handler:
     Type: String
     Default: main
+
+  CloudFlareAccountId:
+    Type: String
+    Default: ""
+
+  CloudFlareAPIKey:
+    Type: String
+    Default: ""
+    NoEcho: true
 
 Resources:
 

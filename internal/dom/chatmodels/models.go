@@ -17,11 +17,15 @@ const (
 	CHAT_MODEL_NOVA_PRO     ChatModel = "nova pro"
 	CHAT_MODEL_GROK         ChatModel = "grok"
 	CHAT_MODEL_GPT          ChatModel = "gpt"
+	CHAT_MODEL_LLAMA        ChatModel = "llama"
+	CHAT_MODEL_GEMMA        ChatModel = "gemma"
+	CHAT_MODEL_KIMI         ChatModel = "kimi"
 )
 
 const (
 	IMAGE_MODEL_NOVA_CANVAS ImageModel = "nova canvas"
 	IMAGE_MODEL_TITAN       ImageModel = "titan"
+	IMAGE_MODEL_FLUX        ImageModel = "flux"
 )
 
 func (c ChatModel) String() string {
@@ -38,6 +42,7 @@ type Provider string
 const (
 	ProviderBedrock       Provider = "bedrock"
 	ProviderBedrockMantle Provider = "bedrock-mantle"
+	ProviderCloudflare    Provider = "cloudflare"
 )
 
 // ModelType distinguishes between chat and image models.
@@ -71,8 +76,9 @@ type ModelConfig struct {
 
 // ModelRegistry holds all model configurations.
 type ModelRegistry struct {
-	configs    []ModelConfig
-	hasBedrock bool
+	configs       []ModelConfig
+	hasBedrock    bool
+	hasCloudflare bool
 
 	chatModelByAlias  map[string]ModelConfig
 	imageModelByAlias map[string]ModelConfig
@@ -174,11 +180,46 @@ var allModelConfigs = []ModelConfig{
 		Aliases:         []string{string(IMAGE_MODEL_TITAN)},
 		ErrorMessage:    "Titan Image Generator model is not available - Bedrock not configured",
 	},
+
+	// Cloudflare Workers AI models
+	{
+		ChatModel:       CHAT_MODEL_LLAMA,
+		Type:            ModelTypeChat,
+		Provider:        ProviderCloudflare,
+		ProviderModelID: "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+		Aliases:         []string{string(CHAT_MODEL_LLAMA)},
+		ErrorMessage:    "Llama model is not available - Cloudflare not configured",
+	},
+	{
+		ChatModel:       CHAT_MODEL_GEMMA,
+		Type:            ModelTypeChat,
+		Provider:        ProviderCloudflare,
+		ProviderModelID: "@cf/google/gemma-4-26b-a4b-it",
+		Aliases:         []string{string(CHAT_MODEL_GEMMA)},
+		ErrorMessage:    "Gemma model is not available - Cloudflare not configured",
+	},
+	{
+		ChatModel:       CHAT_MODEL_KIMI,
+		Type:            ModelTypeChat,
+		Provider:        ProviderCloudflare,
+		ProviderModelID: "@cf/moonshot/kimi-k2.7-code",
+		Aliases:         []string{string(CHAT_MODEL_KIMI)},
+		ErrorMessage:    "Kimi model is not available - Cloudflare not configured",
+	},
+	{
+		ImageModel:      IMAGE_MODEL_FLUX,
+		Type:            ModelTypeImage,
+		Provider:        ProviderCloudflare,
+		ProviderModelID: "@cf/black-forest-labs/flux-1-schnell",
+		Aliases:         []string{string(IMAGE_MODEL_FLUX)},
+		ErrorMessage:    "Flux model is not available - Cloudflare not configured",
+	},
 }
 
 // RegisterAvailableClients initialises the model registry.
-func RegisterAvailableClients() {
+func RegisterAvailableClients(cloudflareAvailable bool) {
 	registry.hasBedrock = true
+	registry.hasCloudflare = cloudflareAvailable
 	registry.configs = allModelConfigs
 
 	registry.chatModelByAlias = make(map[string]ModelConfig)
@@ -227,6 +268,8 @@ func (r *ModelRegistry) isProviderAvailable(provider Provider) bool {
 	switch provider {
 	case ProviderBedrock, ProviderBedrockMantle:
 		return r.hasBedrock
+	case ProviderCloudflare:
+		return r.hasCloudflare
 	default:
 		return false
 	}
@@ -310,6 +353,16 @@ func GetProviderModelID(model ChatModel) (string, bool) {
 		}
 	}
 	return "", false
+}
+
+// GetImageModelConfig returns the full config for an image model.
+func GetImageModelConfig(model ImageModel) (ModelConfig, bool) {
+	for _, cfg := range allModelConfigs {
+		if cfg.ImageModel == model && cfg.Type == ModelTypeImage {
+			return cfg, true
+		}
+	}
+	return ModelConfig{}, false
 }
 
 // GetImageProviderModelID returns the provider-specific model ID for an image model.

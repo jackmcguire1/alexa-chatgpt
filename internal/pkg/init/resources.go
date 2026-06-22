@@ -1,6 +1,8 @@
 package init
 
 import (
+	"os"
+
 	"github.com/jackmcguire1/alexa-chatgpt/internal/dom/chatmodels"
 )
 
@@ -10,6 +12,10 @@ func InitializeResources() *chatmodels.Resources {
 
 	resources.BedrockAPI = chatmodels.NewBedrockApiClient()
 	resources.MantleAPI = chatmodels.NewMantleApiClient()
+
+	if accountID, apiKey := os.Getenv("CLOUDFLARE_ACCOUNT_ID"), os.Getenv("CLOUDFLARE_API_KEY"); accountID != "" && apiKey != "" {
+		resources.CloudflareAPI = chatmodels.NewCloudflareApiClient(accountID, apiKey)
+	}
 
 	return resources
 }

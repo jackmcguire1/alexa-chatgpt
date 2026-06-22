@@ -22,7 +22,7 @@ var (
 )
 
 func init() {
-	chatmodels.RegisterAvailableClients()
+	chatmodels.RegisterAvailableClients(false)
 }
 
 func TestLaunchIntent(t *testing.T) {
@@ -332,7 +332,7 @@ func TestHelpIntent(t *testing.T) {
 }
 
 func TestModelIntentSonnet(t *testing.T) {
-	chatmodels.RegisterAvailableClients()
+	chatmodels.RegisterAvailableClients(false)
 
 	mockChatGptService := &chatmodels.MockClient{}
 	h := NewHandler(logger, mockChatGptService, nil, nil, 0, chatmodels.CHAT_MODEL_SONNET, "", nil, nil, nil)
@@ -367,7 +367,7 @@ func TestModelIntentSonnet(t *testing.T) {
 }
 
 func TestModelIntentFable(t *testing.T) {
-	chatmodels.RegisterAvailableClients()
+	chatmodels.RegisterAvailableClients(false)
 
 	mockChatGptService := &chatmodels.MockClient{}
 	h := NewHandler(logger, mockChatGptService, nil, nil, 0, chatmodels.CHAT_MODEL_FABLE, "", nil, nil, nil)

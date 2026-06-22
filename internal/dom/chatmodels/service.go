@@ -3,8 +3,9 @@ package chatmodels
 import "context"
 
 type Resources struct {
-	BedrockAPI BedrockAPI
-	MantleAPI  MantleAPI
+	BedrockAPI    BedrockAPI
+	MantleAPI     MantleAPI
+	CloudflareAPI CloudflareAPI
 }
 
 type Service interface {
@@ -25,6 +26,6 @@ type Client struct {
 }
 
 func NewClient(r *Resources) *Client {
-	RegisterAvailableClients()
+	RegisterAvailableClients(r.CloudflareAPI != nil)
 	return &Client{r}
 }
