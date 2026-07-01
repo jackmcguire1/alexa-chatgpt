@@ -92,7 +92,7 @@ var allModelConfigs = []ModelConfig{
 		ChatModel:       CHAT_MODEL_SONNET,
 		Type:            ModelTypeChat,
 		Provider:        ProviderBedrock,
-		ProviderModelID: "us.anthropic.claude-sonnet-4-6",
+		ProviderModelID: "us.anthropic.claude-sonnet-5",
 		Aliases:         []string{string(CHAT_MODEL_SONNET)},
 		ErrorMessage:    "Sonnet model is not available - Bedrock not configured",
 	},
