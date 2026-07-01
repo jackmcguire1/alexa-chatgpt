@@ -72,7 +72,7 @@ Enable model access in the [AWS Bedrock console](https://console.aws.amazon.com/
 
 | Provider | Model ID | Alias | API |
 |----------|----------|-------|-----|
-| **Anthropic** | `us.anthropic.claude-sonnet-4-6` | `sonnet` | Bedrock Converse |
+| **Anthropic** | `us.anthropic.claude-sonnet-5` | `sonnet` | Bedrock Converse |
 | **Anthropic** | `us.anthropic.claude-opus-4-8` | `opus` | Bedrock Converse |
 | **Anthropic** | `us.anthropic.claude-fable-5` | `fable` | Bedrock Converse |
 | **Amazon** | `us.amazon.nova-lite-v1:0` | `nova` | Bedrock Converse |
