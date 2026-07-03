@@ -177,7 +177,7 @@ Translation uses Claude Sonnet via a system prompt — no separate model alias n
 4. **Deploy to AWS**
    ```bash
    sam build --parameter-overrides Runtime=provided.al2023 Handler=bootstrap Architecture=arm64
-   sam deploy --stack-name alexa-chatgpt \
+   sam deploy --express --stack-name alexa-chatgpt \
      --s3-bucket $S3_BUCKET_NAME \
      --parameter-overrides \
        Runtime=provided.al2023 \
@@ -187,6 +187,11 @@ Translation uses Claude Sonnet via a system prompt — no separate model alias n
        CloudFlareAPIKey=$CLOUDFLARE_API_KEY \
      --capabilities CAPABILITY_IAM
    ```
+
+   > `--express` enables CloudFormation Express deployments (SAM CLI ≥ 1.163.0), which
+   > complete stack operations ~4x faster by returning once resource configuration is
+   > applied. Rollback stays enabled by default; add `--disable-rollback` only if you
+   > want to turn it off. Drop the `--express` flag on older SAM CLI versions.
 
 5. **Create Alexa Skill**
    - Go to [Alexa Developer Console](https://developer.amazon.com/alexa/console/ask)
@@ -243,7 +248,7 @@ aws configure
      Handler=bootstrap \
      Architecture=arm64
 
-   sam deploy --stack-name alexa-chatgpt \
+   sam deploy --express --stack-name alexa-chatgpt \
      --s3-bucket $S3_BUCKET_NAME \
      --parameter-overrides \
        Runtime=provided.al2023 \
@@ -255,6 +260,11 @@ aws configure
    ```
 
    Omit the `CloudFlare*` parameters if you don't need Cloudflare models.
+
+   The `--express` flag uses CloudFormation Express deployments (requires SAM CLI
+   ≥ 1.163.0) for ~4x faster stack operations, returning once resource configuration
+   is applied. Rollback remains enabled — the CI deploy in `.github/workflows/deploy.yaml`
+   uses the same flag. Omit `--express` if you're on an older SAM CLI.
 
 4. **Connect Lambda to Alexa**
    ```bash

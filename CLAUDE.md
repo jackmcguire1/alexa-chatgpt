@@ -49,7 +49,9 @@ sam logs -n ChatGPTLambda --stack-name alexa-chatgpt --tail
 ### Deployment
 ```bash
 # Deploy to AWS — Bedrock uses the Lambda IAM role; Cloudflare params are optional
-sam deploy --stack-name alexa-chatgpt \
+# --express uses CloudFormation Express deployments (SAM CLI >= 1.163.0) for ~4x faster
+# stack ops; rollback stays enabled (drop --express on older SAM CLI)
+sam deploy --express --stack-name alexa-chatgpt \
   --s3-bucket $S3_BUCKET_NAME \
   --parameter-overrides Runtime=provided.al2023 Handler=bootstrap Architecture=arm64 \
     CloudFlareAccountId=$CLOUDFLARE_ACCOUNT_ID CloudFlareAPIKey=$CLOUDFLARE_API_KEY \
