@@ -13,7 +13,7 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/jackmcguire1/alexa-chatgpt)](https://goreportcard.com/report/github.com/jackmcguire1/alexa-chatgpt)
 [![codecov](https://codecov.io/gh/jackmcguire1/alexa-chatgpt/branch/main/graph/badge.svg)](https://codecov.io/gh/jackmcguire1/alexa-chatgpt)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Go Version](https://img.shields.io/badge/Go-1.26+-blue.svg)](https://golang.org/dl/)
+[![Go Version](https://img.shields.io/badge/Go-1.27+-blue.svg)](https://golang.org/dl/)
 
 ## 🌟 Key Features
 
@@ -203,7 +203,7 @@ Translation uses Claude Sonnet via a system prompt — no separate model alias n
 ### Prerequisites
 
 - [Git][git]
-- [Go 1.26+][golang]
+- [Go 1.27+][golang]
 - [golangCI-Lint][golint]
 - [AWS CLI][aws-cli]
 - [AWS SAM CLI][aws-sam-cli]
