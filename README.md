@@ -364,7 +364,7 @@ Contributions are welcome! Please submit pull requests or open issues for bugs a
 ```bash
 go mod download
 go test ./... -race
-GOOS=linux GOARCH=arm64 go build -o bootstrap cmd/alexa/main.go
+GOOS=linux GOARCH=arm64 go build -o bootstrap ./cmd/alexa
 ```
 
 ### Adding New Models

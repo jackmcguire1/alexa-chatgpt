@@ -30,8 +30,8 @@ go test ./internal/api/... -v
 sam build --parameter-overrides Runtime=provided.al2023 Handler=bootstrap Architecture=arm64
 
 # Build locally (for ARM64 Lambda)
-GOOS=linux GOARCH=arm64 go build -o bootstrap cmd/alexa/main.go
-GOOS=linux GOARCH=arm64 go build -o bootstrap cmd/sqs/main.go
+GOOS=linux GOARCH=arm64 go build -o bootstrap ./cmd/alexa
+GOOS=linux GOARCH=arm64 go build -o bootstrap ./cmd/sqs
 ```
 
 ### Local Development & Testing
