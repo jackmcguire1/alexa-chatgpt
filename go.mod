@@ -1,6 +1,6 @@
 module github.com/jackmcguire1/alexa-chatgpt
 
-go 1.27.2
+go 1.27.3
 
 require (
 	github.com/aws/aws-lambda-go v1.55.1
